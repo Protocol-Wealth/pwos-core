@@ -4,8 +4,11 @@ Copyright 2026 Protocol Wealth, LLC
 This product includes software developed by Protocol Wealth, LLC
 (https://protocolwealthllc.com).
 
-This software is licensed under the Apache License, Version 2.0.
-A patent license is granted as part of the Apache 2.0 license terms.
-Protocol Wealth, LLC holds a defensive patent on the compliance-first
-AI operating system architecture described herein. The patent exists
-solely to prevent third parties from restricting use of this technology.
+Licensed under the Apache License, Version 2.0 with defensive patent grant.
+
+Patent Pending: USPTO Application #64/034,215
+"Compliance-First AI Operating System with Per-User PII Guard Pipeline
+and Immutable Audit Trail for SEC/FINRA-Regulated Financial Advisory Services"
+
+Protocol Wealth, LLC is a member of the Open Invention Network (OIN) 2.0.
+See PATENTS file for full non-assertion pledge.

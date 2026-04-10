@@ -1,0 +1,45 @@
+# Patent Non-Assertion Pledge
+
+Protocol Wealth, LLC ("PW") makes the following non-assertion pledge
+regarding patents it holds that cover the PWOS Core software:
+
+## Covered Patents
+
+1. **USPTO Application #64/034,215** (Filed April 9, 2026)
+   "Compliance-First AI Operating System with Per-User PII Guard Pipeline
+   and Immutable Audit Trail for SEC/FINRA-Regulated Financial Advisory Services"
+   Status: Patent Pending
+   Patent Center: https://patentcenter.uspto.gov/applications/64034215
+
+## Pledge
+
+PW pledges not to assert any of the above-listed patents against any party
+for making, using, selling, offering for sale, importing, or distributing
+software that is released under an OSI-approved open source license, provided
+that such party does not assert patents against PW or its affiliates.
+
+## Apache 2.0 Patent Grant
+
+Under the Apache License 2.0, every contributor grants a perpetual, worldwide,
+non-exclusive, no-charge, royalty-free, irrevocable patent license to make, use,
+sell, offer to sell, import, and otherwise transfer the Work. This grant terminates
+automatically if you institute patent litigation against any entity alleging that
+the Work constitutes patent infringement.
+
+## Open Invention Network
+
+Protocol Wealth, LLC is a member of the Open Invention Network (OIN) 2.0
+community. OIN is the world's largest patent non-aggression community with
+4,100+ members including Google, IBM, Toyota, Meta, Microsoft, and Amazon.
+
+- OIN Membership: https://openinventionnetwork.com/about-us/member-benefits/
+- License Agreement: https://openinventionnetwork.com/license-agreement-2/
+
+As an OIN member, PW agrees not to assert patents against Linux System
+components, and all OIN members agree not to assert patents against PW.
+
+## Intent
+
+These patents were filed defensively to establish formal prior art and prevent
+third parties from patenting these concepts and restricting their use by
+independent financial advisors, family offices, and the open source community.
