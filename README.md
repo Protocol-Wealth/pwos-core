@@ -5,6 +5,8 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](https://patentcenter.uspto.gov/applications/64034215)
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
+[![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 **Live:** [pwos.app](https://pwos.app) | **Demo:** [pwos.app/demo](https://pwos.app/demo) | **Disclosures:** [pwos.app/disclosures](https://pwos.app/disclosures)
 
@@ -23,11 +25,12 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Inline Tool Orchestration** — LLM autonomously selects and executes tools during chat (multi-turn, up to 5 rounds)
 - **Practice Management** — Task tracking, meeting notes with AI action item extraction, CRM integration
 - **Financial Calculator** — Compound interest, CAGR, mortgage, RMD, future/present value, rule of 72
-- **Document Reader** — Upload and analyze PDFs, CSVs, Excel, TXT, JSON
+- **Document Gen** — PDFs via pdfme/pdf-lib/react-pdf, Word via docx, PowerPoint via pptxgenjs
+- **Onchain Portfolio** — Viem + Wagmi for EVM wallets, DeFi positions, statements
+- **Workflow Engine** — Durable execution via Temporal or BullMQ
 - **Chart Generator** — SVG bar, pie, and line charts
-- **Export Generators** — CSV, PDF (branded reports), PPTX (presentations)
-- **Template System** — Reusable templates with variable substitution for proposals, meeting prep, research briefs
-- **Compliance Center** — AI tool inventory, PII dashboard, governance docs, disclosure management
+- **Template System** — Reusable templates with variable substitution
+- **Compliance Center** — AI tool inventory, PII dashboard, governance docs, email archiving (SEC 17a-4)
 - **Google OAuth + RBAC** — Role-based access (admin/partner/user/intern)
 - **Mobile Responsive** — Sidebar drawer, full-width chat, touch-optimized
 
@@ -39,12 +42,70 @@ PWOS Core (single deployment)
 ├── Hono 4 (API server, serves frontend)
 ├── 4-Layer PII Guard Pipeline
 ├── Tool Orchestration (extensible via HTTP)
+├── Document Generation (pdfme, pdf-lib, react-pdf, docx, pptxgenjs)
+├── Onchain SDK (Viem, Wagmi, Ox)
+├── Workflow Engine (BullMQ + optional Temporal)
+├── Email Archive (OpenArchiver integration for SEC 17a-4)
 ├── Gemma Engine (optional local AI)
 └── LLM API (Claude/GPT/Gemini with tool_use)
     ├── PostgreSQL (Drizzle ORM)
     ├── Redis (sessions)
     └── External integrations (HTTP)
 ```
+
+## Built on the Shoulders of Giants
+
+PWOS Core stands on a foundation of exceptional open-source projects. We bundle or extend these libraries with full attribution — see [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for complete legal notices.
+
+### Web Framework & Runtime
+- **[Hono](https://github.com/honojs/hono)** (MIT) — Edge-first web framework
+- **[React 19](https://github.com/facebook/react)** (MIT) — UI library
+- **[Vite](https://github.com/vitejs/vite)** (MIT) — Build tool + dev server
+- **[Zustand](https://github.com/pmndrs/zustand)** (MIT) — State management
+- **[Tailwind CSS](https://github.com/tailwindlabs/tailwindcss)** (MIT) — Utility CSS
+- **[Drizzle ORM](https://github.com/drizzle-team/drizzle-orm)** (Apache 2.0) — TypeScript ORM
+- **[jose](https://github.com/panva/jose)** (MIT) — JWT signing/verification
+- **[Zod](https://github.com/colinhacks/zod)** (MIT) — Schema validation
+
+### Document Generation
+- **[pdfme](https://github.com/pdfme/pdfme)** (MIT) — WYSIWYG PDF template designer (~10ms/report)
+- **[@react-pdf/renderer](https://github.com/diegomura/react-pdf)** (MIT) — React → PDF rendering
+- **[pdf-lib](https://github.com/Hopding/pdf-lib)** (MIT) — Modify existing PDFs (fill forms, merge)
+- **[pdfmake](https://github.com/bpampuch/pdfmake)** (MIT) — JSON-declarative PDFs
+- **[pdfkit](https://github.com/foliojs/pdfkit)** (MIT) — Programmatic PDF generation
+- **[docx](https://github.com/dolanmiu/docx)** (MIT) — Word documents
+- **[pptxgenjs](https://github.com/gitbrent/PptxGenJS)** (MIT) — PowerPoint presentations
+
+### Onchain Infrastructure
+- **[Viem](https://github.com/wevm/viem)** (MIT) — Type-safe Ethereum interactions
+- **[Wagmi](https://github.com/wevm/wagmi)** (MIT) — React hooks for wallet connection
+- **[Ox](https://github.com/wevm/ox)** (MIT) — Low-level Ethereum utilities
+
+### Workflow & Background Jobs
+- **[BullMQ](https://github.com/taskforcesh/bullmq)** (MIT) — Redis-backed job queue
+- **[Temporal](https://github.com/temporalio/temporal)** (MIT) — Durable execution engine
+- **[Trigger.dev](https://github.com/triggerdotdev/trigger.dev)** (MIT) — Background jobs with checkpoints
+- **[Activepieces](https://github.com/activepieces/activepieces)** (MIT) — Workflow automation with MCP servers
+
+### AI & LLM
+- **[@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript)** (MIT) — Claude SDK
+
+### File & Data Processing
+- **[csv-parse](https://github.com/adaltas/node-csv)** (MIT) — CSV parsing
+- **[pdf-parse](https://gitlab.com/autokent/pdf-parse)** (MIT) — PDF text extraction
+- **[exceljs](https://github.com/exceljs/exceljs)** (MIT) — Excel read/write
+
+### Reference Architecture (AGPL-3.0 code NOT copied — patterns only)
+- **[Twenty CRM](https://github.com/twentyhq/twenty)** (AGPL-3.0) — CRM custom object system
+- **[Ghostfolio](https://github.com/ghostfolio/ghostfolio)** (AGPL-3.0) — Portfolio data model
+- **[Wealthfolio](https://github.com/afadil/wealthfolio)** (AGPL-3.0) — React+Vite financial UI
+- **[Sure](https://github.com/we-promise/sure)** (AGPL-3.0) — MCP-exposed finance features
+- **[Firefly III](https://github.com/firefly-iii/firefly-iii)** (AGPL-3.0) — Double-entry bookkeeping API
+- **[Ignidash](https://github.com/schelskedevco/ignidash)** — AI-powered planning UI patterns
+- **[OpenArchiver](https://github.com/LogicLabs-OU/OpenArchiver)** — SEC 17a-4 email archiving
+- **[Wealthbot](https://github.com/wealthbot-io/wealthbot)** (MIT, dormant PHP) — RIA rebalancing/billing algorithms (ported to TS)
+
+**Huge thanks to every maintainer and contributor of these projects.** RIA software has historically been locked behind proprietary walls — PWOS Core would not exist without the open-source ecosystem.
 
 ## Quick Start
 
@@ -69,10 +130,11 @@ Open http://localhost:5173 — sign in with Google, start chatting.
 | Backend | Hono 4 + @hono/node-server |
 | Database | PostgreSQL + Drizzle ORM |
 | Cache | Redis (Upstash compatible) |
-| Auth | Google OAuth 2.0 → JWT |
+| Auth | Google OAuth 2.0 → JWT (jose) |
 | LLM | @anthropic-ai/sdk (extensible) |
 | PII | 31 regex + NER + financial recognizers + allow-list |
 | Validation | Zod 3 |
+| Workflow | BullMQ (lightweight) or Temporal (durable) |
 
 ## PII Guard Pipeline
 
@@ -88,6 +150,15 @@ Per-user modes: `off` | `warn` (confirm before send) | `block` (must remove PII)
 ## For RIAs and Advisors
 
 Deploy your own instance on Fly.io (~$62/month) with your own database. Your data stays yours. Every AI interaction is logged in an immutable audit trail. Export Books & Records as JSON for SEC examiners.
+
+## Documentation
+
+- [Architecture](docs/architecture.md)
+- [Packages Reference](docs/packages.md)
+- [Attribution](docs/attribution.md) — detailed provenance per capability
+- [Contributing](CONTRIBUTING.md)
+- [Code of Conduct](CODE_OF_CONDUCT.md)
+- [Security](SECURITY.md)
 
 ## Patent & IP
 
@@ -112,9 +183,21 @@ Apache License 2.0 — see [LICENSE](LICENSE).
 
 Apache 2.0 includes an explicit patent retaliation clause that MIT lacks. If someone sues you for patent infringement related to PWOS, their right to use the software terminates automatically. This is why we chose Apache 2.0 over MIT.
 
+**Third-party components retain their original licenses.** See [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
+
 ## Contributing
 
-PRs welcome. Please read the code conventions before contributing.
+We welcome contributions. All commits must include a `Signed-off-by:` line certifying agreement with the [Developer Certificate of Origin](https://developercertificate.org/):
+
+```bash
+git commit -s -m "feat: your change"
+```
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
+
+## Related
+
+- **[Nexus Core](https://github.com/Protocol-Wealth/nexus-core)** — Quantitative research engine ([nexusmcp.site](https://nexusmcp.site))
 
 ## Links
 

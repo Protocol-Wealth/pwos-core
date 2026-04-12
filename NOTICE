@@ -12,3 +12,158 @@ and Immutable Audit Trail for SEC/FINRA-Regulated Financial Advisory Services"
 
 Protocol Wealth, LLC is a member of the Open Invention Network (OIN) 2.0.
 See PATENTS file for full non-assertion pledge.
+
+================================================================================
+THIRD-PARTY COMPONENTS
+================================================================================
+
+This product bundles or derives from the following third-party open source
+software. Each component retains its original license. Full license text
+is in THIRD_PARTY_LICENSES.md.
+
+## Web Framework & Runtime
+
+- Hono (https://github.com/honojs/hono)
+  Copyright (c) 2022-2026 Yusuke Wada
+  Licensed under the MIT License
+
+- React (https://github.com/facebook/react)
+  Copyright (c) Meta Platforms, Inc. and affiliates
+  Licensed under the MIT License
+
+- Vite (https://github.com/vitejs/vite)
+  Copyright (c) 2019-present, VoidZero Inc. and Vite contributors
+  Licensed under the MIT License
+
+- Zustand (https://github.com/pmndrs/zustand)
+  Copyright (c) 2019 Paul Henschel
+  Licensed under the MIT License
+
+- Tailwind CSS (https://github.com/tailwindlabs/tailwindcss)
+  Copyright (c) Tailwind Labs, Inc.
+  Licensed under the MIT License
+
+- Drizzle ORM (https://github.com/drizzle-team/drizzle-orm)
+  Copyright (c) 2024 Drizzle Team
+  Licensed under the Apache License, Version 2.0
+
+- jose (https://github.com/panva/jose)
+  Copyright (c) 2018 Filip Skokan
+  Licensed under the MIT License
+
+## Document Generation
+
+- pdfme (https://github.com/pdfme/pdfme)
+  Copyright (c) 2022-2026 pdfme contributors
+  Licensed under the MIT License
+
+- @react-pdf/renderer (https://github.com/diegomura/react-pdf)
+  Copyright (c) 2017-2026 Diego Muracciole
+  Licensed under the MIT License
+
+- pdf-lib (https://github.com/Hopding/pdf-lib)
+  Copyright (c) 2017-2026 Andrew Dillon
+  Licensed under the MIT License
+
+- pdfmake (https://github.com/bpampuch/pdfmake)
+  Copyright (c) 2014-2026 bpampuch
+  Licensed under the MIT License
+
+- docx (https://github.com/dolanmiu/docx)
+  Copyright (c) 2016-2026 Dolan Miu
+  Licensed under the MIT License
+
+- pptxgenjs (https://github.com/gitbrent/PptxGenJS)
+  Copyright (c) 2015-2026 Brent Ely
+  Licensed under the MIT License
+
+- pdfkit (https://github.com/foliojs/pdfkit)
+  Copyright (c) 2014-2026 Devon Govett
+  Licensed under the MIT License
+
+## Onchain Infrastructure
+
+- Viem (https://github.com/wevm/viem)
+  Copyright (c) 2022-2026 wevm
+  Licensed under the MIT License
+
+- Wagmi (https://github.com/wevm/wagmi)
+  Copyright (c) 2022-2026 wevm
+  Licensed under the MIT License
+
+- Ox (https://github.com/wevm/ox)
+  Copyright (c) 2024-2026 wevm
+  Licensed under the MIT License
+
+## Workflow & Background Jobs
+
+- BullMQ (https://github.com/taskforcesh/bullmq)
+  Copyright (c) 2018-2026 Taskforce.sh
+  Licensed under the MIT License
+
+- Temporal TypeScript SDK (https://github.com/temporalio/sdk-typescript)
+  Copyright (c) 2020-2026 Temporal Technologies Inc.
+  Licensed under the MIT License
+
+- Trigger.dev (https://github.com/triggerdotdev/trigger.dev)
+  Copyright (c) 2022-2026 Trigger.dev
+  Licensed under the MIT License
+
+- Activepieces (https://github.com/activepieces/activepieces)
+  Copyright (c) 2022-2026 Activepieces
+  Licensed under the MIT License
+
+## AI & LLM
+
+- @anthropic-ai/sdk (https://github.com/anthropics/anthropic-sdk-typescript)
+  Copyright (c) 2023-2026 Anthropic, PBC
+  Licensed under the MIT License
+
+## File & Data Processing
+
+- csv-parse (https://github.com/adaltas/node-csv)
+  Copyright (c) 2010-2026 Adaltas
+  Licensed under the MIT License
+
+- pdf-parse (https://gitlab.com/autokent/pdf-parse)
+  Copyright (c) Modesty Zhang
+  Licensed under the MIT License
+
+- exceljs (https://github.com/exceljs/exceljs)
+  Copyright (c) 2016-2026 ExcelJS Contributors
+  Licensed under the MIT License
+
+## Validation
+
+- Zod (https://github.com/colinhacks/zod)
+  Copyright (c) 2020-2026 Colin McDonnell
+  Licensed under the MIT License
+
+## Reference Architecture (AGPL-3.0 code NOT copied, patterns only)
+
+The following AGPL-3.0 projects informed our architecture but contain NO
+copied code. Their patterns and designs are credited as inspiration:
+
+- Twenty CRM (https://github.com/twentyhq/twenty) - AGPL-3.0
+  CRM custom object system and workflow automation patterns
+
+- Ghostfolio (https://github.com/ghostfolio/ghostfolio) - AGPL-3.0
+  Portfolio data model patterns (Prisma schema reference)
+
+- Wealthfolio (https://github.com/afadil/wealthfolio) - AGPL-3.0
+  React+Vite financial dashboard UI patterns
+
+- Sure (https://github.com/we-promise/sure) - AGPL-3.0
+  MCP-exposed personal finance features
+
+- Firefly III (https://github.com/firefly-iii/firefly-iii) - AGPL-3.0
+  Double-entry bookkeeping REST API patterns
+
+- Ignidash (https://github.com/schelskedevco/ignidash) - check license
+  AI-powered financial planning UI patterns
+
+- OpenArchiver (https://github.com/LogicLabs-OU/OpenArchiver) - check license
+  SEC Rule 17a-4 email archiving patterns
+
+- Wealthbot (https://github.com/wealthbot-io/wealthbot) - MIT (dormant PHP)
+  RIA rebalancing and billing algorithms (ported to TypeScript)

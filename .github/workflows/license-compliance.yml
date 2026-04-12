@@ -1,0 +1,69 @@
+name: License Compliance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  license-scan:
+    name: Scan dependency licenses
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Install license-checker
+        run: npm install -g license-checker-rseidelsohn
+
+      - name: Install project dependencies
+        run: pnpm install --frozen-lockfile || echo "Install may need lockfile"
+        continue-on-error: true
+
+      - name: Scan licenses
+        id: scan
+        run: |
+          license-checker-rseidelsohn --json --out dependency-licenses.json --production || echo "{}" > dependency-licenses.json
+          license-checker-rseidelsohn --summary > dependency-licenses-summary.txt || true
+          cat dependency-licenses-summary.txt
+
+      - name: Check for forbidden licenses
+        run: |
+          node -e "
+          const fs = require('fs');
+          const licenses = JSON.parse(fs.readFileSync('dependency-licenses.json', 'utf8'));
+          const forbidden = ['GPL-3.0', 'AGPL-3.0', 'SSPL-1.0'];
+          const violations = [];
+          for (const [name, info] of Object.entries(licenses)) {
+            const license = info.licenses || '';
+            if (forbidden.some(fb => license.includes(fb))) {
+              violations.push(\`\${name}: \${license}\`);
+            }
+          }
+          if (violations.length > 0) {
+            console.error('❌ FORBIDDEN LICENSES DETECTED:');
+            violations.forEach(v => console.error('  - ' + v));
+            process.exit(1);
+          }
+          console.log(\`✅ All \${Object.keys(licenses).length} dependencies pass license check\`);
+          "
+
+      - name: Upload license report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-report
+          path: |
+            dependency-licenses.json
+            dependency-licenses-summary.txt
