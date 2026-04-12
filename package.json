@@ -1,0 +1,43 @@
+{
+  "name": "pwos-core",
+  "version": "0.1.0",
+  "description": "Open source compliance-first AI operating system for SEC-registered investment advisers",
+  "private": true,
+  "license": "Apache-2.0",
+  "author": "Protocol Wealth, LLC <opensource@protocolwealthllc.com>",
+  "homepage": "https://pwos.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Protocol-Wealth/pwos-core.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "keywords": [
+    "ria",
+    "sec-compliance",
+    "ai",
+    "pii-detection",
+    "audit-trail",
+    "mcp",
+    "wealth-management",
+    "fintech"
+  ],
+  "engines": {
+    "node": ">=22",
+    "pnpm": ">=9"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "pnpm -r build",
+    "dev": "pnpm --parallel dev",
+    "test": "pnpm -r test",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "licenses:check": "npx license-checker-rseidelsohn --summary --production"
+  },
+  "packageManager": "pnpm@9.0.0"
+}
