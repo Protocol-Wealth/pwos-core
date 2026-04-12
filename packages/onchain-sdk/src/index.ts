@@ -1,23 +1,47 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * @pwos/onchain-sdk
  *
- * Onchain portfolio tracking with wallet-to-client association, DeFi
- * position categorization for RIA compliance, and audit-trail integration
- * for every on-chain read.
+ * Typed client + models for an on-chain portfolio tracking service. Intended
+ * for advisor-side platforms that aggregate wallet data, DeFi positions,
+ * daily snapshots, and performance windows.
  *
- * Third-party libraries (all from wevm team):
- * - Viem (MIT) - https://github.com/wevm/viem
- *   Type-safe Ethereum interactions
- * - Wagmi (MIT) - https://github.com/wevm/wagmi
- *   React hooks for wallet connection
- * - Ox (MIT) - https://github.com/wevm/ox
- *   Low-level Ethereum utilities
+ * Usage::
  *
- * Our original work: client-wallet association model, DeFi position
- * categorization (staking/lending/LP/farming), audit-logged reads.
+ *     import { OnchainPortfolioClient } from "@pwos/onchain-sdk";
  *
- * Copyright 2026 Protocol Wealth, LLC
- * Licensed under Apache 2.0
+ *     const client = new OnchainPortfolioClient({
+ *       baseUrl: "https://your-portfolio-service.example.com",
+ *       apiKey: process.env.PORTFOLIO_API_KEY,
+ *     });
+ *
+ *     const clients = await client.listClients();
+ *     const balance = await client.getBalance("wallet_id");
+ *
+ * Adapts to any HTTP service that speaks the documented endpoint shape —
+ * or wrap a different vendor (DeBank, Zerion, Covalent) behind the same
+ * interface by subclassing and overriding ``request``.
  */
 
 export const VERSION = "0.1.0";
+
+export {
+  OnchainClientError,
+  OnchainPortfolioClient,
+  type OnchainClientOptions,
+  type PerformancePeriod,
+} from "./client.js";
+
+export type {
+  ChainType,
+  OnchainBalance,
+  OnchainClient,
+  OnchainGroup,
+  OnchainSnapshot,
+  OnchainWallet,
+  PerformanceWindow,
+  PortfolioSummary,
+  ProtocolPosition,
+  TokenBalance,
+} from "./types.js";

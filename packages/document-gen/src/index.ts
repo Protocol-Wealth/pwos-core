@@ -1,30 +1,64 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * @pwos/document-gen
  *
- * Unified document generation: PDFs, Word, PowerPoint with PW branding,
- * compliance watermarks, and data model binding.
+ * Document model + renderer interface for advisor reports. The package
+ * ships a clean type hierarchy, RFC 4180 CSV generation, and a built-in
+ * plain-text renderer. Actual PDF / PPTX / DOCX rendering happens behind
+ * the ``DocumentRenderer`` interface — pick a library (pdfkit, docx,
+ * pptxgenjs) and wire it up, or use a prebuilt adapter.
  *
- * Third-party libraries:
- * - pdfme (MIT) - https://github.com/pdfme/pdfme
- *   WYSIWYG PDF template designer, sub-10ms rendering
- * - @react-pdf/renderer (MIT) - https://github.com/diegomura/react-pdf
- *   React components to PDF
- * - pdf-lib (MIT) - https://github.com/Hopding/pdf-lib
- *   PDF modification (fill forms, merge)
- * - pdfmake (MIT) - https://github.com/bpampuch/pdfmake
- *   JSON-declarative PDFs
- * - pdfkit (MIT) - https://github.com/foliojs/pdfkit
- *   Programmatic PDFs
- * - docx (MIT) - https://github.com/dolanmiu/docx
- *   Word documents
- * - pptxgenjs (MIT) - https://github.com/gitbrent/PptxGenJS
- *   PowerPoint presentations
+ * Minimum usage::
  *
- * Our original work: unified API, PW branding templates, compliance
- * watermarks, data binding helpers.
+ *     import { PlainTextRenderer, type Document } from "@pwos/document-gen";
  *
- * Copyright 2026 Protocol Wealth, LLC
- * Licensed under Apache 2.0
+ *     const doc: Document = {
+ *       title: "Q1 Portfolio Review",
+ *       blocks: [
+ *         { type: "heading", level: 1, text: "Summary" },
+ *         { type: "paragraph", text: "Positive quarter." },
+ *         { type: "table",
+ *           headers: ["Asset", "Weight"],
+ *           rows: [["AAPL", "20%"], ["MSFT", "15%"]] },
+ *       ],
+ *     };
+ *
+ *     const text = new PlainTextRenderer().render(doc);
+ *
+ * CSV usage::
+ *
+ *     import { objectsToCsv } from "@pwos/document-gen";
+ *     const csv = objectsToCsv([{ a: 1, b: 2 }, { a: 3, b: 4 }]);
+ *
+ * Third-party library integration examples are documented in the package
+ * README. Renderers live in user code so only the libraries you actually
+ * use end up in your bundle.
  */
 
 export const VERSION = "0.1.0";
+
+export {
+  escapeCsvField,
+  objectsToCsv,
+  rowsToCsv,
+  type CsvOptions,
+} from "./csv.js";
+
+export {
+  PlainTextRenderer,
+  type DocumentRenderer,
+} from "./renderer.js";
+
+export type {
+  Block,
+  Document,
+  HeadingBlock,
+  ImageBlock,
+  ListBlock,
+  PageBreakBlock,
+  ParagraphBlock,
+  ParagraphStyle,
+  SpacerBlock,
+  TableBlock,
+} from "./types.js";
