@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — mcp-tools extension
+
+**@pwos/mcp-tools** — library-agnostic MCP tool primitives:
+- `ToolDefinition` / `JsonSchema` / `ObjectSchema` / `ToolAnnotations` / `ToolResult` types
+- `ToolTier` enum (`PUBLIC` / `ADVISOR` / `CLIENT_FILTERED` / `SENSITIVE`) with `tierRank`, `isAuthorizedFor`, `tierFilter`
+- `ToolRegistry` class with `register` / `registerAll` / `upsert` / `find` / `get` / `unregister` / `listForTier` / `listByTags`, plus `ToolNameConflictError` and `ToolNotFoundError`
+- Response-filter pipeline (`ResponseFilter` type, `applyFilters` runner) with built-ins:
+  - `disclaimerFilter` — attach SEC-compliant text to successful responses
+  - `piiRedactionFilter` — mask PII for CLIENT_FILTERED tier (plugs in @pwos/pii-guard)
+  - `publicTierSanitizer` — replace directive language (STRONG BUY → STRONG) for public tier
+  - `observerFilter` — audit / metrics hook that cannot block the response path
+- Anthropic adapter: `toAnthropicTool` / `toAnthropicTools` emit plain objects shaped for the Messages API — no runtime dep on `@anthropic-ai/sdk`. Strips non-standard JSON-Schema keys.
+- 22 vitest unit tests, typecheck clean
+
 ### Added — Phase 3b (pii-guard + audit-log + onchain-sdk + document-gen)
 
 **@pwos/pii-guard** — 4-layer PII scanning pipeline:

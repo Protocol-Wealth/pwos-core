@@ -37,5 +37,8 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Local storage (accidental pnpm paths on Windows/WSL)
-C:\\
+# Local storage (accidental pnpm cache paths created on WSL when pnpm
+# interprets Windows-style paths literally — the entire top-level dir is
+# junk that gets regenerated on install; never commit).
+C:\\*
+/C:*
