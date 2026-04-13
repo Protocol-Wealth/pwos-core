@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/workflow-engine
+ * @protocolwealthos/workflow-engine
  *
  * Storage-agnostic durable-job runtime with retries, backoff, and
  * pluggable queue backends. Ships an in-memory queue for tests +
@@ -14,7 +14,7 @@
  *       Worker,
  *       InMemoryJobQueue,
  *       PermanentJobError,
- *     } from "@pwos/workflow-engine";
+ *     } from "@protocolwealthos/workflow-engine";
  *
  *     const queue = new InMemoryJobQueue();
  *     const worker = new Worker({ queue });

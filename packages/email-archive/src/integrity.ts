@@ -6,11 +6,11 @@
  * Each archived email carries a SHA-256 of the canonical record
  * (fields that affect content / timing / custody) plus the previous
  * record's hash. Tampering with any historical record breaks every
- * downstream hash — the same Merkle-lite pattern @pwos/audit-log uses.
+ * downstream hash — the same Merkle-lite pattern @protocolwealthos/audit-log uses.
  *
  * Useful when the underlying storage is not intrinsically WORM (e.g.,
  * a relational DB). Pair with object-lock storage and signed export
- * bundles (@pwos/compliance BooksAndRecordsBundle) for defensible
+ * bundles (@protocolwealthos/compliance BooksAndRecordsBundle) for defensible
  * SEC Rule 17a-4 evidence.
  */
 

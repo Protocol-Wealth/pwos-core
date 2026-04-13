@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/email-archive
+ * @protocolwealthos/email-archive
  *
  * Email-archive primitives for SEC Rule 17a-4 / Rule 204-2 compliance:
  * typed archive records with chain-of-custody hashing, retention

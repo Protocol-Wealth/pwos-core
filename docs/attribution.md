@@ -49,7 +49,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[docx](https://github.com/dolanmiu/docx)** by Dolan Miu (MIT) — Word document generation
 - **[pptxgenjs](https://github.com/gitbrent/PptxGenJS)** by Brent Ely (MIT) — PowerPoint generation
 
-**Our original work:** `@pwos/document-gen` package that wraps all of these with unified branding templates, compliance watermarks, and data model binding.
+**Our original work:** `@protocolwealthos/document-gen` package that wraps all of these with unified branding templates, compliance watermarks, and data model binding.
 
 ### Onchain Infrastructure
 
@@ -58,7 +58,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[Wagmi](https://github.com/wevm/wagmi)** (MIT) — React hooks for wallet connection
 - **[Ox](https://github.com/wevm/ox)** (MIT) — Low-level Ethereum utilities
 
-**Our original work:** `@pwos/onchain-sdk` package with wallet-to-client association model, DeFi position categorization for RIA compliance, and audit-trail integration for every on-chain read.
+**Our original work:** `@protocolwealthos/onchain-sdk` package with wallet-to-client association model, DeFi position categorization for RIA compliance, and audit-trail integration for every on-chain read.
 
 ### Workflow Engine
 
@@ -68,7 +68,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[Trigger.dev](https://github.com/triggerdotdev/trigger.dev)** (MIT) — Background jobs with checkpoint-resume
 - **[Activepieces](https://github.com/activepieces/activepieces)** (MIT) — Workflow automation + MCP servers
 
-**Our original work:** `@pwos/workflow-engine` that wraps BullMQ for lightweight jobs and Temporal for mission-critical flows (client onboarding, regulatory filings), with audit-trail integration.
+**Our original work:** `@protocolwealthos/workflow-engine` that wraps BullMQ for lightweight jobs and Temporal for mission-critical flows (client onboarding, regulatory filings), with audit-trail integration.
 
 ### AI & LLM Integration
 
@@ -89,7 +89,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
   - Relationship-centric data model
   - Life event tracking
 
-**Our original work:** `@pwos/crm` package with household relationship graph, interaction logging, opportunity pipeline — all TypeScript/Drizzle/PostgreSQL native, no code copied from AGPL sources.
+**Our original work:** `@protocolwealthos/crm` package with household relationship graph, interaction logging, opportunity pipeline — all TypeScript/Drizzle/PostgreSQL native, no code copied from AGPL sources.
 
 ### Portfolio Module (Planned)
 
@@ -117,14 +117,14 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[Ignidash](https://github.com/schelskedevco/ignidash)** — AI-powered planning UI (Monte Carlo + AI chat)
 - **[SquirrelPlan](https://github.com/skapebolt/SquirrelPlan)** — Client-side planning UI patterns
 
-**Our original work:** `@pwos/planning-ui` package with regime-aware projections, tax-optimized withdrawal strategies.
+**Our original work:** `@protocolwealthos/planning-ui` package with regime-aware projections, tax-optimized withdrawal strategies.
 
 ### Compliance Module (Planned)
 
 **Fully attributed to:**
 - **[OpenArchiver](https://github.com/LogicLabs-OU/OpenArchiver)** (check license) — SEC Rule 17a-4 email archiving
 
-**Our original work:** `@pwos/compliance` package with AI tool inventory, PII incident tracking, SEC exam export, per-advisor PII mode tracking.
+**Our original work:** `@protocolwealthos/compliance` package with AI tool inventory, PII incident tracking, SEC exam export, per-advisor PII mode tracking.
 
 ---
 

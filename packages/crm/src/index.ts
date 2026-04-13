@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/crm
+ * @protocolwealthos/crm
  *
  * Advisor CRM primitives — contacts, households, interactions,
  * opportunities, tasks — plus status/aging helpers for dashboard

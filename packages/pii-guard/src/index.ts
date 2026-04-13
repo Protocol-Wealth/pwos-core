@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/pii-guard
+ * @protocolwealthos/pii-guard
  *
  * 4-layer PII scanning pipeline for LLM-bound content. Defensive patent:
  * USPTO #64/034,215.
@@ -15,7 +15,7 @@
  *
  * Quick start::
  *
- *     import { scan, rehydrate } from "@pwos/pii-guard";
+ *     import { scan, rehydrate } from "@protocolwealthos/pii-guard";
  *
  *     const result = await scan("Account #12345678 for John Doe");
  *     // result.sanitizedText: "Account #<ACCOUNT_NUMBER_1> for <EMAIL_1>"

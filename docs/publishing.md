@@ -10,7 +10,7 @@ The flow is:
 2. On merge to `main`, the release workflow opens (or updates) a single
    "Version Packages" PR that bumps versions + writes CHANGELOG entries.
 3. When you merge that PR, the same workflow runs `changeset publish` and
-   the new versions land on npm under the `@pwos` scope.
+   the new versions land on npm under the `@protocolwealthos` scope.
 
 You don't push tags or run `npm publish` by hand.
 
@@ -18,21 +18,25 @@ You don't push tags or run `npm publish` by hand.
 
 ## One-time setup (human steps)
 
-### 1. Claim the `@pwos` scope on npm
+### 1. Claim the `@protocolwealthos` scope on npm ✅ (already done)
 
-The scope is currently unclaimed. Until you claim it, no `@pwos/*`
-package can be published.
+Status as of 2026-04-13: both `@protocolwealthos` and `@protocolwealth`
+orgs are registered under the Protocol Wealth npm account.
+
+For reference, the one-time steps were:
 
 1. Sign in at <https://www.npmjs.com/login> with the account that should
-   own the scope (use the `opensource@protocolwealthllc.com` group inbox
-   if you have one — easier to hand off later than a personal account).
+   own the scope (ideally a group inbox — easier to hand off than a
+   personal account).
 2. Verify the email on the account.
 3. Enable 2FA: <https://www.npmjs.com/settings/~/profile> →
    **Two-factor authentication** → "Authorization and Publishing".
 4. Create the org: <https://www.npmjs.com/org/create>
-   - Org name: `pwos`
+   - Org name: `protocolwealthos`
    - Plan: **Free** (lets you publish unlimited public packages — paid
      is only needed for private packages).
+
+Org page: <https://www.npmjs.com/org/protocolwealthos>
 
 ### 2. Generate an Automation token
 
@@ -47,12 +51,18 @@ it for the publish step. Use **Automation** type — it works with
 4. Copy the token. **You only see it once** — paste it somewhere safe
    for the next step.
 
-### 3. Add the token to GitHub Actions secrets
+### 3. Add the token to GitHub Actions secrets ✅ (already done)
 
 1. <https://github.com/Protocol-Wealth/pwos-core/settings/secrets/actions>
 2. **New repository secret**
-3. Name: `NPM_TOKEN`
+3. Name: `NPM_API_KEY`
 4. Value: the automation token from step 2
+
+Note on naming: the repo secret is `NPM_API_KEY` per the maintainer's
+convention. The release workflow maps this into both `NODE_AUTH_TOKEN`
+(the canonical env var `npm publish` reads automatically) and `NPM_TOKEN`
+(for any tooling that checks the legacy name). Either way, one secret,
+two env vars at publish time.
 
 ### 4. Verify Actions has write permission for PRs
 
@@ -105,10 +115,10 @@ Review the PR. Merge when satisfied. The same workflow then runs
 
 ### After publish
 
-- New versions appear under <https://www.npmjs.com/org/pwos>
-- Consumers update via `pnpm add @pwos/pii-guard@latest` (or whatever
+- New versions appear under <https://www.npmjs.com/org/protocolwealthos>
+- Consumers update via `pnpm add @protocolwealthos/pii-guard@latest` (or whatever
   package they need)
-- Each release commit is tagged automatically (e.g., `@pwos/pii-guard@0.2.0`)
+- Each release commit is tagged automatically (e.g., `@protocolwealthos/pii-guard@0.2.0`)
 
 ---
 
@@ -121,7 +131,7 @@ pnpm install
 pnpm build
 pnpm changeset:version    # rewrites package.json versions + CHANGELOGs
 git add -A && git commit -m "chore(release): version packages"
-NPM_TOKEN=<token> pnpm changeset:publish
+NPM_API_KEY=<token> pnpm changeset:publish
 git push origin main --tags
 ```
 
@@ -150,6 +160,6 @@ which is set in `release.yml`.
   manages them.
 - Don't run `npm publish` directly — the workflow handles it.
 - The `restricted` access in `.changeset/config.json` was changed to
-  `public` so packages publish under `@pwos` scope as public packages.
+  `public` so packages publish under `@protocolwealthos` scope as public packages.
 - All packages share `pnpm-lock.yaml` at the root; the release workflow
   uses `--frozen-lockfile` so any lockfile drift fails CI.

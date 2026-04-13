@@ -6,7 +6,7 @@
  * SEC Rule 17a-4 requires 3-6 year retention depending on record class
  * (e.g. customer records 6 years, trade confirmations 6 years, internal
  * audit records 3 years). Investment advisers under Rule 204-2 face
- * minimum 5 years. Use ``@pwos/compliance.RetentionCalculator`` for
+ * minimum 5 years. Use ``@protocolwealthos/compliance.RetentionCalculator`` for
  * general retention math; this module is archive-specific: which
  * archived emails can be purged as of ``now``?
  */

@@ -1,5 +1,5 @@
 {
-  "name": "@pwos/crm",
+  "name": "@protocolwealthos/crm",
   "version": "0.1.0",
   "description": "Advisor CRM primitives: contact/household/interaction/opportunity/task types with status and aging helpers",
   "license": "Apache-2.0",

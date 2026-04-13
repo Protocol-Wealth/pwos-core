@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/document-gen
+ * @protocolwealthos/document-gen
  *
  * Document model + renderer interface for advisor reports. The package
  * ships a clean type hierarchy, RFC 4180 CSV generation, and a built-in
@@ -11,7 +11,7 @@
  *
  * Minimum usage::
  *
- *     import { PlainTextRenderer, type Document } from "@pwos/document-gen";
+ *     import { PlainTextRenderer, type Document } from "@protocolwealthos/document-gen";
  *
  *     const doc: Document = {
  *       title: "Q1 Portfolio Review",
@@ -28,7 +28,7 @@
  *
  * CSV usage::
  *
- *     import { objectsToCsv } from "@pwos/document-gen";
+ *     import { objectsToCsv } from "@protocolwealthos/document-gen";
  *     const csv = objectsToCsv([{ a: 1, b: 2 }, { a: 3, b: 4 }]);
  *
  * Third-party library integration examples are documented in the package

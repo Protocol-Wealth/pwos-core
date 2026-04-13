@@ -1,5 +1,5 @@
 {
-  "name": "@pwos/mcp-tools",
+  "name": "@protocolwealthos/mcp-tools",
   "version": "0.1.0",
   "description": "MCP tool definitions, registry, tier classification, and response-filter pipeline for advisor-platform LLM orchestration",
   "license": "Apache-2.0",

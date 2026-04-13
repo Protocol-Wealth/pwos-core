@@ -1,5 +1,5 @@
 {
-  "name": "@pwos/document-gen",
+  "name": "@protocolwealthos/document-gen",
   "version": "0.1.0",
   "description": "Document model + CSV generator + renderer interface for advisor reports",
   "license": "Apache-2.0",

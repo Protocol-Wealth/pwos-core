@@ -47,7 +47,7 @@ export interface RetentionPolicy {
 // AI Tool Inventory (SEC examiners increasingly ask for this)
 // ──────────────────────────────────────────────────────────────────────
 
-/** Access tier a tool is available at — matches @pwos/mcp-tools ToolTier. */
+/** Access tier a tool is available at — matches @protocolwealthos/mcp-tools ToolTier. */
 export type ToolAccessTier = "public" | "advisor" | "client_filtered" | "sensitive";
 
 /** Record describing one AI tool the firm uses. */
