@@ -1,20 +1,38 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * @pwos/crm
  *
- * Client relationship management: contacts, households, interactions,
- * opportunities, tasks, workflows.
- *
- * Reference architecture (AGPL-3.0 code NOT copied - patterns only):
- * - Twenty CRM - https://github.com/twentyhq/twenty
- *   Custom object system and workflow automation patterns
- * - Monica - https://github.com/monicahq/monica
- *   Relationship-centric data model for life events
- *
- * Our original work: household relationship graph, interaction logging,
- * opportunity pipeline - all TypeScript/Drizzle/PostgreSQL native.
- *
- * Copyright 2026 Protocol Wealth, LLC
- * Licensed under Apache 2.0
+ * Advisor CRM primitives — contacts, households, interactions,
+ * opportunities, tasks — plus status/aging helpers for dashboard
+ * computation. Storage-agnostic: downstream projects map these types
+ * to whatever schema they use.
  */
 
 export const VERSION = "0.1.0";
+
+export {
+  groupByLifecycle,
+  isOverdueTask,
+  isStaleContact,
+  isStalledOpportunity,
+  overdueTasks,
+  pipelineValueByStage,
+  staleContacts,
+  stalledOpportunities,
+} from "./status.js";
+
+export type {
+  Contact,
+  ContactKind,
+  CrmTask,
+  Household,
+  Interaction,
+  InteractionChannel,
+  InteractionDirection,
+  LifecycleStage,
+  Opportunity,
+  OpportunityStage,
+  RelationshipType,
+  TaskStatus,
+} from "./types.js";

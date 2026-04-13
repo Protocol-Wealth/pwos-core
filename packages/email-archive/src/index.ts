@@ -1,22 +1,39 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * @pwos/email-archive
  *
- * SEC Rule 17a-4 email archiving with encrypted storage, full-text
- * search/eDiscovery, retention policy management, and file hash
- * integrity verification.
+ * Email-archive primitives for SEC Rule 17a-4 / Rule 204-2 compliance:
+ * typed archive records with chain-of-custody hashing, retention
+ * eligibility checks, and an in-memory query evaluator useful for
+ * tests and eDiscovery prototypes.
  *
- * Integrates with OpenArchiver as the archival backend.
- *
- * Third-party:
- * - OpenArchiver (check license) - https://github.com/LogicLabs-OU/OpenArchiver
- *   TypeScript-native email archiving for Google Workspace, M365,
- *   PST, IMAP. Directly addresses SEC Rule 17a-4 / 204-2.
- *
- * Our original work: integration layer with PWOS audit trail, per-advisor
- * retention policies, compliance export format.
- *
- * Copyright 2026 Protocol Wealth, LLC
- * Licensed under Apache 2.0
+ * Storage is the caller's responsibility — pair these primitives with
+ * object-lock S3, an immutable DB table, or a dedicated archive
+ * backend. WORM guarantees come from the storage layer, not this
+ * package.
  */
 
 export const VERSION = "0.1.0";
+
+export {
+  canonicalize,
+  finalizeRecord,
+  hashEmail,
+  verifyChain,
+} from "./integrity.js";
+
+export {
+  evaluateQuery,
+  isPurgeable,
+  purgeableEmails,
+} from "./retention.js";
+
+export type {
+  ArchivedEmail,
+  ArchiveQuery,
+  EmailAddress,
+  EmailAttachment,
+  EmailClassification,
+  EmailDirection,
+} from "./types.js";

@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Phase 3b completion (compliance / workflow-engine / crm / email-archive)
+
+Five remaining pwos-core stubs from Phase 3b were extended into
+production-ready primitive packages on April 13. Combined with mcp-tools
+(below), this completes the 9-package OSS surface area for pwos-core.
+
+**@pwos/compliance** — SEC Rule 204-2 primitives:
+- `RetentionCalculator` with 7 default policies (advisory 5y, audit 7y, etc.)
+- `BooksAndRecordsBundle` with SHA-256 chain-of-custody hashes per section
+- `evaluateCalendar` for annual/quarterly/monthly recurring obligations
+- `classifySeverity` + `summarize` + `notifiableIncidents` for PII tracking
+- `policyStatus` / `vendorStatus` + `policiesNeedingReview` / `vendorsNeedingReview`
+- 26 vitest tests, typecheck clean
+
+**@pwos/workflow-engine** — durable-job runtime:
+- `Job` / `JobQueue` / `JobHandler` / `Worker` types and primitives
+- Backoff: `fixed` / `linear` / `exponential` (+cap) with jitter decorators
+- `InMemoryJobQueue` with priority, runAfter, idempotency keys
+- `Worker` with retry policy, `PermanentJobError` short-circuit, observer hook
+- 24 vitest tests, typecheck clean
+
+**@pwos/crm** — advisor CRM types + status helpers:
+- Contact / Household / Interaction / Opportunity / CrmTask types
+- `isStaleContact` / `isOverdueTask` / `isStalledOpportunity` predicates + filters
+- `groupByLifecycle` / `pipelineValueByStage` aggregations
+- 15 vitest tests, typecheck clean
+
+**@pwos/email-archive** — SEC Rule 17a-4 primitives:
+- `ArchivedEmail` / `ArchiveQuery` / `EmailAttachment` types
+- `hashEmail` + `finalizeRecord` + `verifyChain` for chain-of-custody
+- `isPurgeable` + `purgeableEmails` for retention enforcement
+- `evaluateQuery` in-memory eDiscovery evaluator
+- 14 vitest tests, typecheck clean
+
 ### Added — mcp-tools extension
 
 **@pwos/mcp-tools** — library-agnostic MCP tool primitives:
