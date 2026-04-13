@@ -3,6 +3,15 @@
   "version": "0.2.0",
   "description": "Document model + CSV generator + renderer interface for advisor reports",
   "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/document-gen#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "packages/document-gen"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
