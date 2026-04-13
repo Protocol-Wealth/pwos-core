@@ -1,24 +1,64 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * @pwos/workflow-engine
  *
- * Durable workflow execution with BullMQ (lightweight) and Temporal
- * (mission-critical).
+ * Storage-agnostic durable-job runtime with retries, backoff, and
+ * pluggable queue backends. Ships an in-memory queue for tests +
+ * local dev; production deployments implement ``JobQueue`` against
+ * Redis (BullMQ), Postgres, SQS, or Temporal.
  *
- * Third-party libraries:
- * - BullMQ (MIT) - https://github.com/taskforcesh/bullmq
- *   Redis-backed job queue with scheduled/repeatable jobs
- * - Temporal TypeScript SDK (MIT) - https://github.com/temporalio/sdk-typescript
- *   Durable execution engine for mission-critical workflows
- * - Trigger.dev (MIT) - https://github.com/triggerdotdev/trigger.dev
- *   Background jobs with checkpoint-resume
- * - Activepieces (MIT) - https://github.com/activepieces/activepieces
- *   Workflow automation with MCP servers
+ * Quick start::
  *
- * Our original work: unified API, audit-trail integration on every
- * workflow step, compliance-gated workflow outputs.
+ *     import {
+ *       Worker,
+ *       InMemoryJobQueue,
+ *       PermanentJobError,
+ *     } from "@pwos/workflow-engine";
  *
- * Copyright 2026 Protocol Wealth, LLC
- * Licensed under Apache 2.0
+ *     const queue = new InMemoryJobQueue();
+ *     const worker = new Worker({ queue });
+ *
+ *     worker.register("send_email", async (ctx) => {
+ *       await deliver(ctx.job.payload);
+ *     });
+ *
+ *     await queue.enqueue("send_email", { to: "user@x.com" });
+ *     await worker.processOne();
+ *
+ * Third-party compatibility:
+ * - BullMQ (MIT) — implement JobQueue wrapping ``bullmq.Queue`` + ``Worker``
+ * - Temporal (MIT) — wrap workflows as jobs with Temporal signaling
+ * - Trigger.dev (MIT) — similar adapter pattern
  */
 
 export const VERSION = "0.1.0";
+
+export {
+  type BackoffStrategy,
+  exponential,
+  fixed,
+  linear,
+  withEqualJitter,
+  withFullJitter,
+} from "./backoff.js";
+
+export { InMemoryJobQueue } from "./memoryQueue.js";
+
+export {
+  PermanentJobError,
+  type EnqueueOptions,
+  type Job,
+  type JobAttempt,
+  type JobContext,
+  type JobHandler,
+  type JobQueue,
+  type JobState,
+  type ProgressReporter,
+} from "./types.js";
+
+export {
+  type WorkerEvent,
+  type WorkerOptions,
+  Worker,
+} from "./worker.js";
