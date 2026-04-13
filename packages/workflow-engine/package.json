@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/workflow-engine",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Storage-agnostic durable-job runtime with retries, backoff strategies, and pluggable queue backends (in-memory shipped; BullMQ/Temporal/etc. via adapter)",
   "license": "Apache-2.0",
   "type": "module",

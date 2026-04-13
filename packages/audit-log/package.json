@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/audit-log",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Append-only audit log with SHA-256 hash chaining for SEC Rule 204-2 compliance",
   "license": "Apache-2.0",
   "type": "module",
