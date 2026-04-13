@@ -1,5 +1,5 @@
 {
-  "name": "@pwos/pii-guard",
+  "name": "@protocolwealthos/pii-guard",
   "version": "0.1.0",
   "description": "4-layer PII scanning pipeline for LLM-bound content (regex + NER + financial recognizers + allow-list)",
   "license": "Apache-2.0",

@@ -114,9 +114,9 @@ git clone https://github.com/Protocol-Wealth/pwos-core.git
 cd pwos-core
 pnpm install
 cp .env.example .env          # Add your API keys
-pnpm --filter @pwos/shared build
-pnpm --filter @pwos/api migrate
-pnpm --filter @pwos/api seed
+pnpm --filter @protocolwealthos/shared build
+pnpm --filter @protocolwealthos/api migrate
+pnpm --filter @protocolwealthos/api seed
 pnpm dev
 ```
 

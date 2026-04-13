@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/audit-log
+ * @protocolwealthos/audit-log
  *
  * Append-only audit log with SHA-256 hash chaining, intended to satisfy
  * SEC Rule 204-2 Books-and-Records retention. Defensive patent:
@@ -9,7 +9,7 @@
  *
  * Minimum usage::
  *
- *     import { AuditLogger, InMemoryAuditStore } from "@pwos/audit-log";
+ *     import { AuditLogger, InMemoryAuditStore } from "@protocolwealthos/audit-log";
  *
  *     const logger = new AuditLogger({ store: new InMemoryAuditStore() });
  *     await logger.log({

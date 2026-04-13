@@ -1,5 +1,5 @@
 {
-  "name": "@pwos/onchain-sdk",
+  "name": "@protocolwealthos/onchain-sdk",
   "version": "0.1.0",
   "description": "Typed client + models for on-chain portfolio tracking services",
   "license": "Apache-2.0",

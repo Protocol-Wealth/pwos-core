@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/mcp-tools
+ * @protocolwealthos/mcp-tools
  *
  * Library-agnostic MCP (Model Context Protocol) tool definitions,
  * registry, tier classification, and response-filter pipeline. Ships
@@ -16,7 +16,7 @@
  *       applyFilters,
  *       disclaimerFilter,
  *       toAnthropicTools,
- *     } from "@pwos/mcp-tools";
+ *     } from "@protocolwealthos/mcp-tools";
  *
  *     const registry = new ToolRegistry();
  *     registry.register({

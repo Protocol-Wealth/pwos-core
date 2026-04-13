@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/onchain-sdk
+ * @protocolwealthos/onchain-sdk
  *
  * Typed client + models for an on-chain portfolio tracking service. Intended
  * for advisor-side platforms that aggregate wallet data, DeFi positions,
@@ -9,7 +9,7 @@
  *
  * Usage::
  *
- *     import { OnchainPortfolioClient } from "@pwos/onchain-sdk";
+ *     import { OnchainPortfolioClient } from "@protocolwealthos/onchain-sdk";
  *
  *     const client = new OnchainPortfolioClient({
  *       baseUrl: "https://your-portfolio-service.example.com",

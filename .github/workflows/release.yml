@@ -65,7 +65,13 @@ jobs:
           title: "chore(release): version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # `NODE_AUTH_TOKEN` is the canonical name `npm` / `pnpm publish`
+          # picks up automatically. The repo secret is named NPM_API_KEY per
+          # the maintainer's convention — we map it through here so the
+          # workflow doesn't need to be re-wired if someone later renames
+          # the secret to NPM_TOKEN.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
+          NPM_TOKEN: ${{ secrets.NPM_API_KEY }}
           # Enable npm provenance for supply-chain trust.
           # Requires id-token: write permission above.
           NPM_CONFIG_PROVENANCE: "true"

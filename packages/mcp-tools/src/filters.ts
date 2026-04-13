@@ -66,7 +66,7 @@ export function disclaimerFilter(disclaimer: string): ResponseFilter {
  * tier implies consent was captured upstream, public tier shouldn't
  * have seen PII to begin with.
  *
- * Pair this with ``@pwos/pii-guard.scan`` in the downstream project.
+ * Pair this with ``@protocolwealthos/pii-guard.scan`` in the downstream project.
  */
 export function piiRedactionFilter(
   scan: (text: string) => Promise<{ sanitizedText: string; hasPII: boolean }>,

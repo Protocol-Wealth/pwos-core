@@ -68,13 +68,13 @@ cd pwos-core
 pnpm install
 
 # Build shared types
-pnpm --filter @pwos/shared build
+pnpm --filter @protocolwealthos/shared build
 
 # Set up environment
 cp .env.example .env  # Fill in API keys
 
 # Run migrations
-pnpm --filter @pwos/api migrate
+pnpm --filter @protocolwealthos/api migrate
 
 # Start dev server
 pnpm dev  # Frontend :5173 + API :3000

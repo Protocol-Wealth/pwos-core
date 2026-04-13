@@ -1,4 +1,4 @@
-# @pwos/pii-guard
+# @protocolwealthos/pii-guard
 
 4-layer PII scanning pipeline for LLM-bound content.
 

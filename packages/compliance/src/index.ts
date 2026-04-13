@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * @pwos/compliance
+ * @protocolwealthos/compliance
  *
  * Compliance primitives for SEC-registered investment advisers:
  * retention policy calculator, Books-and-Records (Rule 204-2) export
