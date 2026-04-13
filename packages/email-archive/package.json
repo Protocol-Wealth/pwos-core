@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/email-archive",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SEC Rule 17a-4 email archive primitives: record types, chain-of-custody hashing, retention eligibility, in-memory query evaluator",
   "license": "Apache-2.0",
   "type": "module",

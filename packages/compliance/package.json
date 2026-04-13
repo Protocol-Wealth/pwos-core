@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/compliance",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SEC Rule 204-2 compliance primitives: retention calculator, books-and-records export bundler, AI inventory, PII incident classifier, compliance calendar, policy/vendor review status",
   "license": "Apache-2.0",
   "type": "module",
