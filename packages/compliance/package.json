@@ -1,16 +1,33 @@
 {
   "name": "@pwos/compliance",
   "version": "0.1.0",
-  "description": "PWOS Core: compliance package",
+  "description": "SEC Rule 204-2 compliance primitives: retention calculator, books-and-records export bundler, AI inventory, PII incident classifier, compliance calendar, policy/vendor review status",
   "license": "Apache-2.0",
+  "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
+    "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit"
   },
-  "peerDependencies": {
-    "typescript": "^5.6.0"
+  "devDependencies": {
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0",
+    "@types/node": "^22.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
