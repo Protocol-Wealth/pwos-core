@@ -67,3 +67,8 @@ export {
   type ScanOptions,
   type ScanResult,
 } from "./scanner.js";
+
+export {
+  createStreamRehydrator,
+  type StreamRehydrator,
+} from "./streamRehydrator.js";

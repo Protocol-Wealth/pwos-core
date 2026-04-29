@@ -46,6 +46,17 @@ export {
 } from "./anthropic.js";
 
 export {
+  CONFIRM_TOKEN_LENGTH,
+  computeConfirmToken,
+  confirmGate,
+  formatPreviewMessage,
+  stableJsonString,
+  type ConfirmGateOptions,
+  type ConfirmGateOutcome,
+  type PreviewMessageArgs,
+} from "./confirmationGate.js";
+
+export {
   type ResponseFilter,
   applyFilters,
   disclaimerFilter,
@@ -61,6 +72,17 @@ export {
 } from "./registry.js";
 
 export { isAuthorizedFor, tierFilter, tierRank } from "./tier.js";
+
+export {
+  DEFAULT_TOOL_CALLED_ACTION,
+  SYSTEM_ACTOR_ID,
+  TOOL_AUDIT_RESOURCE_TYPE,
+  buildToolAuditEntry,
+  sha256Hex,
+  type ToolAuditDetails,
+  type ToolAuditEntry,
+  type ToolAuditEntryInput,
+} from "./toolAudit.js";
 
 export {
   type AuthContext,
