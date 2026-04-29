@@ -20,9 +20,12 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 
 - **AI Chat IDE** — Multi-model LLM chat with streaming SSE, projects, folders, templates, conversation management
 - **4-Layer PII Guard** — Regex (31 patterns) + NER + financial recognizers + domain allow-list with per-user modes (warn/block/redact)
+- **Streaming PII Rehydrator** — Buffer-aware placeholder rehydrator for SSE / chunked LLM output (handles placeholders split across chunks)
 - **Prompt Injection Detection** — 23 patterns across 6 attack categories
 - **Immutable Audit Trail** — Append-only log meeting SEC Rule 204-2 Books & Records requirements
 - **Inline Tool Orchestration** — LLM autonomously selects and executes tools during chat (multi-turn, up to 5 rounds)
+- **Confirmation Gate for Write Tools** — Stateless, payload-bound two-turn gate so LLMs can't fudge fields between preview and execute
+- **Tool-Call Audit Builder** — SHA-256 hashed input + scrubbed-output audit rows for compliance-grade per-tool-call trails
 - **Practice Management** — Task tracking, meeting notes with AI action item extraction, CRM integration
 - **Financial Calculator** — Compound interest, CAGR, mortgage, RMD, future/present value, rule of 72
 - **Document Gen** — PDFs via pdfme/pdf-lib/react-pdf, Word via docx, PowerPoint via pptxgenjs
@@ -33,6 +36,22 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Compliance Center** — AI tool inventory, PII dashboard, governance docs, email archiving (SEC 17a-4)
 - **Google OAuth + RBAC** — Role-based access (admin/partner/user/intern)
 - **Mobile Responsive** — Sidebar drawer, full-width chat, touch-optimized
+
+## What You Get From npm
+
+The `@protocolwealthos/*` packages are what's published. The deployed app at [pwos.app](https://pwos.app) is the reference consumer; you can use the packages standalone or compose them into your own platform.
+
+| Package | Headline primitives |
+|---------|---------------------|
+| **`@protocolwealthos/pii-guard`** | `scan()` + `rehydrate()` (4-layer pipeline) · `createStreamRehydrator()` (chunk-safe) · injection detector · input validator |
+| **`@protocolwealthos/audit-log`** | `AuditLogger` + `AuditStore` interface · SHA-256 hash chaining · `verifyChain()` |
+| **`@protocolwealthos/mcp-tools`** | `ToolRegistry` + 4-tier access classification · response filters · Anthropic adapter · `confirmGate()` (payload-bound write-tool gate) · `buildToolAuditEntry()` |
+| **`@protocolwealthos/compliance`** | SEC 204-2 retention calculator · Books-and-Records bundler with chain-of-custody · PII incident classifier · compliance calendar |
+| **`@protocolwealthos/workflow-engine`** | Durable-job runtime · backoff strategies (fixed/linear/exponential + jitter) · in-memory queue + pluggable backends |
+| **`@protocolwealthos/document-gen`** | Document model · RFC 4180 CSV · plain-text renderer · `DocumentRenderer` interface for PDF/PPTX/DOCX backends |
+| **`@protocolwealthos/onchain-sdk`** | Typed client + models for on-chain portfolio services |
+| **`@protocolwealthos/crm`** | Contacts · households · interactions · opportunities · tasks · status/aging helpers |
+| **`@protocolwealthos/email-archive`** | SEC 17a-4 archive primitives · chain-of-custody hashing · retention enforcement · query evaluator |
 
 ## Architecture
 
