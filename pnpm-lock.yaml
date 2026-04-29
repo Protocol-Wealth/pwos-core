@@ -75,6 +75,9 @@ importers:
 
   packages/mcp-tools:
     devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
       typescript:
         specifier: ^5.6.0
         version: 5.9.3
