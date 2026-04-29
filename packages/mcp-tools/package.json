@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/mcp-tools",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "MCP tool definitions, registry, tier classification, and response-filter pipeline for advisor-platform LLM orchestration",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/mcp-tools#readme",
