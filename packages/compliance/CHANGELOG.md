@@ -1,5 +1,24 @@
 # @protocolwealthos/compliance
 
+## 0.3.0
+
+### Minor Changes
+
+- [#13](https://github.com/Protocol-Wealth/pwos-core/pull/13) [`4d0f9f6`](https://github.com/Protocol-Wealth/pwos-core/commit/4d0f9f62750c5cc0195d200b4f3c2523b967e8c3) Thanks [@rivendale](https://github.com/rivendale)! - Add a vendor-document advisory metadata schema for SOC 1 / SOC 2 / ISO / DPA / pen-test / insurance / privacy-policy records.
+
+  The `VendorDocMetadata` type captures the structured facts compliance teams want to surface in dashboards and search:
+
+  - **Identity** — `kind`, `title`, `sourceRef`, `sourceSha256` (chain-of-custody anchor), `issuedAt`, `expiresAt`
+  - **Attestation** — `auditPeriodStart` / `End`, `opinion` (unqualified / qualified / adverse / disclaimer / unknown), `trustServicesCriteria[]` for SOC 2, `exceptionCount`, `findingSummaries[]`
+  - **DPA / privacy** — `subprocessors[]` (with `region` and `hasDpa`), `retentionWindowDays`, `breachNotificationWindowDays`
+  - **Pen-test** — `highestOpenSeverity`, `findingsByStatus`
+  - **Provenance** — `human` vs `ai_advisory`. Documents are framed as **advisory metadata**: the source PDF remains the system of record; if AI extraction disagrees with the PDF, the PDF wins.
+
+  Plus two helpers:
+
+  - `isVendorDocCurrent(doc, nowIso)` — within validity window
+  - `vendorDocsExpiringSoon(docs, nowIso, daysAhead)` — for nightly "re-up your SOC 2" reminders
+
 ## 0.2.0
 
 ### Minor Changes

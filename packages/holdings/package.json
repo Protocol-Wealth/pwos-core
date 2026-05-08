@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/holdings",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Account / security / event-stream / daily-snapshot primitives for advisor portfolio data — immutable HoldingEvent log + materialized HoldingSnapshot, AccountBalance with inflow/outflow decomposition, custodian connection mirrors, scoped advisor access",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/holdings#readme",

@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/webhooks",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Defense-in-depth inbound webhook verification: HMAC-SHA256 timing-safe verify, dual-layer path-token + signature, idempotency-key replay protection",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/webhooks#readme",
