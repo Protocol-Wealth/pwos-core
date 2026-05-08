@@ -1,0 +1,55 @@
+{
+  "name": "@protocolwealthos/webhooks",
+  "version": "0.1.0",
+  "description": "Defense-in-depth inbound webhook verification: HMAC-SHA256 timing-safe verify, dual-layer path-token + signature, idempotency-key replay protection",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/webhooks#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "packages/webhooks"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.6.0",
+    "vitest": "^2.1.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}
