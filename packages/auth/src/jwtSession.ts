@@ -39,12 +39,18 @@ export class JwtError extends Error {
   }
 }
 
-/** Base64url encode a string or Buffer. */
+/** Base64url encode a string or Buffer.
+ *
+ * `=` is stripped via `replace(/=/g, "")` rather than `/=+$/g` —
+ * functionally identical for base64 (where `=` only appears as 0–2
+ * trailing padding chars) but the non-quantifier form avoids the
+ * polynomial-redos pattern CodeQL flags on the anchored variant.
+ */
 function b64url(input: string | Buffer): string {
   const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
   return buf
     .toString("base64")
-    .replace(/=+$/g, "")
+    .replace(/=/g, "")
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
 }
