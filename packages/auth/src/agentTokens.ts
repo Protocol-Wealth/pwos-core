@@ -73,10 +73,11 @@ export interface SignAgentTokenOptions {
 }
 
 function b64url(input: string | Buffer): string {
+  // See packages/auth/src/jwtSession.ts for why /=/g over /=+$/g.
   const buf = typeof input === "string" ? Buffer.from(input, "utf8") : input;
   return buf
     .toString("base64")
-    .replace(/=+$/g, "")
+    .replace(/=/g, "")
     .replace(/\+/g, "-")
     .replace(/\//g, "_");
 }
