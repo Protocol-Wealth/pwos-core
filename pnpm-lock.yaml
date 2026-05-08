@@ -19,7 +19,43 @@ importers:
         specifier: ^2.30.0
         version: 2.30.0(@types/node@22.19.17)
 
+  packages/ai-guardrails:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
   packages/audit-log:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
+  packages/auth:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
+  packages/cache-keys:
     devDependencies:
       '@types/node':
         specifier: ^22.0.0
@@ -73,6 +109,18 @@ importers:
         specifier: ^2.1.0
         version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
 
+  packages/gcp-helpers:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
   packages/mcp-tools:
     devDependencies:
       '@types/node':
@@ -98,6 +146,30 @@ importers:
         version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
 
   packages/pii-guard:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
+  packages/security-headers:
+    devDependencies:
+      '@types/node':
+        specifier: ^22.0.0
+        version: 22.19.17
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.0
+        version: 2.1.9(@types/node@22.19.17)(lightningcss@1.32.0)
+
+  packages/webhooks:
     devDependencies:
       '@types/node':
         specifier: ^22.0.0

@@ -52,6 +52,18 @@ export {
   RetentionCalculator,
 } from "./retention.js";
 
+export {
+  isVendorDocCurrent,
+  vendorDocsExpiringSoon,
+} from "./vendorDocMetadata.js";
+export type {
+  AttestationOpinion,
+  DisclosedSubprocessor,
+  TrustServicesCriteria,
+  VendorDocKind,
+  VendorDocMetadata,
+} from "./vendorDocMetadata.js";
+
 export type {
   AIInventoryEntry,
   BooksAndRecordsExport,

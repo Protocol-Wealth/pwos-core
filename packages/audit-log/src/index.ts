@@ -29,3 +29,23 @@ export { hashEntry, verifyChain } from "./hash.js";
 export { AuditLogger, type AuditLoggerOptions } from "./logger.js";
 export { InMemoryAuditStore, readonlyView, type AuditStore } from "./store.js";
 export type { AuditEntry, AuditQuery, NewAuditEntry } from "./types.js";
+
+export {
+  detectOffHours,
+  detectRapidSequential,
+  detectNewActorOnAdmin,
+} from "./anomaly.js";
+export type {
+  AnomalyFinding,
+  AnomalySeverity,
+  NewActorOnAdminOptions,
+  OffHoursOptions,
+  RapidSequentialOptions,
+} from "./anomaly.js";
+
+export {
+  assertApprovedByDifferentParty,
+  isApprovedByDifferentParty,
+  ApproverSeparationError,
+} from "./approverSeparation.js";
+export type { ApproverSeparationCheck } from "./approverSeparation.js";
