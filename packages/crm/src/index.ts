@@ -36,3 +36,23 @@ export type {
   RelationshipType,
   TaskStatus,
 } from "./types.js";
+
+export {
+  activeGoals,
+  currentHouseholdProfile,
+  staleProfiles,
+} from "./householdProfile.js";
+export type {
+  CareerStage,
+  GoalKind,
+  GoalPriority,
+  GoalStatus,
+  HouseholdGoal,
+  HouseholdNote,
+  HouseholdProfile,
+  LiquidityProfile,
+  NoteKind,
+  RealEstateFootprint,
+  RiskTolerance,
+  TaxFilingStatus,
+} from "./householdProfile.js";
