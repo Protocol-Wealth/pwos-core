@@ -39,3 +39,18 @@ export type {
   SessionClaims,
   StandardRole,
 } from "./types.js";
+
+export {
+  InMemoryRevocationList,
+  hasScope,
+  signAgentToken,
+  verifyAgentToken,
+} from "./agentTokens.js";
+export type {
+  AgentScope,
+  AgentScopeClaim,
+  AgentTokenClaims,
+  RevocationList,
+  SignAgentTokenOptions,
+  VerifyAgentTokenOptions,
+} from "./agentTokens.js";

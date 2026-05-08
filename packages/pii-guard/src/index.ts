@@ -72,3 +72,9 @@ export {
   createStreamRehydrator,
   type StreamRehydrator,
 } from "./streamRehydrator.js";
+
+export {
+  maskAccountNumber,
+  maskAccountNumbersInText,
+  type MaskOptions,
+} from "./accountNumberMasker.js";
