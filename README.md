@@ -41,17 +41,47 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 
 The `@protocolwealthos/*` packages are what's published. The deployed app at [pwos.app](https://pwos.app) is the reference consumer; you can use the packages standalone or compose them into your own platform.
 
+### Compliance + audit primitives
+
 | Package | Headline primitives |
 |---------|---------------------|
-| **`@protocolwealthos/pii-guard`** | `scan()` + `rehydrate()` (4-layer pipeline) · `createStreamRehydrator()` (chunk-safe) · injection detector · input validator |
-| **`@protocolwealthos/audit-log`** | `AuditLogger` + `AuditStore` interface · SHA-256 hash chaining · `verifyChain()` |
+| **`@protocolwealthos/pii-guard`** | `scan()` + `rehydrate()` (4-layer pipeline) · `createStreamRehydrator()` (chunk-safe) · injection detector · input validator · `maskAccountNumber()` (show-last-4) |
+| **`@protocolwealthos/audit-log`** | `AuditLogger` + `AuditStore` interface · SHA-256 hash chaining · `verifyChain()` · three anomaly detectors (off-hours / rapid-sequential / new-actor-on-admin) · `assertApprovedByDifferentParty` · Postgres append-only-trigger SQL template |
 | **`@protocolwealthos/mcp-tools`** | `ToolRegistry` + 4-tier access classification · response filters · Anthropic adapter · `confirmGate()` (payload-bound write-tool gate) · `buildToolAuditEntry()` |
-| **`@protocolwealthos/compliance`** | SEC 204-2 retention calculator · Books-and-Records bundler with chain-of-custody · PII incident classifier · compliance calendar |
+| **`@protocolwealthos/compliance`** | SEC 204-2 retention calculator · Books-and-Records bundler with chain-of-custody · PII incident classifier · compliance calendar · `VendorDocMetadata` schema (SOC 2 / DPA / pen-test advisory metadata) |
+
+### AI safety primitives
+
+| Package | Headline primitives |
+|---------|---------------------|
+| **`@protocolwealthos/ai-guardrails`** | `assertWorkspace()` (ZDR fail-fast) · `createModelResolver()` (env-aliased model strings, no hardcoded literals) · `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) · `buildAuditRow()` (sha256 of prompt + response + tool_use; no raw content) |
+
+### Auth + access primitives
+
+| Package | Headline primitives |
+|---------|---------------------|
+| **`@protocolwealthos/auth`** | HS256 JWT session sign/verify (~80 LOC, refuses `alg:"none"`, timing-safe) · `createRoleGuard()` (numeric-rank hierarchy) · `assertWorkspaceDomain()` · `signAgentToken()` / `verifyAgentToken()` / `hasScope()` for per-AI-agent scoped access with revocation |
+| **`@protocolwealthos/webhooks`** | `verifyHmacSha256()` (hex / base64 / base64url) · `verifyTimestampedHmacSha256()` (replay-window) · `verifyDualLayer()` (path-token + Basic Auth for vendors that don't body-sign) · `IdempotencyStore` interface |
+| **`@protocolwealthos/cache-keys`** | Namespace-enforced builder (`vendor:resource:identifier`) with PII pattern rejection (email / SSN / credit card / US phone / UUID) · `hashed()` escape hatch for high-entropy identifiers |
+| **`@protocolwealthos/security-headers`** | `strictBaseline()` CSP (no `'unsafe-inline'`; sha256-hash helpers for inline scripts) · `applyDevOverrides()` for HMR · `buildHsts()` (preload-eligible) · locked-down `Permissions-Policy` defaults · framework-agnostic flat header map |
+| **`@protocolwealthos/gcp-helpers`** | `createCloudLogger()` (JSON-line structured logging) · `pickConnectionStrategy()` (Cloud SQL IAM auth, refuses silent password fallback) · `createCachingSecretLoader()` · `buildFrontendErrorReport()` for React/Vue error boundaries. Zero `@google-cloud/*` deps |
+
+### Financial-data primitives
+
+| Package | Headline primitives |
+|---------|---------------------|
+| **`@protocolwealthos/ledger`** | Append-only double-entry ledger · five canonical roots · sum-to-zero invariant per (currency, scale) · `BalanceAssertion` data-integrity checkpoints · reverse-only edits · bailment-mode invariants (`verifyPooledEqualsClaims`, `detectCustodianDrift`, `claimsByClient`) for advisor shadow ledgers |
+| **`@protocolwealthos/holdings`** | `Account` / `Security` (ISIN / CUSIP / SEDOL first-class) · immutable `HoldingEvent` stream (buy / sell / dividend / split / transfer / mark) · `materializeSnapshots()` (deterministic, hash-chainable for SEC 204-2) · `AccountBalance` with inflow/outflow decomposition for TWR/MWR · `AdvisorAccess` scope hierarchy |
+| **`@protocolwealthos/crm`** | Contacts · households · interactions · opportunities · tasks · status/aging helpers · `HouseholdProfile` (versioned) / `HouseholdGoal` / `HouseholdNote` for the "financial memory" pattern |
+| **`@protocolwealthos/email-archive`** | SEC 17a-4 archive primitives · chain-of-custody hashing · retention enforcement · query evaluator |
+
+### Operational primitives
+
+| Package | Headline primitives |
+|---------|---------------------|
 | **`@protocolwealthos/workflow-engine`** | Durable-job runtime · backoff strategies (fixed/linear/exponential + jitter) · in-memory queue + pluggable backends |
 | **`@protocolwealthos/document-gen`** | Document model · RFC 4180 CSV · plain-text renderer · `DocumentRenderer` interface for PDF/PPTX/DOCX backends |
 | **`@protocolwealthos/onchain-sdk`** | Typed client + models for on-chain portfolio services |
-| **`@protocolwealthos/crm`** | Contacts · households · interactions · opportunities · tasks · status/aging helpers |
-| **`@protocolwealthos/email-archive`** | SEC 17a-4 archive primitives · chain-of-custody hashing · retention enforcement · query evaluator |
 
 ## Architecture
 
@@ -174,6 +204,7 @@ Deploy your own instance on Fly.io (~$62/month) with your own database. Your dat
 
 - [Architecture](docs/architecture.md)
 - [Packages Reference](docs/packages.md)
+- [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC
 - [Attribution](docs/attribution.md) — detailed provenance per capability
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
