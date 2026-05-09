@@ -14,23 +14,31 @@ The deployed app at [pwos.app](https://pwos.app) (source in `pw-os-v2`, separate
 ```
 pwos-core/
 ├── packages/
-│   ├── pii-guard/         # 4-layer PII scanner + streaming rehydrator
-│   ├── audit-log/         # Append-only log with SHA-256 hash chaining
-│   ├── mcp-tools/         # Tool registry + tier classification + filters + confirm gate + tool-audit builder
-│   ├── compliance/        # SEC 204-2 retention, Books & Records bundler, calendar, incidents
-│   ├── workflow-engine/   # Storage-agnostic durable-job runtime
-│   ├── document-gen/      # Document model + CSV + plain-text renderer + DocumentRenderer interface
-│   ├── onchain-sdk/       # Typed client for on-chain portfolio services
-│   ├── crm/               # Contacts / households / interactions / opportunities / tasks
-│   ├── email-archive/     # SEC 17a-4 archive primitives
-│   └── shared/            # Internal cross-package types (NOT published)
-├── apps/api/              # Reference scaffold (NOT published)
-├── examples/              # Integration examples
+│   ├── ai-guardrails/      # Workspace assertion (ZDR) + model allowlist + prompt-cache + content-free audit row
+│   ├── audit-log/          # Append-only log + SHA-256 hash chaining + 3 anomaly detectors + approver-separation
+│   ├── auth/               # HS256 JWT session + role guard + Workspace-domain restriction + per-agent tokens
+│   ├── cache-keys/         # Namespace-enforced cache-key builder with PII pattern rejection
+│   ├── compliance/         # SEC 204-2 retention, Books & Records bundler, calendar, incidents, vendor-doc metadata
+│   ├── crm/                # Contacts / households / interactions / opportunities / tasks + HouseholdProfile/Goal/Note
+│   ├── document-gen/       # Document model + CSV + plain-text renderer + DocumentRenderer interface
+│   ├── email-archive/      # SEC 17a-4 archive primitives
+│   ├── gcp-helpers/        # Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape
+│   ├── holdings/           # Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot
+│   ├── ledger/             # Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger
+│   ├── mcp-tools/          # Tool registry + tier classification + filters + confirm gate + tool-audit builder
+│   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + account-number masker
+│   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
+│   ├── shared/             # Internal cross-package types (NOT published)
+│   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
+│   └── workflow-engine/    # Storage-agnostic durable-job runtime
+├── apps/api/               # Reference scaffold (NOT published)
+├── examples/               # Integration examples
 ├── docs/
-│   ├── attribution.md     # Per-capability provenance
-│   └── publishing.md      # Release flow
-├── .changeset/            # Queued releases
-└── .github/               # CI + release workflows
+│   ├── attribution.md                  # Per-capability provenance
+│   ├── gcp-reference-architecture.md   # Generic GCP posture for regulated workloads
+│   └── publishing.md                   # Release flow
+├── .changeset/             # Queued releases
+└── .github/                # CI + release workflows
 ```
 
 ## Tech Stack
@@ -103,11 +111,11 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 
 - No PII / secrets in tests, fixtures, examples, or commit messages.
 - No vendor-specific keys. Tests must be hermetic — no network calls.
-- No code from AGPL-licensed reference projects (Twenty CRM, Ghostfolio, Wealthfolio, Sure, Firefly III) is copied — patterns only. See [`docs/attribution.md`](docs/attribution.md).
+- No code from AGPL-licensed reference projects (Twenty CRM, Ghostfolio, Wealthfolio, Sure, Firefly III, OpenBB, OpenFisca, PolicyEngine) is copied — patterns only. Clean-room re-derivation when an architectural pattern is genuinely useful (e.g. `@protocolwealthos/ledger` is inspired by Beancount's GPL-2 data model; `@protocolwealthos/holdings` is inspired by Sure's AGPL holdings-as-events pattern). See [`docs/attribution.md`](docs/attribution.md).
+- GPL-2 / GPL-3 / AGPL code may be **read for architectural patterns** but every byte committed here must be original Apache-2.0 work. Schema-as-facts is not copyrightable; specific code expression is. When in doubt, re-derive with our own vocabulary.
 - No `--no-verify` on commits. No skipped hooks.
 
 ## Cross-Repo Notes
 
-- `pw-os-v2` (separate repo) is the production consumer running on Cloud Run. When extracting a primitive from there into here, generalize the API — drop framework coupling, drop PW-specific identifiers, expose hooks for caller-specific behavior.
-- `pw-portal-v2` (separate repo) is the client-facing surface. Its patterns (passkey, magic-link, advisor-PIN flow) are well-served by existing libs and are NOT planned for extraction.
-- The `_reference/` tree (in the parent `pw/` directory) holds historical sources for cross-checking; do not commit anything from it here.
+- `pw-os-v2`, `pw-portal-v2`, `pw-api`, `pw-infrastructure`, `pw-onchain` are separate consumer / runtime repos (publicly listed on the security page). When extracting a primitive from one of them into here, generalize the API — drop framework coupling, drop PW-specific identifiers, expose hooks for caller-specific behavior.
+- `nexus-core` (sibling repo) is the Python analytical surface. Per the v0.5.0 boundary decision: **math lives in nexus-core, data shapes + audit/compliance hooks live in pwos-core.** Keep that split.
