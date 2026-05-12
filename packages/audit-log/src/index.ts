@@ -25,7 +25,7 @@
 
 export const VERSION = "0.1.0";
 
-export { hashEntry, verifyChain } from "./hash.js";
+export { hashEntry, verifyChain, stableJsonString } from "./hash.js";
 export { AuditLogger, type AuditLoggerOptions } from "./logger.js";
 export { InMemoryAuditStore, readonlyView, type AuditStore } from "./store.js";
 export type { AuditEntry, AuditQuery, NewAuditEntry } from "./types.js";

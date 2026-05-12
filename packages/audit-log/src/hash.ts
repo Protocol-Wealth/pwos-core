@@ -26,14 +26,62 @@ const CANONICAL_FIELDS: Array<keyof AuditEntry> = [
   "ipAddress",
 ];
 
+// stableJsonString: deep stable serializer for audit-chain hash input.
+//
+// Canonical peer implementation lives at
+//   @protocolwealthos/mcp-tools src/confirmationGate.ts
+// (function `stableJsonString`). The two implementations MUST stay
+// behavior-identical on the following dimensions:
+//
+// - Recursive key sort (alphabetic, on the JSON.stringify-escaped key form).
+// - Array order preservation (no sort).
+// - Primitive handling via JSON.stringify.
+// - undefined → "null" literal.
+// - NaN/Infinity → "null" via JSON.stringify (JSON-spec-compliant silent
+//   coercion). Audit payloads do not contain floats from real callers; this
+//   matches mcp-tools' behavior.
+// - BigInt → throws TypeError from JSON.stringify.
+//
+// If you change behavior here, update the peer or the chain hash will
+// diverge between callers that use one vs. the other. Parity is enforced
+// at test time — see __tests__/stable-json-parity.test.ts in this package.
+//
+// Why inlined instead of imported from mcp-tools: @protocolwealthos/audit-log
+// is a zero-dependency leaf primitive supporting the platform's regulatory
+// floor (SEC 17a-4 audit chain). Any code path that needs to write an audit
+// row must be able to load this package without dragging in MCP. 10-line
+// duplication + parity test is the chosen tradeoff. Revisit if the canonical
+// serializer surface grows beyond ~20 lines (Maps, Sets, typed arrays,
+// structured cloning) — at that point extract to a shared zero-dep package.
+//
+// Prior implementation (v0.3.0 and earlier) called
+//   JSON.stringify(obj, Object.keys(obj).sort())
+// which only sorted top-level keys; nested objects retained insertion order.
+// That meant semantically-identical payloads with reordered nested keys
+// produced different hashes. v0.4.0 fixes this.
+export function stableJsonString(value: unknown): string {
+  if (value === null || value === undefined) return "null";
+  if (typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return `[${value.map((v) => stableJsonString(v)).join(",")}]`;
+  }
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).sort();
+  const entries = keys.map(
+    (k) => `${JSON.stringify(k)}:${stableJsonString(obj[k])}`,
+  );
+  return `{${entries.join(",")}}`;
+}
+
 /** Serialize an entry into a canonical UTF-8 string for hashing. */
 function canonicalize(entry: AuditEntry, previousHash: string): string {
   const obj: Record<string, unknown> = { previousHash };
   for (const field of CANONICAL_FIELDS) {
     obj[field] = entry[field] ?? null;
   }
-  // Sort keys deterministically for stable hashing across runtimes.
-  return JSON.stringify(obj, Object.keys(obj).sort());
+  // Deep stable serialization — sorts keys recursively at every nesting
+  // level so payloads with reordered nested keys hash identically.
+  return stableJsonString(obj);
 }
 
 /** Compute SHA-256 hex digest. */

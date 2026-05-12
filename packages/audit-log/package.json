@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/audit-log",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Append-only audit log with SHA-256 hash chaining for SEC Rule 204-2 compliance",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/audit-log#readme",
@@ -38,7 +38,8 @@
   "devDependencies": {
     "typescript": "^5.6.0",
     "vitest": "^2.1.0",
-    "@types/node": "^22.0.0"
+    "@types/node": "^22.0.0",
+    "@protocolwealthos/mcp-tools": "workspace:*"
   },
   "publishConfig": {
     "access": "public",
