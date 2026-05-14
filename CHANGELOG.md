@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — Public-repo honesty disclaimer (2026-05-14)
+
+- **`README.md`** — added `## Status` block before `## What This Is`: pwos-core is a reference framework and starting point, not a production-ready product; adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context; the framework makes no AI-provider data-retention guarantees.
+- No claim reconciliation needed in this repo (the README's capability statements are backed by the actual primitive packages — `@protocolwealthos/pii-guard`, `@protocolwealthos/audit-log`, `@protocolwealthos/auth`, `@protocolwealthos/mcp-tools` etc.). Disclaimer-only, no code change. Apache-2.0 + USPTO #64/034,215 defensive-licensing posture unchanged.
+
 ### Added — Phase 3b completion (compliance / workflow-engine / crm / email-archive)
 
 Five remaining pwos-core stubs from Phase 3b were extended into
