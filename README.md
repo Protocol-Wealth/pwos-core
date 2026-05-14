@@ -10,6 +10,14 @@
 
 **Live:** [pwos.app](https://pwos.app) | **Demo:** [pwos.app/demo](https://pwos.app/demo) | **Disclosures:** [pwos.app/disclosures](https://pwos.app/disclosures)
 
+## Status
+
+This is a reference framework and a starting point, not a production-ready product. It is a work in progress under active, iterative development.
+
+Adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context before any real or sensitive data touches it. Adopters are also responsible for their own AI-provider data-handling posture; the framework makes no data-retention guarantees.
+
+Provided as-is under Apache-2.0.
+
 ## What This Is
 
 PWOS Core is the open source foundation of the [Protocol Wealth Operating System](https://pwos.app) — a self-hosted AI platform built for SEC-registered investment advisers (RIAs), FINRA-regulated financial advisors, family offices, and anyone who needs regulatory-grade compliance in AI-assisted financial operations.
