@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
+
 /**
  * Prompt injection detection — 23 patterns across 6 categories.
  * Apache 2.0 — Protocol Wealth LLC

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
+
 /**
  * Layer 4: Allow-list — patterns and terms that should NEVER be redacted.
  * Apache 2.0 — Protocol Wealth LLC
