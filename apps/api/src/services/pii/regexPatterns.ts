@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
+
 /**
  * Layer 1: Deterministic regex patterns for PII detection.
  * 31 patterns covering credentials, crypto, financial IDs, personal info, mortgage/RE, platform IDs.

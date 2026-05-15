@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Protocol Wealth, LLC and contributors.
+
 import { z } from 'zod';
 
 export const chatRequestSchema = z.object({

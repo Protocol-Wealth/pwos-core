@@ -208,6 +208,8 @@ Per-user modes: `off` | `warn` (confirm before send) | `block` (must remove PII)
 
 Deploy your own instance on Fly.io (~$62/month) with your own database. Your data stays yours. Every AI interaction is logged in an immutable audit trail. Export Books & Records as JSON for SEC examiners.
 
+> Note on infrastructure choice: Protocol Wealth (the firm) runs its own production stack on Google Cloud Run (see [GCP Reference Architecture](docs/gcp-reference-architecture.md) for the regulated-workload posture we use internally). Fly.io is recommended here as a pragmatic small-scale starting point for independent RIAs and advisors deploying their own instance — lower setup overhead and predictable monthly cost. Adopters with existing GCP/AWS footprints or stricter compliance requirements should adapt the deployment to their own platform.
+
 ## Documentation
 
 - [Architecture](docs/architecture.md)
