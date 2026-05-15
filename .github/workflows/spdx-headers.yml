@@ -1,0 +1,35 @@
+name: SPDX Headers Check
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  spdx-check:
+    name: Verify SPDX-License-Identifier on TypeScript sources
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check SPDX-License-Identifier headers
+        run: |
+          set -euo pipefail
+          MISSING=$(find . \( -name '*.ts' -o -name '*.tsx' \) \
+            -not -path '*/node_modules/*' \
+            -not -path '*/dist/*' \
+            -not -path '*/.git/*' \
+            -print0 \
+            | xargs -0 -r grep -L 'SPDX-License-Identifier' || true)
+          if [ -n "$MISSING" ]; then
+            echo "::error::Files missing SPDX-License-Identifier header:"
+            echo "$MISSING" | while IFS= read -r f; do
+              echo "::error file=${f}::Missing SPDX-License-Identifier header"
+            done
+            exit 1
+          fi
+          echo "All TypeScript sources carry SPDX-License-Identifier header."
