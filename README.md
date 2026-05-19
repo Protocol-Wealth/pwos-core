@@ -10,6 +10,10 @@
 
 **Live:** [pwos.app](https://pwos.app) | **Demo:** [pwos.app/demo](https://pwos.app/demo) | **Disclosures:** [pwos.app/disclosures](https://pwos.app/disclosures)
 
+## Who built this
+
+Protocol Wealth LLC — an SEC-registered investment adviser (CRD #335298), AI-native by construction. The firm runs its own advisor + client surfaces (pwos.app, pwportal.app) on this substrate, with the regulated-workload posture documented in [`docs/gcp-reference-architecture.md`](docs/gcp-reference-architecture.md). pwos-core is the open-source extraction of the firm's canonical patterns + primitive packages — for community reuse and for OS-licensing prospects who want the same compliance shape inside their own RIA / FINRA / family-office stack.
+
 ## Status
 
 This is a reference framework and a starting point, not a production-ready product. It is a work in progress under active, iterative development.
@@ -17,6 +21,20 @@ This is a reference framework and a starting point, not a production-ready produ
 Adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context before any real or sensitive data touches it. Adopters are also responsible for their own AI-provider data-handling posture; the framework makes no data-retention guarantees.
 
 Provided as-is under Apache-2.0.
+
+## Recent shipping cadence (2026-05-18 → 2026-05-19 cascade)
+
+The Protocol Wealth estate ships continuously; pwos-core is the public-facing extraction surface where canonical patterns surface for community reuse. Recent in-estate work (referenced in [`shared/CHANGELOG.md`](https://github.com/Protocol-Wealth/pw-shared) cross-repo log):
+
+- **Component 4 e-signature substrate** — Anvil-canonical 4-doc v1 envelope (IAA + Form ADV Part 2A + Privacy Notice + IPS); `signed_document_archive` + sentinel-row reconciliation day-one; 7-year retention via GCS WORM; PDF/A-2b archival; Rule 204-3 annual re-delivery + material-change re-execution. Two new ADRs (signed-document-state-machine + Anvil-integration) extended the canonical reference set.
+- **Component 3 risk-tolerance verification** — substrate + 8 canonical actions + PII_TAGS port + sentinel-row reconciliation; deterministic scoring engine (MIT/Grable FRTS-13 normalize + PW overlay 0-30 + bucket 1-33/34-66/67-100); advisor override surface; needs_review→review_item flow.
+- **Component 2 KYC verification** — `kyc_sessions` substrate + 14 canonical actions + Veriff REST + webhook handler (first production consumer of Track B' webhook-receiver primitive; promoted DRAFT → ACCEPTED) + Scorechain AML two-layer (Chainalysis moved off 2026-05-01).
+- **Chat session naming** — pw-api + pw-os-v2 substrate landed (PR #353 + #255).
+- **Stream Z PII-tagging program** — canonical typed `PII_TAGS` map at pw-api; byte-equal vendored in BFFs; structural prompt-construction middleware; independent PII egress canary at every Anthropic-SDK outbound call (deliberately re-implemented byte-identical pattern sets across BFFs so the layers cannot share a bug).
+- **Design system v1.0** — unified PW design + UX system (warm-light parity across pwos.app + pwportal.app); design tokens canonical at `shared/docs/firm/design-system.md` v1.0.
+- **Worker-launch-ritual hardening** — expanded 14 → 18 items across the cascade; 5 additional codification candidates queued for next-iteration close.
+
+Full cross-repo activity ledger lives at `shared/CHANGELOG.md` in the private PW estate; the artifacts that materialize here as reusable primitives are listed in the **Canonical patterns extracted** section below.
 
 ## What This Is
 
@@ -90,6 +108,21 @@ The `@protocolwealthos/*` packages are what's published. The deployed app at [pw
 | **`@protocolwealthos/workflow-engine`** | Durable-job runtime · backoff strategies (fixed/linear/exponential + jitter) · in-memory queue + pluggable backends |
 | **`@protocolwealthos/document-gen`** | Document model · RFC 4180 CSV · plain-text renderer · `DocumentRenderer` interface for PDF/PPTX/DOCX backends |
 | **`@protocolwealthos/onchain-sdk`** | Typed client + models for on-chain portfolio services |
+
+## Canonical patterns extracted
+
+The pwos-core primitive packages above implement individual capabilities; the *patterns* that govern how those capabilities compose at production scale live as ADRs in the PW estate. The ones most useful to adopters are listed below, with cross-reference paths into the PW estate canonical set. See [`docs/CANONICAL-PATTERNS.md`](docs/CANONICAL-PATTERNS.md) for the full pattern catalog + adoption notes.
+
+| Pattern | One-line | Canonical reference |
+|---------|----------|---------------------|
+| **PII_TAGS canonical map** | Schema-level `pii.{high,medium,low}` tagging at ingestion + prompt-construction exclusion middleware; structural, not disciplinary | `shared/architecture/decisions/ADR-PII-tagging.md` (Revision 3) |
+| **Sentinel-row reconciliation** | Canonical retry shape for WORM / immutable-row tables — retry emits a NEW row referencing the failed row's ID; never UPDATEs the failed row; recursion guard prevents infinite loops | `shared/architecture/decisions/ADR-gcs-worm-audit-mirror.md` (Revision 3) |
+| **Track B' webhook-receiver primitive** | Single canonical `/v1/webhooks/:vendor` route + six-stage pipeline (verify → dedup → parse → process → audit → DLQ) per-vendor handler interface; svix-pattern adoption in PW-native TypeScript | `shared/architecture/decisions/ADR-webhook-receiver-primitive.md` (ACCEPTED) |
+| **Multi-agent dispatch infrastructure** | Worker-launch ritual + Phase 1.5 STOP discipline + AskUserQuestion canonical Phase 1.5 delivery + §17 SELF-FIX BOUNDARY + sentinel-validation Phase 4 + Phase 6 archive-after-CI-success | `shared/dispatch/shared/worker-launch-ritual.md` (18 items + 5 codification candidates queued) |
+| **Design tokens (warm-light v1.0)** | Unified design + UX system for advisor + client surfaces (pwos.app + pwportal.app parity); warm off-white canvas; dark navy type; minimal borders; calm-confidence tone | `shared/docs/firm/design-system.md` v1.0 (consumable artifacts referenced: `brand/design-tokens.css`, `brand/tailwind-preset.js`) |
+| **PII egress canary** | Three-byte-identical-copy pattern: middleware at pw-api + re-implemented canaries at every Anthropic-SDK egress site (pw-os-v2 + pw-portal-v2); deliberately not a shared module so the layers cannot share a bug | `shared/strategy/CURRENT-STATE.md` (AI surface section); paired with `@protocolwealthos/pii-guard` + `@protocolwealthos/ai-guardrails` |
+
+**Reference posture:** pwos-core packages are the npm-published, framework-agnostic implementation surface. The PW estate canonicals (ADRs + dispatch infrastructure + design tokens) are the operational shape that production deployments inherit. Adopters can take the npm packages standalone, or compose them against the same canonical patterns — both paths are supported.
 
 ## Architecture
 
@@ -179,6 +212,67 @@ pnpm dev
 
 Open http://localhost:5173 — sign in with Google, start chatting.
 
+## How to adopt a canonical pattern
+
+Pick the primitive you need; compose against the canonical pattern reference. Three examples:
+
+**Schema-level PII tagging at ingestion:**
+
+```ts
+// At your ingestion site (e.g., Wealthbox sync, custodian webhook)
+import { PII_TAGS } from '@protocolwealthos/pii-guard';
+
+await db.insert(clientsTable).values({
+  ssn: payload.ssn,
+  pii_tags: PII_TAGS.client_ssn,  // canonical map; { 'ssn': 'pii.high' }
+  // ...
+});
+
+// At your prompt-construction site (LLM call boundary)
+import { excludeHighPiiFields } from '@protocolwealthos/ai-guardrails';
+
+const llmSafePayload = excludeHighPiiFields(record, record.pii_tags);
+```
+
+Full canonical: `shared/architecture/decisions/ADR-PII-tagging.md` R3.
+
+**Sentinel-row reconciliation for WORM tables:**
+
+```ts
+// Failed write to immutable table → emit a sentinel-row referencing the failed row
+import { AuditLogger } from '@protocolwealthos/audit-log';
+
+const failedRow = await auditLogger.write({ action: 'kyc.session.create', ... });
+
+if (gcsWormMirrorFailed) {
+  await auditLogger.write({
+    action: 'kyc.session.retry_mirror',
+    detail: { referencesFailedRowId: failedRow.id, attempt: 1 },
+    // recursion guard: if attempt > MAX_RETRIES, surface to operator
+  });
+}
+```
+
+Full canonical: `shared/architecture/decisions/ADR-gcs-worm-audit-mirror.md` R3.
+
+**Webhook-receiver primitive with per-vendor handler:**
+
+```ts
+// pw-api/src/routes/webhooks.ts pattern
+import { verifyHmacSha256 } from '@protocolwealthos/webhooks';
+
+webhookRouter.post('/:vendor', async (c) => {
+  const handler = vendorRegistry.get(c.req.param('vendor'));
+  const rawPayload = await c.req.text();
+  if (!await handler.verify(rawPayload, c.req.header(), getVendorSecret(c.req.param('vendor')))) {
+    return c.json({ error: 'invalid signature' }, 401);
+  }
+  // dedup → parse → process → audit → DLQ
+});
+```
+
+Full canonical: `shared/architecture/decisions/ADR-webhook-receiver-primitive.md`.
+
 ## Tech Stack
 
 | Layer | Technology |
@@ -212,6 +306,7 @@ Deploy your own instance on Fly.io (~$62/month) with your own database. Your dat
 
 ## Documentation
 
+- [Canonical Patterns](docs/CANONICAL-PATTERNS.md) — six patterns extracted from the PW estate canonical set (PII_TAGS, sentinel-row reconciliation, Track B' webhook-receiver primitive, multi-agent dispatch infrastructure, design tokens v1.0, PII egress canary); each entry links to its ADR or design doc in `shared/` for the full canonical
 - [Architecture](docs/architecture.md)
 - [Packages Reference](docs/packages.md)
 - [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC

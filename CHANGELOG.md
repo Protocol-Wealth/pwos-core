@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Documentation refresh for 2026-05-18 → 2026-05-19 cascade (2026-05-19)
+
+Doc-refresh-only iteration; no code change. Captures the operational depth + recent shipping cadence visible at the README + canonical-patterns surface; pwos-core's published packages and CI workflows unchanged.
+
+- **`README.md`** — added `## Who built this` section anchoring PW as the SEC RIA (CRD #335298) running this substrate; added `## Recent shipping cadence (2026-05-18 → 2026-05-19 cascade)` block summarizing Component 4 e-signature + Component 3 risk-tolerance + Component 2 KYC + chat session naming + Stream Z PII-tagging + design-system v1.0 + worker-launch-ritual hardening (14 → 18 items); added `## Canonical patterns extracted` table mapping six patterns to PW estate canonical ADRs + design docs; added `## How to adopt a canonical pattern` worked-example section with three TypeScript snippets (PII tagging, sentinel-row reconciliation, webhook-receiver primitive); added Canonical Patterns link in Documentation section.
+- **`docs/CANONICAL-PATTERNS.md`** — new doc cataloging the six patterns now extracted from the PW estate that pwos-core's primitive packages compose against: (1) PII_TAGS canonical map + prompt-construction exclusion middleware (ADR-PII-tagging R3); (2) sentinel-row reconciliation for WORM / immutable-row tables (ADR-gcs-worm-audit-mirror R3); (3) Track B' webhook-receiver primitive (ADR-webhook-receiver-primitive ACCEPTED); (4) multi-agent dispatch infrastructure (worker-launch-ritual; 18 items + 5 codification candidates queued); (5) design tokens v1.0 warm-light parity (`shared/docs/firm/design-system.md` v1.0); (6) PII egress canary three-byte-identical-copy pattern. Tier conventions defined (CANONICAL / REVISION / EMERGING); cross-pattern composition notes; roadmap for additional patterns queued for extraction; contributing-patterns-back guidance.
+- **Cross-reference posture** — pwos-core packages remain the npm-published, framework-agnostic implementation surface; PW estate canonicals (ADRs + dispatch infrastructure + design tokens) remain the operational shape that production deployments inherit. Adopters can take the npm packages standalone or compose against the same canonical patterns — both paths supported.
+- **New referenced ADRs landed in pw-shared this cascade:** ADR-signed-document-state-machine (Component 4 e-signature substrate), ADR-anvil-integration (Component 4 vendor integration).
+- **No npm package code change.** No CI workflow change. License + patent + OIN posture unchanged. Apache-2.0 + USPTO #64/034,215 defensive-licensing posture preserved.
+
 ### Changed — Public-repo honesty disclaimer (2026-05-14)
 
 - **`README.md`** — added `## Status` block before `## What This Is`: pwos-core is a reference framework and starting point, not a production-ready product; adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context; the framework makes no AI-provider data-retention guarantees.
