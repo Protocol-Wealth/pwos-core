@@ -1,0 +1,21 @@
+{
+  "name": "@protocolwealthos-examples/rias-agent-substrate",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Reference implementation of the three-tier agent memory architecture (per-client / per-advisor / per-firm) composing pwos-core substrate primitives.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@protocolwealthos/audit-log": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6",
+    "@types/node": "^25.8.0"
+  }
+}

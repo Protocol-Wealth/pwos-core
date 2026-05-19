@@ -171,14 +171,49 @@ interface VendorWebhookHandler {
 
 ---
 
+## 7. Three-tier agent memory architecture (per-client / per-advisor / per-firm)
+
+**Status:** EMERGING (`shared/architecture/decisions/ADR-three-tier-agent-memory.md` DRAFT 2026-05-19; promotion to ACCEPTED gated on first production consumer landing — Component 7 Week 3 pwos.app/agents v0.1)
+
+**One-line:** Three distinct memory scopes for AI agents in an RIA context — per-client (existing client_profile + audit_log principal-chain queries; no new schema), per-advisor (new `advisor_memory` table; advisor_id-RLS), per-firm (derived from version-controlled compliance + ADR substrate; no Postgres table). Composed in fixed order at agent-session time; every read writes audit-trail-eligible records.
+
+**Why the pattern exists:** Vendors that launch AI agents don't give RIAs a memory architecture — they give RIAs an opaque vendor-side state surface. The substrate posture is that memory belongs to the RIA, scoped per-client / per-advisor / per-firm, with each tier having distinct retention, access, and audit requirements. Without canonical three-tier substrate, every agent-facing surface reinvents the per-scope enforcement at the application layer — exactly the disciplinary anti-pattern that ADR-PII-tagging.md and ADR-webhook-receiver-primitive.md are built to avoid.
+
+**Tier breakdown:**
+
+| Tier | Data-model home | RBAC | Retention |
+|---|---|---|---|
+| Per-client | Existing `client_profile` + `audit_log` principal-chain queries (no new schema) | Postgres RLS on `client_id` + principal-chain authorization | 7-year post-relationship per 17 CFR §240.17a-4 |
+| Per-advisor | NEW `advisor_memory` table (advisor_id + memory_key + JSONB value) | Postgres RLS on `advisor_id` | 7-year post-departure per 17 CFR §240.17a-4 |
+| Per-firm | Derived from version-controlled markdown (`shared/` git history) | Read-only by construction | Git-history unbounded |
+
+**Composition order at agent-session time:** firm (broadest, read-only) → advisor (advisor scope) → client (most-scoped, principal-chain-authorized). Four audit rows per composition (`agent.context.chain_established` + per-tier `_memory_read` rows referencing the anchor row id). The composition is what makes per-scope enforcement structural rather than disciplinary.
+
+**pwos-core packages that compose against this pattern:**
+
+- `@protocolwealthos/audit-log` — principal-chain queries derive per-client decision history + chain-established audit-row anchor + `source_audit_id` back-reference for per-advisor memory entries
+- `@protocolwealthos/pii-guard` — 4-layer PII scanner at the memory-read boundary; same exclusion logic as ADR-PII-tagging.md for prompt construction
+- `@protocolwealthos/ai-guardrails` — `buildAuditRow()` content-free audit-row builder for the agent's own LLM-call records
+
+**Reference implementation:** [`examples/rias-agent-substrate/`](../examples/rias-agent-substrate/) — storage-agnostic TypeScript composing the three tiers; in-memory implementations for testing + exploration; production consumers swap in Postgres-backed stores with the same contracts.
+
+**Adopter posture:** Three concrete steps to adopt — (1) add the `advisor_memory` migration with advisor_id-RLS; (2) implement the per-tier `MemoryStore` interfaces against your Postgres connection; (3) implement `FirmMemorySource.read()` as a build-time derivation step from your `shared/`-equivalent substrate. The composition contract is what's canonical; storage implementation is yours.
+
+**Adopter-facing companion doc:** [`docs/three-tier-agent-memory-architecture.md`](./three-tier-agent-memory-architecture.md) — public-readable architecture explainer with mermaid diagrams + tier-by-tier substrate enforcement + adopter playbook.
+
+**Canonical reference:** `shared/architecture/decisions/ADR-three-tier-agent-memory.md` DRAFT (consumer-side, private). Promotes to ACCEPTED on first production consumer landing.
+
+---
+
 ## Cross-pattern references
 
-The six patterns above are not independent — they compose:
+The seven patterns above are not independent — they compose:
 
 - **Patterns 1 + 6** form the PII defense-in-depth: schema tags at ingestion (#1) + structural exclusion middleware (#1) + three-layer egress canary (#6).
 - **Patterns 2 + 3** form the audit-trail substrate: WORM-mirrored audit_log with sentinel-row reconciliation (#2) carries every webhook delivery + processing event from the canonical receiver primitive (#3).
-- **Pattern 4** is the operational layer that ships the others — multi-agent dispatch landed Components 2 + 3 + 4 in three consecutive iterations against the substrate from patterns 1 + 2 + 3.
-- **Pattern 5** is the user-facing visible layer — the substrate from 1-4 + 6 is what makes the calm-confidence tone of pattern 5 substantiated rather than performative.
+- **Patterns 1 + 2 + 7** form the agent-memory substrate: PII tagging (#1) at the memory-read boundary + audit-log principal-chain queries (#2) as the per-client memory backbone + three-tier composition (#7) as the substrate-architecture overlay.
+- **Pattern 4** is the operational layer that ships the others — multi-agent dispatch landed Components 2 + 3 + 4 in three consecutive iterations against the substrate from patterns 1 + 2 + 3; Component 7 implementation extends to pattern 7.
+- **Pattern 5** is the user-facing visible layer — the substrate from 1-4 + 6 + 7 is what makes the calm-confidence tone of pattern 5 substantiated rather than performative.
 
 ---
 
