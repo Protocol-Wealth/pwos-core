@@ -36,6 +36,59 @@ The Protocol Wealth estate ships continuously; pwos-core is the public-facing ex
 
 Full cross-repo activity ledger lives at `shared/CHANGELOG.md` in the private PW estate; the artifacts that materialize here as reusable primitives are listed in the **Canonical patterns extracted** section below.
 
+## For advisors — how to use this repo
+
+If you are an RIA principal, CCO, or technical advisor evaluating your firm's AI-and-compliance substrate, three concrete actions you can take with this repo today:
+
+1. **Fork `pwos-core`.** Apache 2.0 license; no NDA, no contact form. Run the audit-logging + PII-redaction primitives against your own data, in your own GCP project, on your own timeline. The pattern set is documented; the primitives are inspectable.
+2. **Use the [advisor's AI vendor audit checklist](https://protocolwealthllc.com/factsheets/advisor-ai-vendor-audit-checklist).** 20 questions any RIA should ask before adopting an AI-enabled vendor — Reg S-P, Rule 17a-4, Marketing Rule §206(4)-1, Rule 204-2, Rule 206(4)-7. Yours to edit, republish, hand to your CCO, or attach to a vendor RFP.
+3. **Subscribe to [protocolwealthllc.com/changelog](https://protocolwealthllc.com/changelog).** Public substrate changelog. If we ship something compliance-interesting (or something dumb), you see it. Build-in-public both ways.
+
+### Package → regulation map
+
+The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as follows. This is the canonical mapping; individual package READMEs carry the per-primitive substantive detail.
+
+| Package | Regulatory obligation | Primary substrate |
+|---|---|---|
+| **`audit-log`** | SEC Rule 17a-4(b)(4) preservation + Rule 17a-4(f)(2)(ii) WORM electronic-storage + Rule 204-2 books-and-records | Hash-chained append-only log; anomaly detectors; `assertApprovedByDifferentParty`; Postgres trigger SQL |
+| **`pii-guard`** | Reg S-P §248.30(b) safeguards + GLBA non-public-personal-information protections | 4-layer pipeline (regex + NER + financial recognizers + domain allow-list); streaming rehydrator; injection detector |
+| **`email-archive`** | SEC Rule 17a-4(f)(2)(ii) electronic-storage retention + Rule 17a-4(b)(4) communications preservation | SHA-256 chain-of-custody hashing; retention enforcement; query evaluator |
+| **`ai-guardrails`** | AI governance posture for SEC-registered advisers (Marketing Rule §206(4)-1 attribution + Rule 204-2 communication retention) | ZDR workspace fail-fast; env-aliased model resolver (no hardcoded model strings); cache-marker PII boundary check; audit row builder |
+| **`compliance`** | Rule 204-2 books-and-records primitives + Reg S-P §248.30 incident classification | SEC 204-2 retention calculator; Books-and-Records bundler; PII incident classifier; compliance calendar; vendor DD metadata schema |
+| **`mcp-tools`** | AI governance — tool-call attribution + write-tool authorization gate + Rule 204-2 tool-call retention | 4-tier tool access classification; response filters; payload-bound `confirmGate()` (write-tool two-turn gate); `buildToolAuditEntry()` |
+| **`webhooks`** | Canonical webhook receiver primitive — verify · dedup · parse · process · audit · DLQ — applicable across vendor relationships under Reg S-P §248.30(a)(5) | `verifyHmacSha256` (hex/base64/base64url); `verifyTimestampedHmacSha256` (replay-window); `verifyDualLayer` (path-token + Basic Auth); `IdempotencyStore` interface |
+| **`security-headers`** | Web-security baseline (CSP / HSTS / Permissions-Policy / X-Frame-Options) — Reg S-P §248.30(b) safeguards adjacent | `strictBaseline()` CSP (no `'unsafe-inline'`); `applyDevOverrides()` for HMR; `buildHsts()` (preload-eligible); framework-agnostic flat header map |
+| **`workflow-engine`** | Review-items state machine + HITL Tier 2 patterns — Rule 206(4)-7 compliance program substrate | Durable-job runtime; backoff strategies (fixed / linear / exponential + jitter); in-memory queue + pluggable backends |
+| **`auth`** | SEC Rule 17a-4(g) electronic-records access controls + state privacy access discipline | HS256 JWT (refuses `alg:"none"`; timing-safe); numeric-rank role guard; workspace domain assert; per-agent token sign/verify/scope with revocation |
+| **`ledger`** | Rule 17a-3 (broker-dealer) parallel patterns + RIA bailment-mode invariants — applicable to advisor shadow-ledger contexts | Append-only double-entry; five canonical roots; sum-to-zero per (currency, scale); `BalanceAssertion` checkpoints; reverse-only edits; `verifyPooledEqualsClaims` + `detectCustodianDrift` |
+| **`holdings`** | Rule 204-2(a)(3) + (a)(13) account / transaction records; SEC 204-2 hash-chainable snapshot retention | `Account` / `Security` (ISIN / CUSIP / SEDOL first-class); immutable `HoldingEvent` stream; `materializeSnapshots()` (deterministic, hash-chainable); `AdvisorAccess` scope hierarchy |
+| **`crm`** | Rule 204A-1 client-data handling + Marketing Rule §206(4)-1 communication tracking primitives | Contacts; households; interactions; opportunities; tasks; status/aging helpers; `HouseholdProfile` (versioned) for "financial memory" pattern |
+| **`document-gen`** | Rule 204-2(a)(11) communications retention substrate | Document model; RFC 4180 CSV; plain-text renderer; `DocumentRenderer` interface (PDF / PPTX / DOCX backends) |
+| **`onchain-sdk`** | Custody Rule §275.206(4)-2 relevant for crypto-touching advisors (typed RIA-shadow-portfolio surfaces, NOT custody itself) | Typed client + models for on-chain portfolio services |
+| **`gcp-helpers`** | SEC Rule 17a-4(f)(2)(ii) electronic-storage substrate + structured-logging Reg S-P §248.30(b) adjacent | `createCloudLogger()` (JSON-line structured logging); `pickConnectionStrategy()` (Cloud SQL IAM auth, refuses silent password fallback); `createCachingSecretLoader()`; `buildFrontendErrorReport()` |
+| **`cache-keys`** | Reg S-P §248.30(b) safeguards — cache-key PII isolation | Namespace-enforced builder (`vendor:resource:identifier`); PII pattern rejection (email / SSN / credit card / US phone / UUID); `hashed()` escape hatch |
+
+**Mapping principle:** each primitive is a substrate that *enables* an RIA to meet a regulation, not a replacement for the RIA's CCO judgment on that regulation. Use the primitive; document the use in your `Rule 206(4)-7` annual review; let your CCO bind the substrate to your firm's specific obligations. This package does not provide legal advice.
+
+### License
+
+**Apache License 2.0** — the canonical [`LICENSE`](LICENSE) file is the authoritative source. Apache 2.0 was chosen deliberately over MIT for two reasons: (1) the patent-grant clause aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229; OIN membership); (2) any RIA forking PW's substrate inherits the patent grant alongside the code. MIT works for primitives; Apache 2.0 is the right license for substrate that another RIA's compliance posture depends on.
+
+Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site); ~243 financial-data tools) carries the same Apache 2.0 + defensive patent license.
+
+### Cross-references — PW public surfaces
+
+| Surface | Purpose |
+|---|---|
+| [`protocolwealthllc.com/security`](https://protocolwealthllc.com/security) | Public security posture — ZDR + PII guard + WORM audit + signing posture + verification pathways |
+| [`protocolwealthllc.com/changelog`](https://protocolwealthllc.com/changelog) | Public substrate changelog — sanitized cross-repo shipping ledger; build-in-public Tier-1 |
+| [`protocolwealthllc.com/factsheets`](https://protocolwealthllc.com/factsheets) | Public fact-sheet kit — 5 substrate-education documents incl. the advisor's AI vendor audit checklist |
+| [`pwos.app/live`](https://pwos.app/live) | Engineering substrate transparency dashboard — PR activity + CI status + ADR counts + static posture indicators |
+| [`nexusmcp.site`](https://nexusmcp.site) | Sibling repo `nexus-core` production MCP foundation — ~243 financial-data tools surfaced as MCP-protocol tools |
+| [`protocolwealthllc.com/subprocessors`](https://protocolwealthllc.com/subprocessors) | Canonical subprocessor list — 16 vendors in PW's production stack with attestations |
+
+**Note (2026-05-19):** `/changelog`, `/factsheets`, and `/live` are launching today as the build-in-public Tier-1 substrate-transparency surfaces. If a link 404s briefly, that is the build-in-public posture functioning — visible work in progress.
+
 ## What This Is
 
 PWOS Core is the open source foundation of the [Protocol Wealth Operating System](https://pwos.app) — a self-hosted AI platform built for SEC-registered investment advisers (RIAs), FINRA-regulated financial advisors, family offices, and anyone who needs regulatory-grade compliance in AI-assisted financial operations.
