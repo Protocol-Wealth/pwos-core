@@ -173,7 +173,7 @@ interface VendorWebhookHandler {
 
 ## 7. Three-tier agent memory architecture (per-client / per-advisor / per-firm)
 
-**Status:** EMERGING (`shared/architecture/decisions/ADR-three-tier-agent-memory.md` DRAFT 2026-05-19; promotion to ACCEPTED gated on first production consumer landing — Component 7 Week 3 pwos.app/agents v0.1)
+**Status:** CANONICAL (`shared/architecture/decisions/ADR-three-tier-agent-memory.md` ACCEPTED 2026-05-19; first production consumer landed via Protocol-Wealth/pwos-core#38 — `examples/rias-agent-substrate/src/llm-demo.ts` `composeAndCallLLM()` flow with full 5-audit-row trail)
 
 **One-line:** Three distinct memory scopes for AI agents in an RIA context — per-client (existing client_profile + audit_log principal-chain queries; no new schema), per-advisor (new `advisor_memory` table; advisor_id-RLS), per-firm (derived from version-controlled compliance + ADR substrate; no Postgres table). Composed in fixed order at agent-session time; every read writes audit-trail-eligible records.
 
@@ -201,7 +201,14 @@ interface VendorWebhookHandler {
 
 **Adopter-facing companion doc:** [`docs/three-tier-agent-memory-architecture.md`](./three-tier-agent-memory-architecture.md) — public-readable architecture explainer with mermaid diagrams + tier-by-tier substrate enforcement + adopter playbook.
 
-**Canonical reference:** `shared/architecture/decisions/ADR-three-tier-agent-memory.md` DRAFT (consumer-side, private). Promotes to ACCEPTED on first production consumer landing.
+**First production consumer:** `examples/rias-agent-substrate/src/llm-demo.ts` `composeAndCallLLM()` flow (Protocol-Wealth/pwos-core#38; landed 2026-05-19). The flow exercises the full architecture end-to-end: composes three-tier agent context (writes 4 audit rows — chain-establishment anchor + per-tier memory_read rows) + makes an LLM call via `@anthropic-ai/sdk` against the composed context + writes a 5th content-free audit row (`agent.llm.call_completed`) using `@protocolwealthos/ai-guardrails buildAuditRow` referencing the chain anchor.
+
+**Companion consumers landed same iteration (2026-05-19):**
+
+- pw-website `/agents` live functional view (Protocol-Wealth/pw-website#119) — public-readable architecture-explainer surface
+- pw-os-v2 chat sidebar Agent memory panel (Protocol-Wealth/pw-os-v2#361) — operator-side real-time tier-access surface; consumes `audit_log` rows scoped to chat conversation
+
+**Canonical reference:** `shared/architecture/decisions/ADR-three-tier-agent-memory.md` ACCEPTED 2026-05-19 (consumer-side, private; bounded NDA access available to qualified institutional reviewers via the verification pathway at `protocolwealthllc.com/security`).
 
 ---
 
