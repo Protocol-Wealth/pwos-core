@@ -20,7 +20,35 @@ The example is **storage-agnostic** by design — `MemoryStore<T>` interfaces le
 
 The composition is **always in this order**: per-firm context (broadest, read-only) → per-advisor context (advisor scope) → per-client context (most-scoped, principal-chain-authorized).
 
-## Quickstart
+## Runnable demo
+
+The example includes a runnable demo that closes the loop end-to-end —
+composes context across all three tiers, makes a real LLM call (against the
+Anthropic API when `ANTHROPIC_API_KEY` is set, or a deterministic mock when
+it isn't), and writes the 5-audit-row trail. This is the **first production
+consumer** path for Pattern #7.
+
+```sh
+# From the pwos-core repo root:
+pnpm install
+pnpm --filter @protocolwealthos-examples/rias-agent-substrate run demo
+
+# With a real LLM call:
+ANTHROPIC_API_KEY=sk-ant-... pnpm --filter @protocolwealthos-examples/rias-agent-substrate run demo
+```
+
+The demo prints the composed system prompt + LLM response + the 5 audit-log
+rows that landed: chain-establishment anchor + per-tier memory_read rows +
+the `agent.llm.call_completed` row referencing the anchor with a
+content-free `AiCallAuditRow` (hash-based prompt + response + token-usage)
+in its details payload.
+
+When `@anthropic-ai/sdk` is installed and `ANTHROPIC_API_KEY` is present,
+the LLM call hits the real API; otherwise the demo prints a notice and
+uses a deterministic mock client so the audit-row trail still demonstrates
+end-to-end. Tests stay hermetic via the same mock pattern.
+
+## Quickstart (programmatic)
 
 ```ts
 import { RIAAgentSubstrate, InMemoryClientMemoryStore, InMemoryAdvisorMemoryStore, InMemoryFirmMemorySource } from "./src/index.js";
