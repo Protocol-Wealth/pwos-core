@@ -212,15 +212,39 @@ interface VendorWebhookHandler {
 
 ---
 
+## 8. Classification-aware egress canary
+
+**Status:** CANONICAL (`shared/architecture/decisions/ADR-b2b-counterparty-classification.md` ACCEPTED 2026-05-20; cross-repo canary-copy sync landed across all three byte-identical copies — pw-api#261 + pw-portal-v2#72 + the pw-os-v2#363 origin)
+
+**One-line:** the PII egress canary (Pattern #6) takes an optional document `classification`; a founder-gated, attestation-backed `b2b-counterparty` override suppresses the two categories that false-positive on counterparty corporate-contact data (`email` + `us_phone`) while `ssn` + `credit_card` stay structurally un-suppressible — natural-person financial-identifier defense-in-depth is unconditional.
+
+**Why the pattern exists:** the egress canary is calibrated for the dominant case — documents containing natural-person client NPI. It has no notion of document provenance: every email and phone is treated as potential client PII. For a business-to-business agreement (ISDA / CSA / vendor contract) between two corporations, the counterparty's corporate emails + office phone numbers are genuinely not client NPI — but the canary hard-fails the request anyway, forcing the review outside the audited substrate. The classification override lets the operator who *knows the document's provenance* relax exactly the false-positive categories, without weakening the canary for anything else.
+
+**Mechanics:**
+
+- `UploadClassification` = `'client-data'` (default — full canary, no silent downgrade) | `'b2b-counterparty'` (the override).
+- `CLASSIFICATION_SUPPRESSED_TYPES` map: `b2b-counterparty` → suppresses `email` + `us_phone`. `ssn` + `credit_card` appear in **no** suppression set — structurally un-suppressible.
+- Suppression is enforced at a **single choke point** — the internal `push()` helper every pattern match flows through. A suppressed category cannot enter the hit set regardless of which pattern matched it.
+- **Double gate** on the override, enforced server-side at the route layer: the actor must be a firm founder, AND an explicit no-client-PII attestation must be present. A failed gate is a hard 4xx — never a silent downgrade.
+- Every use writes a `upload.classification.attested` audit row (classification + attestation in the principal chain); the canary blocked-row log additionally records the active `classification`.
+- **Defense-in-depth invariant:** a fire under `b2b-counterparty` can only be `ssn` / `credit_card` — i.e. a genuine natural-person leak the override correctly did not relax.
+
+**Three-byte-identical-copy contract:** like Pattern #6, the classification-aware canary is three independent copies (pw-api / pw-os-v2 / pw-portal-v2) — not a shared module. The classification logic block (`UploadClassification` type + `CLASSIFICATION_SUPPRESSED_TYPES` + `scanForResidualPII`) is byte-identical across all three; only the per-repo logging-call wrapper legitimately differs.
+
+**Canonical reference:** `shared/architecture/decisions/ADR-b2b-counterparty-classification.md` ACCEPTED 2026-05-20 (consumer-side, private). First consumer: pw-os-v2#363 (Component 9 MVP — chat send route + UI). Composes with Pattern #6 (this is Pattern #6 made classification-aware) and Pattern #1 (PII tagging — the suppressed categories are scoped against the natural-person-NPI definition).
+
+---
+
 ## Cross-pattern references
 
-The seven patterns above are not independent — they compose:
+The eight patterns above are not independent — they compose:
 
 - **Patterns 1 + 6** form the PII defense-in-depth: schema tags at ingestion (#1) + structural exclusion middleware (#1) + three-layer egress canary (#6).
 - **Patterns 2 + 3** form the audit-trail substrate: WORM-mirrored audit_log with sentinel-row reconciliation (#2) carries every webhook delivery + processing event from the canonical receiver primitive (#3).
 - **Patterns 1 + 2 + 7** form the agent-memory substrate: PII tagging (#1) at the memory-read boundary + audit-log principal-chain queries (#2) as the per-client memory backbone + three-tier composition (#7) as the substrate-architecture overlay.
+- **Patterns 1 + 6 + 8** form the egress-PII defense: PII tagging (#1) + the three-copy egress canary (#6) + the classification-aware override (#8) that relaxes only false-positive categories under a founder-gated attestation, never the natural-person-identifier categories.
 - **Pattern 4** is the operational layer that ships the others — multi-agent dispatch landed Components 2 + 3 + 4 in three consecutive iterations against the substrate from patterns 1 + 2 + 3; Component 7 implementation extends to pattern 7.
-- **Pattern 5** is the user-facing visible layer — the substrate from 1-4 + 6 + 7 is what makes the calm-confidence tone of pattern 5 substantiated rather than performative.
+- **Pattern 5** is the user-facing visible layer — the substrate from 1-4 + 6 + 7 + 8 is what makes the calm-confidence tone of pattern 5 substantiated rather than performative.
 
 ---
 
