@@ -14,6 +14,7 @@
  */
 
 import { AuditLogger } from "@protocolwealthos/audit-log";
+import type { AiCallAuditRow } from "@protocolwealthos/ai-guardrails";
 
 import {
   type AdvisorMemoryStore,
@@ -152,5 +153,36 @@ export class RIAAgentSubstrate {
       clientMemory,
       principalChain,
     };
+  }
+
+  /**
+   * Write the LLM-call audit row referencing the chain-establishment
+   * anchor. Used by the composeAndCallLLM flow in llm-demo.ts after the
+   * LLM responds; encapsulated here so the substrate retains ownership
+   * of audit-logger access.
+   *
+   * The audit row's details payload carries the AiCallAuditRow shape
+   * built via @protocolwealthos/ai-guardrails.buildAuditRow — content-
+   * free + hash-based + token-usage-propagated.
+   */
+  async writeLLMCallAuditRow(input: {
+    actorId: string;
+    sessionId: string;
+    clientId: string;
+    anchorAuditEntryId?: string;
+    auditRow: AiCallAuditRow;
+  }): Promise<{ id: string }> {
+    const entry = await this.opts.audit.log({
+      actorId: input.actorId,
+      action: "agent.llm.call_completed",
+      resourceType: "agent_session",
+      resourceId: input.sessionId,
+      details: {
+        anchor_audit_id: input.anchorAuditEntryId,
+        client_id: input.clientId,
+        ai_call_audit_row: input.auditRow,
+      },
+    });
+    return { id: entry.id };
   }
 }

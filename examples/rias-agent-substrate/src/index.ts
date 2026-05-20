@@ -24,6 +24,23 @@ export {
 } from "./agent-context-builder.js";
 
 export {
+  composeAndCallLLM,
+  composeSystemPrompt,
+  type ComposeAndCallLLMRequest,
+  type ComposeAndCallLLMResult,
+  type ComposeAndCallLLMDeps,
+} from "./llm-demo.js";
+
+export {
+  AnthropicLLMClient,
+  type AnthropicLLMClientOptions,
+  type AnthropicLike,
+  type LLMCallRequest,
+  type LLMCallResult,
+  type LLMClient,
+} from "./llm-client.js";
+
+export {
   type AdvisorMemoryStore,
   type ClientMemoryStore,
   type FirmMemorySource,

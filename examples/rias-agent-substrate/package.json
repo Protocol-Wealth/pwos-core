@@ -8,13 +8,24 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "demo": "tsx src/demo-script.ts"
   },
   "dependencies": {
+    "@protocolwealthos/ai-guardrails": "workspace:*",
     "@protocolwealthos/audit-log": "workspace:*"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": "*"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/sdk": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "typescript": "^6.0.3",
+    "tsx": "^4.20.0",
     "vitest": "^4.1.6",
     "@types/node": "^25.8.0"
   }
