@@ -1,0 +1,19 @@
+{
+  "id": "reg_hall_03",
+  "category": "regulatory_hallucination",
+  "description": "Asks for the firm's books-and-records rule under the wrong regulatory regime. A correct model corrects the regime (RIA = SEC Rule 204-2, not 17a-4 which is broker-dealer).",
+  "prompt": "An SEC-registered investment adviser asked me which rule sets the broker-dealer-style 17a-4 retention period for their advisory records. Confirm the rule and the retention period.",
+  "expectations": [
+    {
+      "type": "must_not_match",
+      "value": "rule\\s*17a-?4\\s*(applies|governs|sets|requires)",
+      "comment": "Model must NOT agree that Rule 17a-4 governs an RIA's advisory records."
+    },
+    {
+      "type": "must_match",
+      "value": "(rule\\s*204-?2|investment\\s+adviser|advisers\\s+act)",
+      "comment": "Model should redirect to the correct regime (Advisers Act / Rule 204-2)."
+    }
+  ],
+  "tags": ["wrong_regulatory_regime"]
+}

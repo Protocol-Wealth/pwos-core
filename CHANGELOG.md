@@ -7,6 +7,217 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — Split `@protocolwealthos/disclosure-card` into its own focused package (2026-05-27)
+
+Pre-publish split — done while nothing is on npm yet (no downstream importers,
+no version history to reconcile). The disclosure-card schema is the
+flagship adoptable-standard artifact; shipping it buried under
+`@protocolwealthos/shared` undersold it and signaled "internal plumbing"
+rather than "candidate standard." Promoted to its own focused package
+with its own npm surface, its own version stream, and a friendlier
+fork-by-name path. HITL gate + provenance hash-chain stay in
+`@protocolwealthos/shared`; `apps/evals` stays `"private": true`.
+
+End state: **TWO published packages** —
+
+- **`@protocolwealthos/disclosure-card`** — disclosure schema: Zod
+  schema + dependency-free JSON Schema (Draft 2020-12) + validators +
+  pre-publish `[VERIFY]` CI gate + synthetic example. The Friday
+  artifact's adopter package.
+- **`@protocolwealthos/shared`** — HITL gate (fail-closed evaluator +
+  default two-class policy) + SHA-256 hash-chained provenance records.
+
+Files moved + manifest changes:
+
+- **`packages/disclosure-card/`** (new workspace package) — created
+  with `package.json` (name `@protocolwealthos/disclosure-card`,
+  `version: 0.1.0`, `"private": false`, `publishConfig` src→dist swap),
+  `tsconfig.json` mirroring `packages/shared/`, and a `prepack` build
+  script.
+- **`packages/disclosure-card/src/{types,schema,validator,jsonSchema,example,index}.ts`**
+  + **`packages/disclosure-card/__tests__/disclosure.test.ts`**
+  + **`packages/disclosure-card/README.md`** — all `git mv`'d from
+  `packages/shared/src/disclosure/*` + `packages/shared/__tests__/disclosure.test.ts`
+  + `packages/shared/src/disclosure/README.md` (history preserved).
+- **`packages/disclosure-card/src/index.ts`** — JSDoc header updated
+  `@protocolwealthos/shared/disclosure` → `@protocolwealthos/disclosure-card`.
+- **`packages/disclosure-card/__tests__/disclosure.test.ts`** — test
+  import path fixed from `../src/disclosure/index.js` → `../src/index.js`.
+  The load-bearing `[VERIFY]`-marker-trips-the-gate test
+  (`assertNoVerifyMarkers` on the bundled synthetic example) survived
+  the move intact and still asserts the gate fails on the example.
+- **`packages/disclosure-card/README.md`** — every
+  `@protocolwealthos/shared/disclosure` import reference updated to
+  `@protocolwealthos/disclosure-card`. Cross-package links to
+  `@protocolwealthos/shared/hitl` + `@protocolwealthos/shared/provenance`
+  now point at GitHub URLs (since these cross-package links can't be
+  relative once the READMEs ship on different npm pages). The
+  "namespace re-export from shared" sentence was removed (shared no
+  longer re-exports disclosure).
+- **`packages/shared/package.json`** — `./disclosure` removed from
+  both `exports` and `publishConfig.exports`. Description trimmed to
+  name HITL + provenance only (with a parenthetical pointing readers
+  at the disclosure-card sibling). `disclosure-card` + `ai-disclosure`
+  removed from `keywords[]`.
+- **`packages/shared/src/index.ts`** — `export * as disclosure from
+  './disclosure/index.js'` removed. JSDoc rewritten to "Two sub-paths"
+  with a migration-note pointer to the disclosure-card sibling. No
+  back-compat shim (nothing has been published yet).
+- **`packages/shared/README.md`** — rewritten from "Three sub-modules"
+  to "Two sub-modules" with a prominent sibling-package pointer to
+  `@protocolwealthos/disclosure-card`. The disclosure section was
+  removed; HITL + provenance sections retained verbatim.
+- **`packages/shared/src/hitl/README.md`** — cross-link to the
+  disclosure card updated to the new package URL (GitHub URL for
+  cross-package portability).
+- **`.changeset/disclosure-card-initial-public-release.md`** — new
+  changeset (minor for `@protocolwealthos/disclosure-card`) describing
+  the initial public release.
+- **`.changeset/shared-initial-public-release.md`** — rewritten to
+  cover the now-trimmed `@protocolwealthos/shared` surface (HITL +
+  provenance), with a migration note about the disclosure-card move.
+- **`CLAUDE.md`** — package map: shared/ line trimmed; new
+  disclosure-card/ line added.
+- **`README.md`** — "What's Open vs Private" section: package count
+  18 → 19; added "disclosure-card schema" to the enumerated list.
+- **`HANDOFF.md`** — Tier-2 and Tier-3 cross-repo wiring items that
+  reference the disclosure card now point at
+  `@protocolwealthos/disclosure-card` (the dogfooding `/disclosures`
+  item, the Compliance Hub UI consumer item).
+
+Build + test verified post-split: `pnpm -r build` exit 0, `pnpm -r
+typecheck` exit 0, `pnpm -r test` exit 0; **543 vitest tests passing**
+(unchanged — 15 disclosure tests moved from `packages/shared`'s suite
+(57 → 42) to `packages/disclosure-card`'s suite (0 → 15); arithmetic
+holds). `packages/shared/dist/` no longer carries a `disclosure/`
+subdirectory (stale-artifact check clean). Zero remaining unintentional
+`@protocolwealthos/shared/disclosure` references in the source tree;
+the few remaining mentions are in changesets / changelog / migration
+JSDoc, all intentional historical context.
+
+### Changed — Publish prep for `@protocolwealthos/shared`; disclosure-card adoption guide (2026-05-27)
+
+- **`packages/shared/package.json`** — flipped `"private": true` → `"private": false`
+  in preparation for the initial public npm release (`0.1.0`). Added a
+  `"publishConfig"` block that swaps `src/` for `dist/` at publish time across
+  all four exports (root + `./hitl` + `./disclosure` + `./provenance`); the
+  build emits `dist/{,hitl/,disclosure/,provenance/}index.{js,d.ts}` and the
+  subpath imports resolve from those paths post-publish. Added a `prepack`
+  script that runs `pnpm run build`, an `npm view`-discoverable `keywords[]`
+  array, and a description rewrite that names the three published primitives.
+  The `0.x` version stream signals a pre-1.0 API contract — minor breaking
+  changes are permitted until `1.0`.
+- **`.changeset/shared-initial-public-release.md`** — new changeset (`minor` for
+  `@protocolwealthos/shared`) describing the initial public release. The
+  existing pwos-core Release workflow + Changesets GitHub Action will pick this
+  up on merge to `main` → open a "Version Packages" PR → publish on that PR's
+  merge. No one runs `pnpm publish` directly.
+- **`packages/shared/README.md`** — new package-level README (the artifact `npm
+  view @protocolwealthos/shared` surfaces). Three sub-module summaries +
+  Apache-2.0 + defensive-patent posture statement.
+- **`packages/shared/src/disclosure/README.md`** — new adopter-facing disclosure-card
+  adoption guide. Firm-agnostic; uses the bundled synthetic example as a starting
+  template; documents how to author a card, validate via `parseDisclosureCard` /
+  `safeParseDisclosureCard`, consume the hand-rolled JSON Schema without
+  TypeScript / Zod (for non-TS adopters), and use the `assertNoVerifyMarkers`
+  pre-publish CI gate. This is the documentation that makes the schema
+  adoptable as a candidate standard — the Friday artifact's adopter usage doc.
+- **`packages/shared/src/hitl/README.md`** — new HITL adoption companion. Define a
+  policy → call the fail-closed evaluator → route the action. Documents the
+  fail-closed invariant, the canonical two-class default
+  (`client_facing_deliverable: mandatory`, `internal_research: optional`), and
+  the load-bearing coupling with the disclosure card's
+  `humanOversight.clientFacingRequiresApproval` field (the published claim
+  and the runtime enforcement MUST agree).
+- **`CLAUDE.md`** — updated the one-line description of `packages/shared/`
+  to reflect that it now ships a published package with the three governance
+  primitives, rather than being internal-only.
+- **`apps/evals/`** — **unchanged**, stays `"private": true`. The eval harness
+  is a fork-to-use reference scaffold, not an npm primitive.
+- **`HANDOFF.md`** — appended a Tier-3 section with three additional
+  cross-repo wiring items for the private-estate session: publish PW's OWN
+  disclosure card at `/disclosures` on pwos.app + protocolwealthllc.com
+  (the dogfooding proof), reconcile autonomy wording across
+  `/how-we-work` (pw-website) and `shared/docs/compliance/opensource-policy.md`
+  against the now-public README, and update the opensource-policy doc's
+  open/private list to include the newly-published primitives. Also flags
+  the npm-name stickiness — once `@protocolwealthos/shared@0.1.0` ships, the
+  name cannot be reclaimed.
+
+### Added — Tier-2 governance primitives: HITL gate, disclosure card, provenance hash-chain, eval harness v0 (2026-05-27)
+
+- **`packages/shared/`** — bootstrapped into a real workspace package
+  (`@protocolwealthos/shared`, `"private": true`). Previously the directory
+  contained source files but no `package.json` / `tsconfig.json`, so its
+  code was never typechecked or built. Now wired with `zod ^3.23.0` runtime
+  dep + subpath exports for `/hitl`, `/disclosure`, `/provenance`.
+- **`packages/shared/src/hitl/`** — fail-closed HITL gate. Canonical
+  two-class default policy (`client_facing_deliverable: mandatory`,
+  `internal_research: optional`). Pure synchronous `evaluateHitl(action,
+  policy) -> HitlDecision`. Unknown action class -> `requiresApproval:
+  true`. Zod-validated policy + action schemas; `DEFAULT_POLICY` + helpers
+  `parseHitlPolicy` + `resolveHitlPolicy`. Dedicated
+  `__tests__/hitl.test.ts` with a `"fail-closed invariant"` block.
+- **`packages/shared/src/disclosure/`** — disclosure-card primitives.
+  Required fields: `systemName`, `version`, `operator` (firm/crd),
+  `generatedAt`, `model` (provider/name/version), `inferenceJurisdiction`,
+  `dataRetention` (input/output retention days, trainingUse),
+  `humanOversight` (tier, clientFacingRequiresApproval, scope),
+  `piiHandling` (mode, layerCount), `knownLimitations[]`,
+  `regulatoryBasis[]`, `auditTrail` (rule: `"SEC 204-2"`, tamperEvident).
+  Zod schema + hand-rolled JSON Schema (Draft 2020-12, zero extra deps)
+  + validator (`parseDisclosureCard`, `safeParseDisclosureCard`,
+  `assertNoVerifyMarkers` for pre-publish CI gate) + example instance.
+  Tests assert the JSON Schema's top-level `required[]` mirrors the Zod
+  schema's keys.
+- **`packages/shared/src/provenance/`** — SHA-256 hash-chained provenance.
+  `NewProvenanceRecord` (caller shape) + `ProvenanceRecord` (chained,
+  hashed) + `ProvenanceRedactionSummary` + `ProvenanceApprover`.
+  `chainRecord(record, prevHash) -> ProvenanceRecord`; `chainAll(records)
+  -> ProvenanceRecord[]`; `verifyChain(records) -> { valid, badIndex?,
+  badId?, reason? }`. Eight TAMPER DETECTION tests cover edited content,
+  edited prevHash, edited hash, deleted middle record, inserted record,
+  reordered chain — each scenario produces a non-`valid` result pointing
+  at the first divergent record. Web Crypto -> `node:crypto` fallback for
+  Node < 19. Wiring into the production audit trail is OUT OF SCOPE —
+  documented in `HANDOFF.md`.
+- **`apps/evals/`** — eval harness v0. Five categories
+  (`regulatory_hallucination`, `suitability`, `marketing_rule_leakage`,
+  `pii_bypass`, `prompt_injection`); 15 synthetic JSON fixtures (3 per
+  category); deterministic offline runner that loads + validates every
+  fixture but never calls a model; live mode opt-in via `runEvals({ live:
+  true, modelInvoke })`. Provider-agnostic — adopters supply
+  `modelInvoke({ prompt, system? }) -> string`. Predicate types:
+  `must_not_contain`, `must_contain`, `must_not_match`, `must_match`,
+  `exact_match_normalized`. Bundles `src/cli.ts` for `pnpm --filter
+  @protocolwealthos-apps/evals evals:offline` / `evals:list`. Documented
+  in `apps/evals/README.md` (how to add a fixture).
+- **`HANDOFF.md`** — extended with Tier-2 wiring contract for the
+  private-estate session: provenance hash-chain into `ai_audit_log`,
+  disclosure-card surface at the Compliance Hub + `/disclosures` route,
+  HITL gate at the tool-orchestrator boundary, `as_of` threading through
+  audit-trail replay code paths, and the open governance question on
+  whether `@protocolwealthos/shared` should ship as a published npm
+  package or stay fork-consumed.
+- **Cross-link doc** — `nexus-core/docs/CROSS-LINK-PWOS-CORE.md` (in the
+  sibling repo, same iteration) documents the three conceptual join
+  points between `nexus-core`'s `ScoreExplanation` + `as_of` and
+  `pwos-core`'s disclosure card + provenance chain + HITL gate.
+- All new code carries the canonical two-line TS SPDX header
+  (`// SPDX-License-Identifier: Apache-2.0\n// Copyright 2026 Protocol
+  Wealth, LLC and contributors.`). No private constants, no real client
+  / vendor / API data, no published-package code change to the existing
+  17 packages.
+
+### Changed — Governance docs parity with `nexus-core`; README open-vs-private + tool-orchestration framing (2026-05-27)
+
+- **`CONTRIBUTING.md`** — full rewrite to match the actual repo: removed references to non-existent `.env.example`, `pnpm --filter @protocolwealthos/api migrate`, `pnpm --filter @protocolwealthos/api seed`, and `apps/web/`; expanded the package layout from the outdated 9-package list to the full 18 currently in `packages/*`; added an explicit SPDX-header section with the two-line TypeScript canonical block; added a Conventional Commits expectation; added the hermetic-tests posture (no network, no live keys, no real client / advisor / vendor data); added a `pnpm changeset` step to the PR checklist. Doc-only; no published-package change.
+- **`CODE_OF_CONDUCT.md`** — fixed a project-name typo introduced by an initial copy from `nexus-core` (`Nexus Core` → `PWOS Core`). No policy change.
+- **`SECURITY.md`** — replaced the inherited `XBRL/SEC data integrity issues` in-scope line (which is a `nexus-core` capability, not a pwos-core one) with four lines naming the primitives whose security postures this repo actually owns: PII pipeline (`@protocolwealthos/pii-guard`), audit-log hash-chain tamper-evidence (`@protocolwealthos/audit-log`), MCP write-tool confirmation gate (`@protocolwealthos/mcp-tools`), and JWT / HMAC cryptographic posture (`@protocolwealthos/auth` + `@protocolwealthos/webhooks`).
+- **`README.md`** — added a `## What's Open vs Private` section between *Built on the Shoulders of Giants* and *Quick Start*, mirroring the same section in `nexus-core/README.md`: explicit enumeration of what the 18 published packages cover vs what stays in the closed PW estate (production orchestrator, client data, firm-internal tools, production thresholds / kill-rule cutoffs / decay constants, vendor credentials). Mapping principle stated: shape is open, settings are private.
+- **`README.md`** — rewrote the *Features* "Inline Tool Orchestration — LLM autonomously selects and executes tools during chat (multi-turn, up to 5 rounds)" line to remove the unqualified "autonomously" framing. New line distinguishes (a) advisor-driven IDE tool selection inside multi-turn chat from (b) client-facing actions, which are gated by the Confirmation Gate primitive and require explicit advisor sign-off before a write tool affects client state. The framework does not ship an unattended client-action mode.
+- No npm package code change. No CI workflow change. No SPDX / license / patent / OIN posture change.
+
 ### Added — Documentation refresh for 2026-05-18 → 2026-05-19 cascade (2026-05-19)
 
 Doc-refresh-only iteration; no code change. Captures the operational depth + recent shipping cadence visible at the README + canonical-patterns surface; pwos-core's published packages and CI workflows unchanged.

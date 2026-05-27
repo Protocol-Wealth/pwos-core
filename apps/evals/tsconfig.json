@@ -3,8 +3,9 @@
   "compilerOptions": {
     "outDir": "./dist",
     "rootDir": "./src",
-    "types": ["node"]
+    "types": ["node"],
+    "lib": ["ES2022"]
   },
   "include": ["src/**/*"],
-  "exclude": ["**/*.test.ts", "node_modules", "dist"]
+  "exclude": ["**/*.test.ts", "node_modules", "dist", "fixtures"]
 }

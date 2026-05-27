@@ -16,7 +16,7 @@ By signing off your commits, you certify that:
 Sign off your commits using the `-s` flag:
 
 ```bash
-git commit -s -m "feat: add CRM contact management"
+git commit -s -m "feat: add CRM contact-aging helper"
 ```
 
 This appends a `Signed-off-by: Your Name <your.email@example.com>` line to the commit message.
@@ -29,7 +29,7 @@ Open an issue describing:
 - What you expected to happen
 - What actually happened
 - Steps to reproduce
-- Your Node.js version, OS, and pwos-core version
+- Your Node.js version, OS, and pwos-core version (or the specific `@protocolwealthos/*` package versions)
 
 ### Suggesting Features
 
@@ -43,18 +43,19 @@ Open an issue with the `enhancement` label. Describe:
 1. **Fork** the repository
 2. **Create a branch** from `main`: `git checkout -b feat/your-feature`
 3. **Write tests** for your changes (we use vitest)
-4. **Run the test suite** locally: `pnpm test`
-5. **Run the linter**: `pnpm lint`
-6. **Type check**: `pnpm typecheck`
+4. **Run the test suite** locally: `pnpm -r test`
+5. **Run the type checker**: `pnpm -r typecheck`
+6. **Run the linter** (if the package has one): `pnpm -r lint`
 7. **Sign off your commits**: `git commit -s -m "feat: your feature"`
-8. **Push** to your fork and open a PR
+8. **Add a changeset** if your change touches a published package: `pnpm changeset` (pick `patch` / `minor` / `major` and describe the change for end-users)
+9. **Push** to your fork and open a PR
 
 ### PR Guidelines
 
 - One logical change per PR
 - Include tests for new functionality
 - Update documentation if you change behavior
-- Follow existing code style (Prettier / ESLint)
+- Follow existing code style (Prettier / ESLint where wired)
 - Keep PRs focused — small PRs merge faster than large ones
 
 ## Development Setup
@@ -64,81 +65,97 @@ Open an issue with the `enhancement` label. Describe:
 git clone https://github.com/YOUR_USERNAME/pwos-core.git
 cd pwos-core
 
-# Install dependencies (pnpm required)
+# Install dependencies (pnpm 9+ required; Node 22+ required)
 pnpm install
 
-# Build shared types
-pnpm --filter @protocolwealthos/shared build
+# Build all packages
+pnpm -r build
 
-# Set up environment
-cp .env.example .env  # Fill in API keys
+# Run all tests
+pnpm -r test
 
-# Run migrations
-pnpm --filter @protocolwealthos/api migrate
+# Typecheck all packages
+pnpm -r typecheck
 
-# Start dev server
-pnpm dev  # Frontend :5173 + API :3000
+# Lint (only runs where a package defines a lint script)
+pnpm -r lint
+```
 
-# Run tests
-pnpm test
+Per-package:
 
-# Run linter
-pnpm lint
-
-# Type check
-pnpm typecheck
+```bash
+pnpm --filter @protocolwealthos/<name> test
+pnpm --filter @protocolwealthos/<name> build
+pnpm --filter @protocolwealthos/<name> typecheck
 ```
 
 ## Code Style
 
-- **TypeScript:** strict mode, no `any` (minimal exceptions)
-- **Formatting:** Prettier (auto on save)
-- **Linting:** ESLint with recommended + TypeScript rules
-- **Type hints:** Required for all public APIs
-- **Zod:** Required on all API request boundaries
+- **TypeScript:** strict mode, ESM-only. No `any` without an inline comment explaining why.
+- **Formatting:** Prettier defaults (the editor's auto-format is fine).
+- **Type hints:** Required for all public APIs. Re-exports happen from `src/index.ts`.
+- **Zod:** Used for runtime validation at boundaries only — do not Zod-validate internal hot paths.
+- **Conventional Commits** for type prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `deps:`, `ci:`).
+- **SPDX header on every new `.ts` / `.tsx` source file.** Two-line block, prepended above any imports or doc comment:
+  ```ts
+  // SPDX-License-Identifier: Apache-2.0
+  // Copyright 2026 Protocol Wealth, LLC and contributors.
+  ```
 
 ## Testing
 
 We use [vitest](https://vitest.dev/) for unit and integration tests.
 
 ```bash
-pnpm test                  # Run all tests
-pnpm test:watch            # Watch mode
-pnpm test -- middleware    # Run specific pattern
+pnpm -r test                                  # All packages
+pnpm --filter @protocolwealthos/pii-guard test  # Single package
 ```
 
-Test files live alongside source in `__tests__/` directories or as `*.test.ts`.
+Test files live under `packages/<pkg>/__tests__/` matching source file names (`scanner.ts` → `__tests__/scanner.test.ts`).
+
+Tests must be **hermetic** — no network calls, no live API keys, no real client / advisor data, no real vendor credentials. Fixtures must use synthetic / placeholder values.
 
 ## Package Layout
 
-PWOS Core is a pnpm monorepo:
+PWOS Core is a pnpm 9 monorepo. The published surface lives under `packages/*`; everything in `apps/` is a non-published reference scaffold for integration examples.
 
 ```
 pwos-core/
 ├── apps/
-│   ├── api/         # Hono backend
-│   └── web/         # React + Vite frontend
+│   └── api/                # Reference scaffold (NOT published to npm)
 ├── packages/
-│   ├── shared/      # Types + constants
-│   ├── pii-guard/   # 4-layer PII scanner
-│   ├── audit-log/   # SEC Rule 204-2 audit
-│   ├── mcp-tools/   # MCP tool definitions
-│   ├── document-gen/  # PDF/DOCX/PPTX wrappers
-│   ├── onchain-sdk/   # Viem/Wagmi re-exports
-│   ├── workflow-engine/  # BullMQ + Trigger.dev
-│   ├── crm/         # Contact/household models
-│   ├── compliance/  # Audit + SEC exam export
-│   └── email-archive/  # OpenArchiver integration
-└── examples/
+│   ├── ai-guardrails/      # ZDR workspace assert + model allowlist + cache markers + audit-row builder
+│   ├── audit-log/          # Append-only log + SHA-256 hash chaining + anomaly detectors + approver-separation
+│   ├── auth/               # HS256 JWT session + role guard + Workspace-domain assert + per-agent scoped tokens
+│   ├── cache-keys/         # Namespace-enforced cache-key builder with PII pattern rejection
+│   ├── compliance/         # SEC 204-2 retention, Books-and-Records bundler, calendar, incidents, vendor metadata
+│   ├── crm/                # Contact / household / interaction / opportunity / task + HouseholdProfile/Goal/Note
+│   ├── document-gen/       # Document block model + RFC-4180 CSV + plain-text renderer + DocumentRenderer interface
+│   ├── email-archive/      # SEC Rule 17a-4 archive primitives (chain-of-custody hashing, retention enforcement)
+│   ├── gcp-helpers/        # Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape
+│   ├── holdings/           # Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot
+│   ├── ledger/             # Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger
+│   ├── mcp-tools/          # Tool registry + tier classification + response filters + confirm gate + audit builder
+│   ├── onchain-sdk/        # Typed client for on-chain portfolio services (no internal URLs baked in)
+│   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + injection detector + account masker
+│   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
+│   ├── shared/             # Internal cross-package types (NOT published)
+│   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
+│   └── workflow-engine/    # Storage-agnostic durable-job runtime + backoff strategies
+└── examples/               # Runnable integration examples (no network credentials required)
 ```
+
+When adding a new package, mirror an existing one's `package.json` shape — note the `publishConfig` block that swaps `src/` for `dist/` at publish time — and add a changeset describing the new exports.
 
 ## Attribution
 
 When adding third-party code or ideas:
 1. Add full copyright notice and license to [NOTICE](NOTICE)
-2. Add full license text to [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) (if a new license type)
+2. Add full license text to [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) (if a new license type appears)
 3. Add provenance details to [docs/attribution.md](docs/attribution.md)
 4. Update [README.md](README.md) "Built on" section if appropriate
+
+Reference-architecture-only (GPL / AGPL-3.0) projects may be **read for patterns**; bytes may not be copied. Clean-room re-derivation only. See [`docs/attribution.md`](docs/attribution.md) for the existing reference set.
 
 ## Upstream Contributions
 

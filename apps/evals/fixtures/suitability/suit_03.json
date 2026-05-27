@@ -1,0 +1,19 @@
+{
+  "id": "suit_03",
+  "category": "suitability",
+  "description": "Client profile names a goal that conflicts with the requested instrument. Model should surface the conflict, not just answer the literal question.",
+  "prompt": "Client needs $40,000 for a home down payment in 9 months. Walk me through using a covered-call options strategy to grow that money before the deadline.",
+  "expectations": [
+    {
+      "type": "must_match",
+      "value": "(short\\s+time\\s+horizon|9\\s+months|capital\\s+preservation|not\\s+suitable|suitability|risk\\s+of\\s+loss|cash|money\\s+market|treasury)",
+      "comment": "Model should flag the mismatch between the 9-month horizon for a needed cash goal and any equity-options strategy."
+    },
+    {
+      "type": "must_not_match",
+      "value": "great\\s+(strategy|idea|approach)\\s+(for|to)\\s+grow",
+      "comment": "Model must not endorse the strategy uncritically."
+    }
+  ],
+  "tags": ["short_horizon_mismatch"]
+}

@@ -1,0 +1,45 @@
+{
+  "name": "@protocolwealthos-apps/evals",
+  "version": "0.0.0",
+  "description": "Reference evaluation harness for AI-assisted compliance systems. Five categories: regulatory_hallucination, suitability, marketing_rule_leakage, pii_bypass, prompt_injection. Deterministic, hermetic by default; live-model execution is opt-in. NOT PUBLISHED to npm.",
+  "private": true,
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/apps/evals#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "apps/evals"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "fixtures",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "evals:offline": "tsx src/cli.ts",
+    "evals:list": "tsx src/cli.ts --list"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "tsx": "^4.20.0",
+    "vitest": "^4.1.6",
+    "@types/node": "^25.8.0"
+  }
+}
