@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/shared",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Governance primitives for AI-assisted compliance systems: fail-closed HITL (human-in-the-loop) gate and SHA-256 hash-chained provenance records. Framework-agnostic, zero runtime deps beyond zod. (The disclosure-card schema lives in the sibling package @protocolwealthos/disclosure-card.)",
   "private": false,
   "license": "Apache-2.0",
