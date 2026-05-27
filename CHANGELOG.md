@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — Tier-2 governance primitives: HITL gate, disclosure card, provenance hash-chain, eval harness v0 (2026-05-27)
+
+- **`packages/shared/`** — bootstrapped into a real workspace package
+  (`@protocolwealthos/shared`, `"private": true`). Previously the directory
+  contained source files but no `package.json` / `tsconfig.json`, so its
+  code was never typechecked or built. Now wired with `zod ^3.23.0` runtime
+  dep + subpath exports for `/hitl`, `/disclosure`, `/provenance`.
+- **`packages/shared/src/hitl/`** — fail-closed HITL gate. Canonical
+  two-class default policy (`client_facing_deliverable: mandatory`,
+  `internal_research: optional`). Pure synchronous `evaluateHitl(action,
+  policy) -> HitlDecision`. Unknown action class -> `requiresApproval:
+  true`. Zod-validated policy + action schemas; `DEFAULT_POLICY` + helpers
+  `parseHitlPolicy` + `resolveHitlPolicy`. Dedicated
+  `__tests__/hitl.test.ts` with a `"fail-closed invariant"` block.
+- **`packages/shared/src/disclosure/`** — disclosure-card primitives.
+  Required fields: `systemName`, `version`, `operator` (firm/crd),
+  `generatedAt`, `model` (provider/name/version), `inferenceJurisdiction`,
+  `dataRetention` (input/output retention days, trainingUse),
+  `humanOversight` (tier, clientFacingRequiresApproval, scope),
+  `piiHandling` (mode, layerCount), `knownLimitations[]`,
+  `regulatoryBasis[]`, `auditTrail` (rule: `"SEC 204-2"`, tamperEvident).
+  Zod schema + hand-rolled JSON Schema (Draft 2020-12, zero extra deps)
+  + validator (`parseDisclosureCard`, `safeParseDisclosureCard`,
+  `assertNoVerifyMarkers` for pre-publish CI gate) + example instance.
+  Tests assert the JSON Schema's top-level `required[]` mirrors the Zod
+  schema's keys.
+- **`packages/shared/src/provenance/`** — SHA-256 hash-chained provenance.
+  `NewProvenanceRecord` (caller shape) + `ProvenanceRecord` (chained,
+  hashed) + `ProvenanceRedactionSummary` + `ProvenanceApprover`.
+  `chainRecord(record, prevHash) -> ProvenanceRecord`; `chainAll(records)
+  -> ProvenanceRecord[]`; `verifyChain(records) -> { valid, badIndex?,
+  badId?, reason? }`. Eight TAMPER DETECTION tests cover edited content,
+  edited prevHash, edited hash, deleted middle record, inserted record,
+  reordered chain — each scenario produces a non-`valid` result pointing
+  at the first divergent record. Web Crypto -> `node:crypto` fallback for
+  Node < 19. Wiring into the production audit trail is OUT OF SCOPE —
+  documented in `HANDOFF.md`.
+- **`apps/evals/`** — eval harness v0. Five categories
+  (`regulatory_hallucination`, `suitability`, `marketing_rule_leakage`,
+  `pii_bypass`, `prompt_injection`); 15 synthetic JSON fixtures (3 per
+  category); deterministic offline runner that loads + validates every
+  fixture but never calls a model; live mode opt-in via `runEvals({ live:
+  true, modelInvoke })`. Provider-agnostic — adopters supply
+  `modelInvoke({ prompt, system? }) -> string`. Predicate types:
+  `must_not_contain`, `must_contain`, `must_not_match`, `must_match`,
+  `exact_match_normalized`. Bundles `src/cli.ts` for `pnpm --filter
+  @protocolwealthos-apps/evals evals:offline` / `evals:list`. Documented
+  in `apps/evals/README.md` (how to add a fixture).
+- **`HANDOFF.md`** — extended with Tier-2 wiring contract for the
+  private-estate session: provenance hash-chain into `ai_audit_log`,
+  disclosure-card surface at the Compliance Hub + `/disclosures` route,
+  HITL gate at the tool-orchestrator boundary, `as_of` threading through
+  audit-trail replay code paths, and the open governance question on
+  whether `@protocolwealthos/shared` should ship as a published npm
+  package or stay fork-consumed.
+- **Cross-link doc** — `nexus-core/docs/CROSS-LINK-PWOS-CORE.md` (in the
+  sibling repo, same iteration) documents the three conceptual join
+  points between `nexus-core`'s `ScoreExplanation` + `as_of` and
+  `pwos-core`'s disclosure card + provenance chain + HITL gate.
+- All new code carries the canonical two-line TS SPDX header
+  (`// SPDX-License-Identifier: Apache-2.0\n// Copyright 2026 Protocol
+  Wealth, LLC and contributors.`). No private constants, no real client
+  / vendor / API data, no published-package code change to the existing
+  17 packages.
+
 ### Changed — Governance docs parity with `nexus-core`; README open-vs-private + tool-orchestration framing (2026-05-27)
 
 - **`CONTRIBUTING.md`** — full rewrite to match the actual repo: removed references to non-existent `.env.example`, `pnpm --filter @protocolwealthos/api migrate`, `pnpm --filter @protocolwealthos/api seed`, and `apps/web/`; expanded the package layout from the outdated 9-package list to the full 18 currently in `packages/*`; added an explicit SPDX-header section with the two-line TypeScript canonical block; added a Conventional Commits expectation; added the hermetic-tests posture (no network, no live keys, no real client / advisor / vendor data); added a `pnpm changeset` step to the PR checklist. Doc-only; no published-package change.

@@ -108,6 +108,180 @@ HANDOFF stays Tier-1-only.
 
 ---
 
+## Tier 2 — flagship reference modules (CFP-substrate iteration)
+
+**Status: shipped to the feature branch as of 2026-05-27.** Operator
+authorized Tier 2 immediately after the Tier-1 checkpoint.
+
+### What landed in this repo (Tier 2)
+
+Four self-contained reference modules. None depend on any other
+`@protocolwealthos/*` package; none import private/production code from
+elsewhere in the PW estate. `packages/shared/` — previously dead
+unbuilt code — was bootstrapped into a real workspace package
+(`@protocolwealthos/shared`, `private: true`) with `zod ^3.23.0` as
+its single runtime dep. `apps/evals/` was added as a workspace package
+(`@protocolwealthos-apps/evals`, `private: true`).
+
+- **`packages/shared/src/hitl/`** — P4: fail-closed HITL gate.
+  Two-class default policy (`client_facing_deliverable: mandatory`,
+  `internal_research: optional`). Pure synchronous evaluator. Schema +
+  evaluator + types + index, plus a dedicated tests file with a
+  `describe("evaluateHitl — fail-closed invariant")` block that exercises
+  the fail-closed property against `n` unknown-class variants, an empty
+  policy, and a partial policy.
+- **`packages/shared/src/disclosure/`** — P5: disclosure-card schema.
+  Required-field shape from the brief (systemName, version, operator
+  {firm, crd}, generatedAt, model {provider, name, version},
+  inferenceJurisdiction, dataRetention {input/output retention days,
+  trainingUse}, humanOversight {tier, clientFacingRequiresApproval,
+  scope}, piiHandling {mode, layerCount}, knownLimitations[],
+  regulatoryBasis[], auditTrail {rule: "SEC 204-2", tamperEvident}).
+  Zod schema + hand-rolled JSON Schema (Draft 2020-12, zero extra deps)
+  + validator (`parseDisclosureCard`, `safeParseDisclosureCard`,
+  `assertNoVerifyMarkers`) + example instance + tests including a sync
+  check between the JSON Schema's top-level `required[]` and the Zod
+  schema's keys.
+- **`packages/shared/src/provenance/`** — P6: SHA-256 hash-chained
+  provenance records. `NewProvenanceRecord` (caller-supplied unhashed
+  shape) + `ProvenanceRecord` (chained, hashed) +
+  `ProvenanceRedactionSummary` + `ProvenanceApprover` + `chainRecord` +
+  `chainAll` + `verifyChain` returning `{ valid, badIndex?, badId?, reason? }`.
+  Eight TAMPER DETECTION tests cover edited content, edited deep field,
+  edited prevHash, edited hash, deleted middle record, inserted record,
+  reordered chain — each scenario produces a non-`valid` result pointing
+  at the first divergent record.
+- **`apps/evals/`** — P7: eval harness v0. Five categories
+  (`regulatory_hallucination`, `suitability`, `marketing_rule_leakage`,
+  `pii_bypass`, `prompt_injection`); 15 synthetic JSON fixtures (3 per
+  category); deterministic offline runner that loads + validates every
+  fixture but does NOT call any model. Live mode opt-in via
+  `runEvals({ live: true, modelInvoke })`. Adopters supply
+  `modelInvoke`; the harness is provider-agnostic. Documented in
+  `apps/evals/README.md` (how to add a fixture). Bundles a
+  `apps/evals/src/cli.ts` for `pnpm --filter @protocolwealthos-apps/evals
+  evals:offline` / `evals:list`.
+
+Side-effect: `packages/shared/src/index.ts` was rewritten to re-export
+the new modules under `hitl` / `disclosure` / `provenance` namespaces
+(in addition to the previously existing flat exports from `constants` /
+`types` / `validators`). The package.json declares subpath exports so
+`import { evaluateHitl } from "@protocolwealthos/shared/hitl"` also works.
+
+### Cross-repo wiring required from the private-estate session (Tier 2)
+
+Each item is a CONCRETE wiring task. Specific file/area + expected
+interface.
+
+1. **Wire `@protocolwealthos/shared/provenance` into the production
+   immutable audit trail.**
+   - **Where in private estate:** `pw-os-v2/apps/api/src/lib/audit/`
+     (the existing `audit_log` / `ai_audit_log` write path).
+   - **What to do:** every AI generation that lands in
+     `ai_audit_log` should also produce a `ProvenanceRecord` (via
+     `chainRecord(record, prevHash)`), with the previous record's hash
+     fetched from the most recent prior row in `ai_audit_log` for that
+     stream key. The new `prev_hash` + `hash` columns should be added to
+     `ai_audit_log` (or a sibling table) so `verifyChain` can replay any
+     time window.
+   - **Open question for the private session:** should the chain be
+     scoped per-(tenant, stream) or global across the tenant? Default to
+     per-stream and revisit if exam workflow needs different shape.
+
+2. **Consume `@protocolwealthos/shared/disclosure` in the PWOS Compliance
+   Center UI + at `/disclosures`.**
+   - **Where in private estate:**
+     - UI: `pw-os-v2/apps/web/src/routes/admin/compliance/disclosure-cards.tsx`
+       (new route under the existing Compliance Hub Phase B/C surface).
+     - Public route: `pw-os-v2/apps/api/src/routes/disclosures.ts` (serve
+       the JSON shape directly + serve the hand-rolled JSON Schema at a
+       sibling `/disclosures/schema` for adopters / examiners).
+   - **What to do:** import `parseDisclosureCard`,
+     `assertNoVerifyMarkers`, and `DISCLOSURE_CARD_JSON_SCHEMA` from
+     `@protocolwealthos/shared/disclosure`. Persist the
+     CCO-edited disclosure-card JSON in a new `compliance.disclosure_card`
+     table (one row per published version; append-only). Pre-publish CI
+     gate calls `assertNoVerifyMarkers` on the staged row.
+   - **Required complementary work:** the disclosure-card values
+     themselves are CCO-authored, not auto-generated. The UI surface
+     should let the CCO edit + preview + diff before publish. Auto-fill
+     fields where the value is unambiguous (firm + CRD from
+     `pw-shared` brand config, `auditTrail.rule` always
+     `"SEC 204-2"`); leave fields where the value depends on operator
+     judgment (regulatory basis, known limitations) as required manual
+     input.
+
+3. **Register `@protocolwealthos/shared/hitl` in the production tool
+   orchestrator and enforce the client-facing gate.**
+   - **Where in private estate:** `pw-os-v2/apps/api/src/lib/tools/`
+     (the existing chat-tool dispatcher and the `confirmation-gate.ts`
+     / `route-confirm.ts` pair).
+   - **What to do:** every chat-tool definition gains a static
+     `action_class: ActionClass` field. The dispatcher runs `evaluateHitl`
+     before tool execution; when `requiresApproval: true`, the dispatcher
+     routes to the existing confirmation-gate flow rather than executing.
+     Default policy from `DEFAULT_POLICY`; per-tool overrides via the
+     existing tool-tier classification surface.
+   - **Boundary:** the HITL gate is the SECOND layer of defense, not the
+     only one. The existing 4-tier classification + the existing
+     confirmation-gate primitive both stay. HITL adds the
+     ACTION-CLASS-based gate above those.
+
+4. **Surface `nexus-core`'s `explanation` output in client-facing
+   research rendering.**
+   - **Where in private estate:**
+     - Narrative-pipeline consumer in `pw-api` and `pw-os-v2`'s research
+       rendering paths.
+   - **What to do:** read `score_result.explanation.checks_failed`,
+     `score_result.explanation.confidence_tier`, and
+     `score_result.explanation.regime_signal_contributions` instead of
+     re-deriving from the raw `score_result.checks` list. The
+     sanitized contract avoids any accidental leak of production
+     threshold values into client-facing copy.
+   - **Note:** the new `explanation` object on nexus-core's
+     `ScoreResult` is sanitized BY CONSTRUCTION (no threshold values,
+     no raw signal values). Consumers should NOT pull from
+     `score_result.checks[*].threshold` for client-facing output;
+     keep that surface internal.
+
+5. **Adopt the `as_of` parameter on every reproducible-replay code
+   path.** (Tier-2 N3 spillover into pwos-core wiring.)
+   - **Where in private estate:** any place that re-derives a regime or
+     a score from historical data — e.g. CCO retrospective reviews,
+     audit-trail replay for SEC exams.
+   - **What to do:** thread `as_of: date` through to
+     `RegimeEngine.classify(as_of=...)` and
+     `ScoringFramework.score(ctx, as_of=...)`. The result objects now
+     echo `as_of` back on the result, and downstream provenance records
+     should include `as_of` in the hashed content so the chain is
+     reproducible.
+
+### Open governance question for the operator (Tier 2)
+
+`packages/shared/` is currently `"private": true` in package.json. The
+existing convention (per `CLAUDE.md`) is that `shared/` is NOT published.
+But the HITL gate, disclosure card, and provenance utility are
+intentionally adopter-consumable reference primitives — publishing them
+under `@protocolwealthos/shared` (or splitting into three
+`@protocolwealthos/{hitl,disclosure,provenance}` packages) would let
+adopters `pnpm add` rather than fork.
+
+Decision deferred to the operator. Two reasonable answers:
+
+- **Keep private, ship via fork.** Matches existing convention. Adopters
+  who want these primitives copy the source into their fork. Pro: zero
+  versioning obligation, no `@protocolwealthos/shared` npm publish step.
+  Con: less discoverable; no SemVer contract.
+- **Promote to published.** Flip `"private": false`, add the
+  `publishConfig` block + a changeset, publish at `0.1.0`. Pro: adopter
+  ergonomics. Con: a new npm publish surface to maintain + a new
+  versioning lane for governance primitives that will likely move
+  faster than the rest of the surface in v0.
+
+Either way, the modules' CODE is unchanged.
+
+---
+
 ## Build + test status at last update
 
 Captured in the checkpoint summary on this branch (see `pwos-core` repo
