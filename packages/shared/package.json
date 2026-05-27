@@ -1,0 +1,56 @@
+{
+  "name": "@protocolwealthos/shared",
+  "version": "0.1.0",
+  "description": "Internal shared types + governance primitives (HITL gate, disclosure card, provenance hash-chain). Not currently published to npm; consumed in-workspace by other @protocolwealthos/* packages and by adopters who fork the repo.",
+  "private": true,
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/shared#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "packages/shared"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    },
+    "./hitl": {
+      "types": "./src/hitl/index.ts",
+      "default": "./src/hitl/index.ts"
+    },
+    "./disclosure": {
+      "types": "./src/disclosure/index.ts",
+      "default": "./src/disclosure/index.ts"
+    },
+    "./provenance": {
+      "types": "./src/provenance/index.ts",
+      "default": "./src/provenance/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.6",
+    "@types/node": "^25.8.0"
+  }
+}
