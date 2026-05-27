@@ -21,11 +21,9 @@ appear here are clearly marked as synthetic example placeholders.
 ## Install
 
 ```bash
-pnpm add @protocolwealthos/shared zod
+pnpm add @protocolwealthos/disclosure-card zod
 # or: npm install / yarn add — zod is a peer-grade runtime dep
 ```
-
-Sub-path import (recommended):
 
 ```ts
 import {
@@ -38,12 +36,8 @@ import {
   disclosureCardSchema,
   DISCLOSURE_CARD_JSON_SCHEMA,
   EXAMPLE_DISCLOSURE_CARD,
-} from "@protocolwealthos/shared/disclosure";
+} from "@protocolwealthos/disclosure-card";
 ```
-
-The whole package also re-exports a `disclosure` namespace from the root:
-`import { disclosure } from "@protocolwealthos/shared"` then
-`disclosure.parseDisclosureCard(...)`.
 
 ---
 
@@ -125,7 +119,7 @@ import {
   parseDisclosureCard,
   assertNoVerifyMarkers,
   type DisclosureCard,
-} from "@protocolwealthos/shared/disclosure";
+} from "@protocolwealthos/disclosure-card";
 
 const myCard: DisclosureCard = {
   ...EXAMPLE_DISCLOSURE_CARD,
@@ -180,7 +174,7 @@ Two flavors:
 import {
   parseDisclosureCard,
   safeParseDisclosureCard,
-} from "@protocolwealthos/shared/disclosure";
+} from "@protocolwealthos/disclosure-card";
 
 // 1. Throw on invalid input (good in a build step):
 const card = parseDisclosureCard(maybeCard);
@@ -204,7 +198,7 @@ with any JSON-Schema-compliant validator (`ajv`, `jsonschema`, Pydantic
 in Python via a generated model, `gojsonschema`, etc.).
 
 ```ts
-import { DISCLOSURE_CARD_JSON_SCHEMA } from "@protocolwealthos/shared/disclosure";
+import { DISCLOSURE_CARD_JSON_SCHEMA } from "@protocolwealthos/disclosure-card";
 
 // JSON-serializable; safe to publish at a public URL alongside the card:
 console.log(JSON.stringify(DISCLOSURE_CARD_JSON_SCHEMA, null, 2));
@@ -237,7 +231,7 @@ convention is:
 
 ```ts
 // In your publish step (a script, a CI job, a pre-deploy check):
-import { assertNoVerifyMarkers } from "@protocolwealthos/shared/disclosure";
+import { assertNoVerifyMarkers } from "@protocolwealthos/disclosure-card";
 import { myCard } from "./card.js";
 
 assertNoVerifyMarkers(myCard); // throws if any [VERIFY] remains; CI fails closed.
@@ -268,8 +262,8 @@ assertNoVerifyMarkers(myCard); // throws if any [VERIFY] remains; CI fails close
 
 ## Versioning + back-compat policy
 
-`@protocolwealthos/shared` is currently `0.x`. The disclosure-card schema
-is the most stable surface in the package (the goal is candidate-standard
+`@protocolwealthos/disclosure-card` is currently `0.x`. The schema is the
+load-bearing surface in this package (the goal is candidate-standard
 status), but during the `0.x` series breaking changes ARE possible. We
 follow this discipline:
 
@@ -282,22 +276,22 @@ follow this discipline:
 
 The `version` field on a specific card is the operator's version of
 their own card, not the schema version. The schema version lives in
-`@protocolwealthos/shared`'s package.json. Adopters who want to pin both
-should record the package version they validated against in their build
-artifact alongside the card itself.
+`@protocolwealthos/disclosure-card`'s package.json. Adopters who want to
+pin both should record the package version they validated against in
+their build artifact alongside the card itself.
 
 ---
 
 ## Related
 
-- [`@protocolwealthos/shared/hitl`](../hitl/README.md) — fail-closed
-  HITL gate; the runtime enforcement primitive that `clientFacingRequiresApproval`
-  describes.
-- [`@protocolwealthos/shared/provenance`](../provenance/index.ts) —
-  SHA-256 hash-chained provenance records; the runtime substrate for
-  `auditTrail.tamperEvident: true`.
-- [`@protocolwealthos/pii-guard`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/pii-guard)
-  — 4-layer PII redaction pipeline; the runtime substrate for
+- [`@protocolwealthos/shared/hitl`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/shared/src/hitl#readme) —
+  fail-closed HITL gate (sibling package); the runtime enforcement
+  primitive that `humanOversight.clientFacingRequiresApproval` describes.
+- [`@protocolwealthos/shared/provenance`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/shared/src/provenance) —
+  SHA-256 hash-chained provenance records (sibling package); the runtime
+  substrate for `auditTrail.tamperEvident: true`.
+- [`@protocolwealthos/pii-guard`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/pii-guard) —
+  4-layer PII redaction pipeline; the runtime substrate for
   `piiHandling.mode: "redact"`.
 
 License: Apache 2.0. Defensive-patent posture (USPTO #64/034,215; OIN

@@ -7,7 +7,7 @@
 > oversight level; the pure evaluator says whether the action needs a human
 > sign-off before it can proceed.
 
-Companion to [`@protocolwealthos/shared/disclosure`](../disclosure/README.md) —
+Companion to [`@protocolwealthos/disclosure-card`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/disclosure-card#readme) —
 the disclosure card describes a system's oversight posture; this module
 enforces it at the tool boundary.
 

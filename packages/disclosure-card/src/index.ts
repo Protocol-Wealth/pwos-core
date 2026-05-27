@@ -2,7 +2,7 @@
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
 /**
- * @protocolwealthos/shared/disclosure
+ * @protocolwealthos/disclosure-card
  *
  * Disclosure-card primitives.
  *

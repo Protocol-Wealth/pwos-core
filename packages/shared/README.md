@@ -3,10 +3,9 @@
 
 # `@protocolwealthos/shared`
 
-> Governance primitives for AI-assisted compliance systems.
-> Three modules under their own subpath imports: HITL gate, disclosure card,
-> provenance hash-chain. Framework-agnostic; zero runtime dependencies
-> beyond `zod`.
+> Two governance primitives for AI-assisted compliance systems: a fail-closed
+> HITL gate and SHA-256 hash-chained provenance records. Framework-agnostic;
+> zero runtime dependencies beyond `zod`.
 
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](https://patentcenter.uspto.gov/applications/64034215)
@@ -17,13 +16,17 @@ Sibling to other `@protocolwealthos/*` packages; published from the
 monorepo. **Status:** `0.x` — pre-1.0 API may break in minor versions
 (see each sub-module's adoption guide for the back-compat discipline).
 
+The **disclosure-card schema** that pairs with these primitives lives in
+the focused sibling package
+[`@protocolwealthos/disclosure-card`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/disclosure-card#readme).
+
 ## Install
 
 ```bash
 pnpm add @protocolwealthos/shared zod
 ```
 
-## Three sub-modules
+## Two sub-modules
 
 ### `@protocolwealthos/shared/hitl` — fail-closed human-in-the-loop gate
 
@@ -44,27 +47,6 @@ const decision = evaluateHitl(
 ```
 
 [Full adoption guide →](./src/hitl/README.md)
-
-### `@protocolwealthos/shared/disclosure` — disclosure-card schema
-
-Machine-readable record describing an AI-assisted system's model, data
-handling, human oversight, PII handling, audit-trail posture, and
-regulatory basis. Zod schema + hand-rolled JSON Schema (Draft 2020-12,
-zero extra deps) + validators + pre-publish `[VERIFY]` CI gate.
-
-```ts
-import {
-  EXAMPLE_DISCLOSURE_CARD,
-  parseDisclosureCard,
-  assertNoVerifyMarkers,
-  DISCLOSURE_CARD_JSON_SCHEMA,
-} from "@protocolwealthos/shared/disclosure";
-
-parseDisclosureCard(myCard);          // throws ZodError on shape violation
-assertNoVerifyMarkers(myCard);        // throws if any citation still has "[VERIFY]"
-```
-
-[Full adoption guide →](./src/disclosure/README.md)
 
 ### `@protocolwealthos/shared/provenance` — SHA-256 hash-chained provenance
 
@@ -88,14 +70,15 @@ const result = await verifyChain(sealed);
 
 - It does not ship a UI, a CLI, or a transport layer. It exposes typed
   primitives; consumers wire them into their own runtime.
-- It does not persist anything. The disclosure-card validator throws or
-  returns; nothing is written. Chained provenance records are returned
-  to the caller, who is responsible for storing them.
+- It does not persist anything. The HITL gate produces a decision; chained
+  provenance records are returned to the caller, who is responsible for
+  storing them.
 - It does not authorize humans. The HITL gate produces a decision; your
   RBAC / auth layer decides *who* may approve.
-- It does not provide legal advice. The `regulatoryBasis[]` and
-  `auditTrail.rule` fields are operator-curated citations; verifying them
-  against the actual regulatory text is the CCO's job.
+- It does not provide legal advice or a disclosure schema. The
+  machine-readable disclosure schema is the separate
+  [`@protocolwealthos/disclosure-card`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/disclosure-card#readme)
+  package.
 
 ## Apache 2.0 + defensive patent
 

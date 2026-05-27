@@ -23,7 +23,7 @@ import {
   parseDisclosureCard,
   safeParseDisclosureCard,
   type DisclosureCard,
-} from "../src/disclosure/index.js";
+} from "../src/index.js";
 
 describe("disclosureCardSchema — happy path", () => {
   it("validates the bundled example", () => {

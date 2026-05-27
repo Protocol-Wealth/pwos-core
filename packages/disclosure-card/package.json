@@ -1,28 +1,26 @@
 {
-  "name": "@protocolwealthos/shared",
+  "name": "@protocolwealthos/disclosure-card",
   "version": "0.1.0",
-  "description": "Governance primitives for AI-assisted compliance systems: fail-closed HITL (human-in-the-loop) gate and SHA-256 hash-chained provenance records. Framework-agnostic, zero runtime deps beyond zod. (The disclosure-card schema lives in the sibling package @protocolwealthos/disclosure-card.)",
+  "description": "Machine-readable disclosure schema for AI-assisted advisory + research systems. Zod schema + dependency-free JSON Schema (Draft 2020-12) + pre-publish [VERIFY] CI gate. Framework-agnostic; zero runtime deps beyond zod.",
   "private": false,
   "license": "Apache-2.0",
-  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/shared#readme",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/disclosure-card#readme",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
-    "directory": "packages/shared"
+    "directory": "packages/disclosure-card"
   },
   "bugs": {
     "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
   },
   "keywords": [
+    "disclosure-card",
+    "ai-disclosure",
     "ai-governance",
     "compliance",
-    "hitl",
-    "human-in-the-loop",
-    "provenance",
-    "hash-chain",
-    "tamper-evident",
     "sec-204-2",
-    "ria"
+    "ria",
+    "transparency"
   ],
   "type": "module",
   "main": "./src/index.ts",
@@ -31,14 +29,6 @@
     ".": {
       "types": "./src/index.ts",
       "default": "./src/index.ts"
-    },
-    "./hitl": {
-      "types": "./src/hitl/index.ts",
-      "default": "./src/hitl/index.ts"
-    },
-    "./provenance": {
-      "types": "./src/provenance/index.ts",
-      "default": "./src/provenance/index.ts"
     }
   },
   "files": [
@@ -70,16 +60,6 @@
         "types": "./dist/index.d.ts",
         "import": "./dist/index.js",
         "default": "./dist/index.js"
-      },
-      "./hitl": {
-        "types": "./dist/hitl/index.d.ts",
-        "import": "./dist/hitl/index.js",
-        "default": "./dist/hitl/index.js"
-      },
-      "./provenance": {
-        "types": "./dist/provenance/index.d.ts",
-        "import": "./dist/provenance/index.js",
-        "default": "./dist/provenance/index.js"
       }
     }
   }
