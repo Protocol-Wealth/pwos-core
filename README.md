@@ -254,7 +254,7 @@ PWOS Core stands on a foundation of exceptional open-source projects. We bundle 
 
 PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
 
-**Open (Apache 2.0, this repo):** The 18 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types), the canonical-pattern documentation under `docs/`, and the reference scaffold at `apps/api/`. Generic, hermetic, no firm-specific values.
+**Open (Apache 2.0, this repo):** The 19 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types + governance primitives, disclosure-card schema), the canonical-pattern documentation under `docs/`, and the reference scaffold at `apps/api/`. Generic, hermetic, no firm-specific values.
 
 **Private (not in this repo, never will be):**
 - The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).

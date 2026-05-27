@@ -7,6 +7,94 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — Split `@protocolwealthos/disclosure-card` into its own focused package (2026-05-27)
+
+Pre-publish split — done while nothing is on npm yet (no downstream importers,
+no version history to reconcile). The disclosure-card schema is the
+flagship adoptable-standard artifact; shipping it buried under
+`@protocolwealthos/shared` undersold it and signaled "internal plumbing"
+rather than "candidate standard." Promoted to its own focused package
+with its own npm surface, its own version stream, and a friendlier
+fork-by-name path. HITL gate + provenance hash-chain stay in
+`@protocolwealthos/shared`; `apps/evals` stays `"private": true`.
+
+End state: **TWO published packages** —
+
+- **`@protocolwealthos/disclosure-card`** — disclosure schema: Zod
+  schema + dependency-free JSON Schema (Draft 2020-12) + validators +
+  pre-publish `[VERIFY]` CI gate + synthetic example. The Friday
+  artifact's adopter package.
+- **`@protocolwealthos/shared`** — HITL gate (fail-closed evaluator +
+  default two-class policy) + SHA-256 hash-chained provenance records.
+
+Files moved + manifest changes:
+
+- **`packages/disclosure-card/`** (new workspace package) — created
+  with `package.json` (name `@protocolwealthos/disclosure-card`,
+  `version: 0.1.0`, `"private": false`, `publishConfig` src→dist swap),
+  `tsconfig.json` mirroring `packages/shared/`, and a `prepack` build
+  script.
+- **`packages/disclosure-card/src/{types,schema,validator,jsonSchema,example,index}.ts`**
+  + **`packages/disclosure-card/__tests__/disclosure.test.ts`**
+  + **`packages/disclosure-card/README.md`** — all `git mv`'d from
+  `packages/shared/src/disclosure/*` + `packages/shared/__tests__/disclosure.test.ts`
+  + `packages/shared/src/disclosure/README.md` (history preserved).
+- **`packages/disclosure-card/src/index.ts`** — JSDoc header updated
+  `@protocolwealthos/shared/disclosure` → `@protocolwealthos/disclosure-card`.
+- **`packages/disclosure-card/__tests__/disclosure.test.ts`** — test
+  import path fixed from `../src/disclosure/index.js` → `../src/index.js`.
+  The load-bearing `[VERIFY]`-marker-trips-the-gate test
+  (`assertNoVerifyMarkers` on the bundled synthetic example) survived
+  the move intact and still asserts the gate fails on the example.
+- **`packages/disclosure-card/README.md`** — every
+  `@protocolwealthos/shared/disclosure` import reference updated to
+  `@protocolwealthos/disclosure-card`. Cross-package links to
+  `@protocolwealthos/shared/hitl` + `@protocolwealthos/shared/provenance`
+  now point at GitHub URLs (since these cross-package links can't be
+  relative once the READMEs ship on different npm pages). The
+  "namespace re-export from shared" sentence was removed (shared no
+  longer re-exports disclosure).
+- **`packages/shared/package.json`** — `./disclosure` removed from
+  both `exports` and `publishConfig.exports`. Description trimmed to
+  name HITL + provenance only (with a parenthetical pointing readers
+  at the disclosure-card sibling). `disclosure-card` + `ai-disclosure`
+  removed from `keywords[]`.
+- **`packages/shared/src/index.ts`** — `export * as disclosure from
+  './disclosure/index.js'` removed. JSDoc rewritten to "Two sub-paths"
+  with a migration-note pointer to the disclosure-card sibling. No
+  back-compat shim (nothing has been published yet).
+- **`packages/shared/README.md`** — rewritten from "Three sub-modules"
+  to "Two sub-modules" with a prominent sibling-package pointer to
+  `@protocolwealthos/disclosure-card`. The disclosure section was
+  removed; HITL + provenance sections retained verbatim.
+- **`packages/shared/src/hitl/README.md`** — cross-link to the
+  disclosure card updated to the new package URL (GitHub URL for
+  cross-package portability).
+- **`.changeset/disclosure-card-initial-public-release.md`** — new
+  changeset (minor for `@protocolwealthos/disclosure-card`) describing
+  the initial public release.
+- **`.changeset/shared-initial-public-release.md`** — rewritten to
+  cover the now-trimmed `@protocolwealthos/shared` surface (HITL +
+  provenance), with a migration note about the disclosure-card move.
+- **`CLAUDE.md`** — package map: shared/ line trimmed; new
+  disclosure-card/ line added.
+- **`README.md`** — "What's Open vs Private" section: package count
+  18 → 19; added "disclosure-card schema" to the enumerated list.
+- **`HANDOFF.md`** — Tier-2 and Tier-3 cross-repo wiring items that
+  reference the disclosure card now point at
+  `@protocolwealthos/disclosure-card` (the dogfooding `/disclosures`
+  item, the Compliance Hub UI consumer item).
+
+Build + test verified post-split: `pnpm -r build` exit 0, `pnpm -r
+typecheck` exit 0, `pnpm -r test` exit 0; **543 vitest tests passing**
+(unchanged — 15 disclosure tests moved from `packages/shared`'s suite
+(57 → 42) to `packages/disclosure-card`'s suite (0 → 15); arithmetic
+holds). `packages/shared/dist/` no longer carries a `disclosure/`
+subdirectory (stale-artifact check clean). Zero remaining unintentional
+`@protocolwealthos/shared/disclosure` references in the source tree;
+the few remaining mentions are in changesets / changelog / migration
+JSDoc, all intentional historical context.
+
 ### Changed — Publish prep for `@protocolwealthos/shared`; disclosure-card adoption guide (2026-05-27)
 
 - **`packages/shared/package.json`** — flipped `"private": true` → `"private": false`
