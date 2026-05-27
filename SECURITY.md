@@ -29,9 +29,11 @@ We will:
 **In scope:**
 - Code execution vulnerabilities
 - Authentication/authorization bypass
-- Data exposure (including PII leakage)
+- Data exposure (including PII leakage through the `@protocolwealthos/pii-guard` pipeline)
+- Tamper-evidence bypasses of the `@protocolwealthos/audit-log` hash chain
+- Confirmation-gate bypasses in `@protocolwealthos/mcp-tools` (write-tool two-turn gate)
+- Cryptographic weaknesses in `@protocolwealthos/auth` (JWT) or `@protocolwealthos/webhooks` (HMAC)
 - Supply chain attacks (dependency vulnerabilities)
-- XBRL/SEC data integrity issues
 
 **Out of scope:**
 - Issues in third-party dependencies (report upstream)
