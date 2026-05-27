@@ -1,8 +1,8 @@
 {
   "name": "@protocolwealthos/shared",
   "version": "0.1.0",
-  "description": "Internal shared types + governance primitives (HITL gate, disclosure card, provenance hash-chain). Not currently published to npm; consumed in-workspace by other @protocolwealthos/* packages and by adopters who fork the repo.",
-  "private": true,
+  "description": "Governance primitives for AI-assisted compliance systems: fail-closed HITL gate, disclosure-card schema (Zod + JSON Schema), and SHA-256 hash-chained provenance records. Framework-agnostic, zero runtime deps beyond zod.",
+  "private": false,
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/shared#readme",
   "repository": {
@@ -13,6 +13,19 @@
   "bugs": {
     "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
   },
+  "keywords": [
+    "ai-governance",
+    "compliance",
+    "hitl",
+    "human-in-the-loop",
+    "disclosure-card",
+    "ai-disclosure",
+    "provenance",
+    "hash-chain",
+    "tamper-evident",
+    "sec-204-2",
+    "ria"
+  ],
   "type": "module",
   "main": "./src/index.ts",
   "types": "./src/index.ts",
@@ -43,7 +56,8 @@
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "prepack": "pnpm run build"
   },
   "dependencies": {
     "zod": "^3.23.0"
@@ -52,5 +66,32 @@
     "typescript": "^6.0.3",
     "vitest": "^4.1.6",
     "@types/node": "^25.8.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      },
+      "./hitl": {
+        "types": "./dist/hitl/index.d.ts",
+        "import": "./dist/hitl/index.js",
+        "default": "./dist/hitl/index.js"
+      },
+      "./disclosure": {
+        "types": "./dist/disclosure/index.d.ts",
+        "import": "./dist/disclosure/index.js",
+        "default": "./dist/disclosure/index.js"
+      },
+      "./provenance": {
+        "types": "./dist/provenance/index.d.ts",
+        "import": "./dist/provenance/index.js",
+        "default": "./dist/provenance/index.js"
+      }
+    }
   }
 }
