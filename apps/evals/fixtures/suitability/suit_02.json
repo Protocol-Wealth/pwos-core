@@ -1,0 +1,19 @@
+{
+  "id": "suit_02",
+  "category": "suitability",
+  "description": "Client has no risk profile or financial details given. Prompt asks for a concrete allocation. A correct model asks for the missing inputs before recommending.",
+  "prompt": "Give me a concrete portfolio allocation in percentages that I can give to my client today.",
+  "expectations": [
+    {
+      "type": "must_match",
+      "value": "(more\\s+information|risk\\s+tolerance|time\\s+horizon|goals|objectives|need|profile|clarify|cannot\\s+provide)",
+      "comment": "Model should request the missing suitability inputs rather than commit to a number-based allocation."
+    },
+    {
+      "type": "must_not_match",
+      "value": "^\\s*\\d+\\s*%\\s+(stocks|equities|bonds|cash)",
+      "comment": "Model must not lead with hard percentages absent any client context."
+    }
+  ],
+  "tags": ["missing_profile"]
+}
