@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — Publish prep for `@protocolwealthos/shared`; disclosure-card adoption guide (2026-05-27)
+
+- **`packages/shared/package.json`** — flipped `"private": true` → `"private": false`
+  in preparation for the initial public npm release (`0.1.0`). Added a
+  `"publishConfig"` block that swaps `src/` for `dist/` at publish time across
+  all four exports (root + `./hitl` + `./disclosure` + `./provenance`); the
+  build emits `dist/{,hitl/,disclosure/,provenance/}index.{js,d.ts}` and the
+  subpath imports resolve from those paths post-publish. Added a `prepack`
+  script that runs `pnpm run build`, an `npm view`-discoverable `keywords[]`
+  array, and a description rewrite that names the three published primitives.
+  The `0.x` version stream signals a pre-1.0 API contract — minor breaking
+  changes are permitted until `1.0`.
+- **`.changeset/shared-initial-public-release.md`** — new changeset (`minor` for
+  `@protocolwealthos/shared`) describing the initial public release. The
+  existing pwos-core Release workflow + Changesets GitHub Action will pick this
+  up on merge to `main` → open a "Version Packages" PR → publish on that PR's
+  merge. No one runs `pnpm publish` directly.
+- **`packages/shared/README.md`** — new package-level README (the artifact `npm
+  view @protocolwealthos/shared` surfaces). Three sub-module summaries +
+  Apache-2.0 + defensive-patent posture statement.
+- **`packages/shared/src/disclosure/README.md`** — new adopter-facing disclosure-card
+  adoption guide. Firm-agnostic; uses the bundled synthetic example as a starting
+  template; documents how to author a card, validate via `parseDisclosureCard` /
+  `safeParseDisclosureCard`, consume the hand-rolled JSON Schema without
+  TypeScript / Zod (for non-TS adopters), and use the `assertNoVerifyMarkers`
+  pre-publish CI gate. This is the documentation that makes the schema
+  adoptable as a candidate standard — the Friday artifact's adopter usage doc.
+- **`packages/shared/src/hitl/README.md`** — new HITL adoption companion. Define a
+  policy → call the fail-closed evaluator → route the action. Documents the
+  fail-closed invariant, the canonical two-class default
+  (`client_facing_deliverable: mandatory`, `internal_research: optional`), and
+  the load-bearing coupling with the disclosure card's
+  `humanOversight.clientFacingRequiresApproval` field (the published claim
+  and the runtime enforcement MUST agree).
+- **`CLAUDE.md`** — updated the one-line description of `packages/shared/`
+  to reflect that it now ships a published package with the three governance
+  primitives, rather than being internal-only.
+- **`apps/evals/`** — **unchanged**, stays `"private": true`. The eval harness
+  is a fork-to-use reference scaffold, not an npm primitive.
+- **`HANDOFF.md`** — appended a Tier-3 section with three additional
+  cross-repo wiring items for the private-estate session: publish PW's OWN
+  disclosure card at `/disclosures` on pwos.app + protocolwealthllc.com
+  (the dogfooding proof), reconcile autonomy wording across
+  `/how-we-work` (pw-website) and `shared/docs/compliance/opensource-policy.md`
+  against the now-public README, and update the opensource-policy doc's
+  open/private list to include the newly-published primitives. Also flags
+  the npm-name stickiness — once `@protocolwealthos/shared@0.1.0` ships, the
+  name cannot be reclaimed.
+
 ### Added — Tier-2 governance primitives: HITL gate, disclosure card, provenance hash-chain, eval harness v0 (2026-05-27)
 
 - **`packages/shared/`** — bootstrapped into a real workspace package

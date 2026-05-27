@@ -282,6 +282,151 @@ Either way, the modules' CODE is unchanged.
 
 ---
 
+## Tier 3 — publish prep + adoption docs (CFP-substrate iteration)
+
+**Status: shipped to the feature branch as of 2026-05-27.** Operator
+authorized Tier 3 (the publish flip + the disclosure-card adoption
+guide) after the Tier-2 checkpoint. The open governance question from
+Tier 2 was resolved by promotion: `@protocolwealthos/shared` will be
+published.
+
+### What landed in this repo (Tier 3)
+
+- **`packages/shared/package.json`** — flipped to `"private": false`;
+  added a `"publishConfig"` block that swaps `src/` for `dist/` at
+  publish time across all four exports (root + `./hitl` +
+  `./disclosure` + `./provenance`); added a `prepack` script that runs
+  `pnpm run build` so a clean `dist/` exists before publish; added a
+  `keywords[]` array for npm discoverability. Version stays at `0.1.0`
+  (the `0.x` series signals an unstable, pre-1.0 API — breaking changes
+  ARE permitted in minor versions until `1.0`).
+- **`.changeset/shared-initial-public-release.md`** — new changeset
+  (`minor` bump for `@protocolwealthos/shared`) describing the initial
+  public release. This is what triggers the existing Changesets
+  GitHub Action to open a "Version Packages" PR after this branch
+  lands on `main`, and that PR's merge triggers the actual
+  `npm publish`.
+- **`packages/shared/README.md`** — new package-level README. This is
+  the artifact `npm view @protocolwealthos/shared` surfaces and what
+  users hitting npmjs.com see. Three sub-module summaries + the
+  Apache-2.0 + defensive-patent posture statement.
+- **`packages/shared/src/disclosure/README.md`** — new adopter-facing
+  disclosure-card adoption guide. Firm-agnostic; uses the synthetic
+  example as a starting template; documents how to author a card,
+  validate it (`parseDisclosureCard` / `safeParseDisclosureCard`),
+  use the hand-rolled JSON Schema without TypeScript / Zod, and the
+  `assertNoVerifyMarkers` pre-publish CI gate. This is the Friday
+  artifact's adopter usage doc — the documentation that makes the
+  schema adoptable as a candidate standard.
+- **`packages/shared/src/hitl/README.md`** — new HITL adoption companion.
+  Define a policy → call the fail-closed evaluator → route the action.
+  Documents the fail-closed invariant, the canonical two-class default,
+  and the "MUST agree" coupling with the disclosure card's
+  `humanOversight.clientFacingRequiresApproval` field.
+- **`CLAUDE.md`** — updated the one-line description of `packages/shared/`
+  (was "Internal cross-package types (NOT published)"; now reflects
+  publication + the governance primitives it carries).
+- **`apps/evals/`** — **unchanged**. Stays `"private": true`. It's a
+  fork-to-use reference scaffold, not an npm primitive — keep it that way.
+
+### Publish mechanism (do NOT manually publish)
+
+This branch PREPARES publication. The actual `npm publish` happens via
+the existing `pwos-core` Release (Changesets) GitHub workflow:
+
+1. Human merges this PR into `main` (review-gated; not auto-merged).
+2. The Changesets action opens a "Version Packages" PR rolling the
+   bundled changeset (and any other queued changesets) into a version
+   bump + per-package CHANGELOG update.
+3. Human merges the "Version Packages" PR.
+4. The release workflow runs `pnpm changeset publish`, which runs
+   `prepack` (=> `pnpm run build`) and then publishes
+   `@protocolwealthos/shared@0.1.0` to npm with provenance via the
+   `NPM_API_KEY` secret.
+
+No one in this session (and no one operating the `opensource` CLI
+session) should run `pnpm publish` / `npm publish` directly.
+
+### ⚠️ Name stickiness — operator decision before first publish
+
+The current package name is **`@protocolwealthos/shared`**. Once that
+name is published to npm with `0.1.0`, the name is sticky: even after
+deletion (which has a 24-hour cooldown), npm will not allow re-publish
+of the same name + version, and rename-after-adoption is an ecosystem
+break.
+
+If the operator would prefer a more focused name (`@protocolwealthos/disclosure-card`,
+`@protocolwealthos/governance`, etc.) or wants to split into three
+packages (`@protocolwealthos/hitl`, `@protocolwealthos/disclosure-card`,
+`@protocolwealthos/provenance`), **that decision must be made BEFORE
+the "Version Packages" PR is merged**. Once the merge triggers the
+first publish, the name is committed.
+
+This session did not rename — the operator's signal was to ship as
+`@protocolwealthos/shared`. Flagging for the audit trail.
+
+### Cross-repo wiring required from the private-estate session (Tier 3)
+
+Three new items in addition to the Tier-1 + Tier-2 set. All three are
+**OUT OF THIS SESSION'S FENCE** and live in repos this session does
+not touch (`pw-os-v2`, `pw-website`, `pw-shared`):
+
+1. **Publish PW's OWN disclosure card at `/disclosures`.**
+   - Surface: `pwos.app/disclosures` (advisor- and partner-facing) + a
+     mirror at `protocolwealthllc.com/disclosures` (public firm
+     surface). Both render the SAME JSON card, generated by importing
+     `parseDisclosureCard` + `EXAMPLE_DISCLOSURE_CARD` from
+     `@protocolwealthos/shared/disclosure` (or, post-publish, from the
+     installed npm package), then overriding every field with PW's
+     real values (firm = "Protocol Wealth LLC", crd = "335298",
+     model = "claude-sonnet-4-6" or current pin, etc.).
+   - **Why:** dogfooding. The Friday positioning is "we built the
+     standard AND we use it ourselves." Publishing the schema without
+     publishing PW's own card against that schema is a credibility gap.
+   - **Where:**
+     - Card source-of-truth: `pw-os-v2/apps/api/src/disclosures/pw-card.ts`
+       (or similar) authored by Nick (CISO) + CCO-reviewed.
+     - UI: `pw-os-v2/apps/web/src/routes/disclosures/index.tsx`
+       (advisor-facing) + a corresponding route on `pw-website`
+       (public-facing).
+     - Pre-publish CI gate: `assertNoVerifyMarkers(card)` at build time
+       on both surfaces.
+
+2. **Reconcile autonomy wording across `/how-we-work` and
+   `shared/docs/compliance/opensource-policy.md`.**
+   - The public `pwos-core` README was rewritten this iteration (Tier
+     1) to say plainly that the framework "does not ship an unattended
+     client-action mode" and to distinguish (a) advisor-IDE tool
+     selection from (b) client-facing actions that require explicit
+     advisor sign-off.
+   - That wording is now the load-bearing public statement. Any
+     remaining stronger-autonomy framing on
+     `protocolwealthllc.com/how-we-work` (pw-website), on
+     `pwos.app/opensource` (pw-os-v2), in firm-internal
+     `shared/docs/compliance/opensource-policy.md`, or in any
+     factsheet or marketing asset must be reconciled to match the
+     public statement BEFORE Friday. If there is no concrete
+     conflict, capture a `verified-consistent` note in
+     `opensource-policy.md` so the next audit can see the
+     reconciliation happened.
+   - Out of this session's fence; flag for the parallel private session.
+
+3. **Update `shared/docs/compliance/opensource-policy.md`'s
+   open/private list to include the newly-published packages/shared
+   primitives.**
+   - The opensource policy doc historically enumerates which packages
+     are open vs which capabilities are private. With this iteration,
+     `@protocolwealthos/shared` ships three new public primitives
+     (HITL gate, disclosure card, provenance hash-chain). They belong
+     in the "open" column. The corresponding privacy boundary —
+     production thresholds, kill-rule cutoffs, decay constants,
+     real client data, wired vendor credentials, advisor-vetted
+     prompt sets — belongs in the "private" column (unchanged from
+     today; just record that the new public primitives don't move
+     anything across the boundary).
+
+---
+
 ## Build + test status at last update
 
 Captured in the checkpoint summary on this branch (see `pwos-core` repo
