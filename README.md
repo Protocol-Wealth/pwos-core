@@ -102,7 +102,7 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Streaming PII Rehydrator** — Buffer-aware placeholder rehydrator for SSE / chunked LLM output (handles placeholders split across chunks)
 - **Prompt Injection Detection** — 23 patterns across 6 attack categories
 - **Immutable Audit Trail** — Append-only log meeting SEC Rule 204-2 Books & Records requirements
-- **Inline Tool Orchestration** — LLM autonomously selects and executes tools during chat (multi-turn, up to 5 rounds)
+- **Tool Orchestration (advisor-driven, human-in-the-loop)** — Inside the advisor's IDE the LLM selects from a curated tool registry across multi-turn chat (up to 5 rounds); client-facing actions are gated separately by the Confirmation Gate (below), which requires an explicit advisor sign-off before any write tool affects client state. The framework does not ship an unattended client-action mode.
 - **Confirmation Gate for Write Tools** — Stateless, payload-bound two-turn gate so LLMs can't fudge fields between preview and execute
 - **Tool-Call Audit Builder** — SHA-256 hashed input + scrubbed-output audit rows for compliance-grade per-tool-call trails
 - **Practice Management** — Task tracking, meeting notes with AI action item extraction, CRM integration
@@ -249,6 +249,21 @@ PWOS Core stands on a foundation of exceptional open-source projects. We bundle 
 - **[Wealthbot](https://github.com/wealthbot-io/wealthbot)** (MIT, dormant PHP) — RIA rebalancing/billing algorithms (ported to TS)
 
 **Huge thanks to every maintainer and contributor of these projects.** RIA software has historically been locked behind proprietary walls — PWOS Core would not exist without the open-source ecosystem.
+
+## What's Open vs Private
+
+PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
+
+**Open (Apache 2.0, this repo):** The 18 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types), the canonical-pattern documentation under `docs/`, and the reference scaffold at `apps/api/`. Generic, hermetic, no firm-specific values.
+
+**Private (not in this repo, never will be):**
+- The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).
+- Real client data, advisor identities, household profiles, transaction history.
+- Firm-internal tools (Wealthbox / Altruist / Quiltt / Turnkey / Veriff wired clients with credentials, narrative-pipeline prompt sets, advisor-vetted disclaimer copy, tool-tier policy bindings).
+- Production thresholds, retention windows that are tighter than the defaults shipped here, kill-rule cutoffs, regime voting cutoffs, decay constants — anything where the *value* (not the *shape*) carries IP or competitive weight.
+- API keys, webhook secrets, signing keys, client identifiers.
+
+**Mapping principle:** the *shape* is open (schemas, interfaces, hash-chain algorithm, gate-evaluator structure). The *settings* a regulated firm operates under stay private to that firm. Adopt the shape; supply your own settings.
 
 ## Quick Start
 

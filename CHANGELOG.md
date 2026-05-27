@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — Governance docs parity with `nexus-core`; README open-vs-private + tool-orchestration framing (2026-05-27)
+
+- **`CONTRIBUTING.md`** — full rewrite to match the actual repo: removed references to non-existent `.env.example`, `pnpm --filter @protocolwealthos/api migrate`, `pnpm --filter @protocolwealthos/api seed`, and `apps/web/`; expanded the package layout from the outdated 9-package list to the full 18 currently in `packages/*`; added an explicit SPDX-header section with the two-line TypeScript canonical block; added a Conventional Commits expectation; added the hermetic-tests posture (no network, no live keys, no real client / advisor / vendor data); added a `pnpm changeset` step to the PR checklist. Doc-only; no published-package change.
+- **`CODE_OF_CONDUCT.md`** — fixed a project-name typo introduced by an initial copy from `nexus-core` (`Nexus Core` → `PWOS Core`). No policy change.
+- **`SECURITY.md`** — replaced the inherited `XBRL/SEC data integrity issues` in-scope line (which is a `nexus-core` capability, not a pwos-core one) with four lines naming the primitives whose security postures this repo actually owns: PII pipeline (`@protocolwealthos/pii-guard`), audit-log hash-chain tamper-evidence (`@protocolwealthos/audit-log`), MCP write-tool confirmation gate (`@protocolwealthos/mcp-tools`), and JWT / HMAC cryptographic posture (`@protocolwealthos/auth` + `@protocolwealthos/webhooks`).
+- **`README.md`** — added a `## What's Open vs Private` section between *Built on the Shoulders of Giants* and *Quick Start*, mirroring the same section in `nexus-core/README.md`: explicit enumeration of what the 18 published packages cover vs what stays in the closed PW estate (production orchestrator, client data, firm-internal tools, production thresholds / kill-rule cutoffs / decay constants, vendor credentials). Mapping principle stated: shape is open, settings are private.
+- **`README.md`** — rewrote the *Features* "Inline Tool Orchestration — LLM autonomously selects and executes tools during chat (multi-turn, up to 5 rounds)" line to remove the unqualified "autonomously" framing. New line distinguishes (a) advisor-driven IDE tool selection inside multi-turn chat from (b) client-facing actions, which are gated by the Confirmation Gate primitive and require explicit advisor sign-off before a write tool affects client state. The framework does not ship an unattended client-action mode.
+- No npm package code change. No CI workflow change. No SPDX / license / patent / OIN posture change.
+
 ### Added — Documentation refresh for 2026-05-18 → 2026-05-19 cascade (2026-05-19)
 
 Doc-refresh-only iteration; no code change. Captures the operational depth + recent shipping cadence visible at the README + canonical-patterns surface; pwos-core's published packages and CI workflows unchanged.
