@@ -28,7 +28,7 @@ pwos-core/
 │   ├── mcp-tools/          # Tool registry + tier classification + filters + confirm gate + tool-audit builder
 │   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + account-number masker
 │   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
-│   ├── shared/             # Internal cross-package types (NOT published)
+│   ├── shared/             # Cross-package types + governance primitives (hitl / disclosure / provenance); published to npm
 │   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
 │   └── workflow-engine/    # Storage-agnostic durable-job runtime
 ├── apps/api/               # Reference scaffold (NOT published)
