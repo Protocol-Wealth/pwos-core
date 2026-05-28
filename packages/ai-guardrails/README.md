@@ -15,6 +15,8 @@ Off-the-shelf LLM SDKs are designed for ergonomics, not regulated use. A few of 
 
 This package is the boot-time + per-request + per-response composable that gives you those four things. It does not pull in a vendor SDK.
 
+> The workspace-assertion check is the runtime enforcement of Protocol Wealth's ZDR API-surface boundary. ZDR (zero data retention) is contractually applied at the Anthropic workspace level — by asserting the workspace ID at boot and on every model call, ai-guardrails prevents accidental routing through a non-ZDR-enrolled workspace or the Anthropic Workbench / Claude.ai surfaces (which are NOT in ZDR scope). See PW's canonical AI-posture statement at `shared/docs/compliance/wisp-ai-posture.md` v1.3 §1 bullet 4 (internal).
+
 ## Install
 
 ```sh
