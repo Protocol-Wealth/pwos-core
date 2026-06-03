@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — `@protocolwealthos/planning-contract` (Roth/IRMAA planning ABI) (2026-06-03)
+
+New package: the PII-free TypeScript ABI for the Roth-conversion + IRMAA planning
+capability, mirroring the nexus-core Python engine. Ships the `PlanningContract`
+input shape, the `RothConversionAnalysis` output shape, the canonical
+Draft-2020-12 JSON-Schema (`PLANNING_CONTRACT_JSON_SCHEMA` — a faithful copy of
+the nexus-core source of truth), and the MCP tool definitions
+(`analyze_roth_conversion`, `sequence_conversions`, `irmaa_headroom`) +
+`registerPlanningTools`. Declarations only — the math lives in nexus-core,
+reached over the planning gateway; registering the tools lets the agent path
+inherit them (with the disclaimer/PII pipeline) for free. PlanningContract
+v1.0.0; PII-free by construction (opaque `case_id`, birth years not DOBs,
+aggregated balances). Depends on `@protocolwealthos/mcp-tools` for the
+`ToolDefinition`/`ToolRegistry` types; published as JS (`dist/`) via the standard
+`publishConfig`→`dist` + `prepack` build. Queued for release via changeset.
+
 ### Changed — Split `@protocolwealthos/disclosure-card` into its own focused package (2026-05-27)
 
 Pre-publish split — done while nothing is on npm yet (no downstream importers,
