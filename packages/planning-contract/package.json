@@ -1,0 +1,67 @@
+{
+  "name": "@protocolwealthos/planning-contract",
+  "version": "0.1.0",
+  "description": "PII-free TypeScript ABI for the Roth-conversion + IRMAA planning capability: PlanningContract + RothConversionAnalysis types, the canonical JSON-Schema, and MCP tool definitions. Mirrors the nexus-core Python engine.",
+  "private": false,
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/planning-contract#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "packages/planning-contract"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "keywords": [
+    "roth-conversion",
+    "irmaa",
+    "retirement-planning",
+    "tax-planning",
+    "mcp",
+    "ria",
+    "pii-free",
+    "fintech"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@protocolwealthos/mcp-tools": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.7",
+    "@types/node": "^25.9.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}
