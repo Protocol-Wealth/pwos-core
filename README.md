@@ -388,7 +388,7 @@ Deploy your own instance on Fly.io (~$62/month) with your own database. Your dat
 **Patent Pending** — USPTO Application #64/034,215
 "Compliance-First AI Operating System with Per-User PII Guard Pipeline and Immutable Audit Trail for SEC/FINRA-Regulated Financial Advisory Services"
 
-- [Patent disclosure](https://pwos.app/patent) · [USPTO Patent Center](https://patentcenter.uspto.gov/applications/64034215)
+- [Patent disclosure](https://pwos.app/patent) · [USPTO Patent Center](https://patentcenter.uspto.gov/applications/64034215) · [Figure 1 — system drawing (PDF)](docs/PW-PROV-001-FIG1.pdf)
 - Applicant: Protocol Wealth, LLC
 - Inventor: Nicholas Rygiel
 - Filed: April 9, 2026
