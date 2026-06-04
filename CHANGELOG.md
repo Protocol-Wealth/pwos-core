@@ -21,7 +21,18 @@ inherit them (with the disclaimer/PII pipeline) for free. PlanningContract
 v1.0.0; PII-free by construction (opaque `case_id`, birth years not DOBs,
 aggregated balances). Depends on `@protocolwealthos/mcp-tools` for the
 `ToolDefinition`/`ToolRegistry` types; published as JS (`dist/`) via the standard
-`publishConfig`→`dist` + `prepack` build. Queued for release via changeset.
+`publishConfig`→`dist` + `prepack` build. **Published to npm as
+`@protocolwealthos/planning-contract@0.2.0` (2026-06-03).**
+
+### Changed — `@protocolwealthos/disclosure-card` supports zod 4 → `0.3.0` (2026-06-03)
+
+zod 4 removed the `z.SafeParseReturnType` alias used by `safeParseDisclosureCard`,
+which broke the package build and the monorepo Release workflow. Replaced it with
+the schema-derived `ReturnType<typeof disclosureCardSchema.safeParse>` (runtime
+behavior unchanged); the package now builds against its declared `zod ^4.4.3`.
+**Published to npm as `@protocolwealthos/disclosure-card@0.3.0` (2026-06-03).** Both
+06-03 publishes went out via a local `pnpm publish` because the CI Release token
+(`NPM_API_KEY`) is dead (E404-on-PUT) — rotate it to restore automated releases.
 
 ### Changed — Split `@protocolwealthos/disclosure-card` into its own focused package (2026-05-27)
 

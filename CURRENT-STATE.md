@@ -6,7 +6,7 @@
 
 ## What's published
 
-**19 packages live on npm under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member; published with provenance via the Changesets release workflow). All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`.
+**20 packages live on npm under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Note: `planning-contract@0.2.0` + `disclosure-card@0.3.0` were published 2026-06-03 via a **local `pnpm publish`** (the CI release token is currently dead), so those two lack the CI provenance attestation; the rest were published with provenance via the Changesets workflow.
 
 | Package | Version | Purpose |
 |---|---|---|
@@ -18,7 +18,8 @@
 | `ai-guardrails` | 0.2.0 | Workspace (ZDR) assertion + model allowlist + prompt-cache + content-free audit row |
 | `auth` | 0.2.0 | HS256 JWT session + role guard + Workspace-domain restriction + per-agent tokens |
 | `cache-keys` | 0.2.0 | Namespace-enforced cache-key builder with PII-pattern rejection |
-| `disclosure-card` | 0.2.0 | Machine-readable AI-system disclosure schema (Zod + dep-free JSON Schema) — flagship adoptable standard |
+| `disclosure-card` | 0.3.0 | Machine-readable AI-system disclosure schema (Zod 4 + dep-free JSON Schema) — flagship adoptable standard |
+| `planning-contract` | 0.2.0 | PII-free ABI for the Roth-conversion + IRMAA planning capability: `PlanningContract` + `RothConversionAnalysis` types + JSON-Schema + MCP tool defs (mirrors the nexus-core engine) |
 | `document-gen` | 0.2.0 | Document model + CSV + plain-text renderer + DocumentRenderer interface |
 | `email-archive` | 0.2.0 | SEC 17a-4 archive primitives |
 | `gcp-helpers` | 0.2.0 | Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape |
@@ -33,6 +34,11 @@
 `apps/api/` (reference scaffold) and `apps/evals/` (eval harness v0) are workspace packages kept `private: true` — fork-to-use, not published.
 
 ## What shipped recently
+
+- **`@protocolwealthos/planning-contract` published + zod-4 migration (2026-06-03, #49/#51/#52):**
+  - **New package `planning-contract@0.2.0`** — the PII-free TypeScript ABI for the Roth-conversion + IRMAA planning capability (`PlanningContract` + `RothConversionAnalysis` types, `PLANNING_CONTRACT_JSON_SCHEMA`, and the MCP tool defs `analyze_roth_conversion` / `sequence_conversions` / `irmaa_headroom` + `registerPlanningTools`). Declarations only — the math lives in the nexus-core engine. Contract is `PLANNING_CONTRACT_VERSION = 1.0.0` (distinct from the npm package version 0.2.0).
+  - **zod 3 → 4 migration (#51)** — `disclosure-card@0.3.0` now builds against `zod ^4.4.3` (`z.SafeParseReturnType` removed → schema-derived `ReturnType<typeof schema.safeParse>`; runtime behavior unchanged). `shared` was already zod-4-clean. This unblocked the Release "build all packages" step.
+  - **Publish path note:** the CI Release token (`NPM_API_KEY`) is currently dead (E404-on-PUT), so both packages were published via a local `pnpm publish` after `npm login`. Future automated releases need the token rotated.
 
 - **CFP-substrate governance hardening (2026-05-27, via #43 + release #44 + docs #45):**
   - **Flagship governance primitives** added to `@protocolwealthos/shared`: `hitl` (fail-closed human-in-the-loop gate, two-class default policy), `disclosure` (the disclosure-card schema), `provenance` (SHA-256 hash-chained records with tamper-detection). `@protocolwealthos/disclosure-card` split into its own published package as the flagship adoptable-standard artifact (Zod + dep-free JSON Schema + `assertNoVerifyMarkers` pre-publish gate).

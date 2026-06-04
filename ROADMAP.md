@@ -6,7 +6,9 @@
 
 ## Done
 
-- **19 packages published** to npm under `@protocolwealthos/*` with provenance (Apache 2.0 / OIN / patent-pending).
+- **20 packages published** to npm under `@protocolwealthos/*` (Apache 2.0 / OIN / patent-pending).
+- **`planning-contract@0.2.0`** — PII-free ABI for the Roth-conversion + IRMAA planning capability (types + JSON-Schema + MCP tool defs; mirrors the nexus-core engine). Published 2026-06-03.
+- **zod 3 → 4 migration done** — `disclosure-card@0.3.0` migrated (the only zod consumer that broke; `shared` was already clean), unblocking the Release build. Published 2026-06-03.
 - **Flagship governance primitives** — `disclosure-card` (Zod + dep-free JSON Schema adoptable standard), `@protocolwealthos/shared` `hitl` (fail-closed gate) + `provenance` (hash-chain) — published 2026-05-27.
 - **`apps/evals/`** eval harness v0 (5 categories, deterministic offline runner, provider-agnostic).
 - Governance-doc hardening + autonomy-wording reconciliation (#43–#45).
@@ -15,7 +17,7 @@
 
 | Item | Notes |
 |---|---|
-| **`zod` v3 → v4 migration** | Dependabot #47 is a major bump; zod 4 has breaking changes. Migrate every zod-importing package together (disclosure-card, mcp-tools, compliance, …) behind one changeset rather than per-package, to avoid a split peer-dep surface for adopters. |
+| **Rotate the CI npm token** | The Release workflow's `NPM_API_KEY` is dead (publish fails `E404-on-PUT`). `planning-contract@0.2.0` + `disclosure-card@0.3.0` were published manually via local `pnpm publish` to unblock; rotate the `@protocolwealthos` npm Automation token + update the GitHub secret to restore automated releases (and CI provenance) — otherwise every future release needs the local-publish dance. |
 | **Toward 1.0 API stability** | The `0.x` series signals an unstable API. Stabilize the highest-adoption packages first (`disclosure-card`, `pii-guard`, `audit-log`, `shared/hitl`) toward `1.0` once their interfaces have baked through real adopter use. |
 | **`apps/evals` expansion** | More fixtures per category + a live-mode reference adapter; this is the credibility surface for the AI-safety claims. |
 | **Continued primitive extraction** | As the private estate (`pw-os-v2` / `pw-api`) generalizes a reusable pattern, extract the *shape* here (drop framework coupling + PW identifiers). New packages land with a changeset + per-package README + hermetic tests. |
