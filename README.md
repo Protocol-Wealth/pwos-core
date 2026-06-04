@@ -7,6 +7,7 @@
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
+[![GitHub stars](https://img.shields.io/github/stars/Protocol-Wealth/pwos-core?style=social)](https://github.com/Protocol-Wealth/pwos-core/stargazers)
 
 **Live:** [pwos.app](https://pwos.app) | **Demo:** [pwos.app/demo](https://pwos.app/demo) | **Disclosures:** [pwos.app/disclosures](https://pwos.app/disclosures)
 
