@@ -4,14 +4,27 @@ Copyright 2026 Protocol Wealth, LLC
 This product includes software developed by Protocol Wealth, LLC
 (https://protocolwealthllc.com).
 
-Licensed under the Apache License, Version 2.0 with defensive patent grant.
+Licensed under the Apache License, Version 2.0 with a defensive patent grant.
 
-Patent Pending: USPTO Application #64/034,215
-"Compliance-First AI Operating System with Per-User PII Guard Pipeline
-and Immutable Audit Trail for SEC/FINRA-Regulated Financial Advisory Services"
+------------------------------------------------------------------------------
+Defensive patent posture
+------------------------------------------------------------------------------
+Protocol Wealth pursues a defensive patent strategy. The architecture relied on
+by this project — a compliance-first AI operating system: a multi-layer PII
+guard pipeline that scans and redacts client data before it leaves the local
+execution environment, and an append-only, hash-chained audit trail meeting SEC
+Rule 204-2 books-and-records requirements — is the subject of a United States
+patent application and is published here as Apache-2.0 prior art.
 
-Protocol Wealth, LLC is a member of the Open Invention Network (OIN) 2.0.
-See PATENTS file for full non-assertion pledge.
+  USPTO Application No.: 64/034,215  (Provisional; Attorney Docket PW-PROV-001)
+
+The Apache-2.0 patent grant (Section 3) confers an automatic, perpetual,
+royalty-free patent license to all users, with a retaliation clause that
+terminates that grant for any party initiating patent litigation over the Work.
+
+Protocol Wealth LLC is a member of the Open Invention Network (OIN).
+See https://openinventionnetwork.com for details, and the PATENTS file for the
+full non-assertion pledge.
 
 ================================================================================
 THIRD-PARTY COMPONENTS
