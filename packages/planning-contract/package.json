@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/planning-contract",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "PII-free TypeScript ABI for the Roth-conversion + IRMAA planning capability: PlanningContract + RothConversionAnalysis types, the canonical JSON-Schema, and MCP tool definitions. Mirrors the nexus-core Python engine.",
   "private": false,
   "license": "Apache-2.0",
