@@ -53,7 +53,7 @@ go/no-go review before any push to `main` or any Tier-2 work begins.**
 
 - **(governance-doc consistency check)** Open `shared/docs/compliance/opensource-policy.md`
   (private estate canonical) and verify that the license-posture statements,
-  patent-posture statements (USPTO #64/034,215 + #64/034,229 + OIN
+  patent-posture statements (USPTO #64/034,215 + #64/034,229 + #64/082,241 + OIN
   membership), and the open/private boundary description still align with
   the new wording landed here. Specifically:
   - The new `## What's Open vs Private` block in pwos-core README sets a
