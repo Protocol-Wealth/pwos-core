@@ -379,6 +379,7 @@ Deploy your own instance on Fly.io (~$62/month) with your own database. Your dat
 - [Architecture](docs/architecture.md)
 - [Packages Reference](docs/packages.md)
 - [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC
+- [PWOS + SmythOS (reference integration)](docs/pwos-smythos.md) — forward-looking compatibility note (not a partnership): how an MCP-compatible agent platform such as SmythOS can call the PWOS compliance/credential layer (pii-guard, mcp-tools tier + confirm-gate, hitl, disclosure-card, audit-log) over the open Model Context Protocol; SmythOS does not integrate PWOS today
 - [Attribution](docs/attribution.md) — detailed provenance per capability
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
