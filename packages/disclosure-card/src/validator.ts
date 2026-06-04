@@ -14,8 +14,6 @@
  * served publicly.
  */
 
-import type { z } from "zod";
-
 import type { DisclosureCard } from "./types.js";
 import { disclosureCardSchema } from "./schema.js";
 
@@ -23,9 +21,11 @@ export function parseDisclosureCard(input: unknown): DisclosureCard {
   return disclosureCardSchema.parse(input);
 }
 
+// zod 4 removed the `z.SafeParseReturnType` alias; derive the result type from
+// the schema's own `safeParse` so this stays correct across zod versions.
 export function safeParseDisclosureCard(
   input: unknown,
-): z.SafeParseReturnType<unknown, DisclosureCard> {
+): ReturnType<typeof disclosureCardSchema.safeParse> {
   return disclosureCardSchema.safeParse(input);
 }
 
