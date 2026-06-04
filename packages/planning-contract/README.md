@@ -31,7 +31,9 @@ npm install @protocolwealthos/planning-contract
 ## Versioning
 
 `PLANNING_CONTRACT_VERSION` is the semver of the contract shape (currently
-`1.0.0`). A breaking change is a cross-repo event — bump the major in nexus-core,
+`1.1.0` — additive since 1.0.0: `accounts.employer_plan_aggregate`, plus structured
+`YearAnalysis.aca` + survivor-compression output). A breaking change is a cross-repo
+event — bump the major in nexus-core,
 this package, and pwplan-core together. The nexus-core JSON-Schema is the
 cross-language source of truth.
 

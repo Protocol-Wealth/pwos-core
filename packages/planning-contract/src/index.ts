@@ -30,6 +30,7 @@ export {
 } from "./contract.js";
 
 export {
+  type AcaInteraction,
   type BindingConstraint,
   type ConversionOption,
   type DoNothingProjection,

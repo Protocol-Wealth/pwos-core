@@ -90,6 +90,20 @@ export interface ConversionOption {
   crosses_irmaa_cliff: boolean;
 }
 
+/** ACA premium-tax-credit (PTC) erosion from the conversion (contract v1.1.0).
+ *  Populated only when an ACA situation is injected and someone is under 65 +
+ *  marketplace-enrolled; `null` on `YearAnalysis.aca` otherwise. A
+ *  flag-with-magnitude estimate, not a precise PTC determination. */
+export interface AcaInteraction {
+  cliff_mode: string;
+  magi_pct_fpl_before: number;
+  magi_pct_fpl_after: number;
+  ptc_before: number;
+  ptc_after: number;
+  incremental_ptc_loss: number;
+  crosses_hard_cliff: boolean;
+}
+
 /** Per-year conversion analysis. */
 export interface YearAnalysis {
   year: number;
@@ -115,6 +129,9 @@ export interface YearAnalysis {
   state_tax: StateTax;
   liquidity: LiquidityGate;
   notes: string[];
+  /** ACA PTC erosion (contract v1.1.0); null unless an ACA situation is injected
+   *  and someone is under 65 + marketplace-enrolled. */
+  aca?: AcaInteraction | null;
 }
 
 export type BindingConstraint =
@@ -135,6 +152,11 @@ export interface DoNothingProjection {
   first_year_rmd: number;
   first_year_rmd_marginal_rate: number;
   note: string;
+  /** Pre-tax employer-plan balance folded into the RMD-drag pool (contract v1.1.0). */
+  employer_plan_aggregate?: number;
+  /** Survivor-year compression (contract v1.1.0): the marginal rate the first-year
+   *  RMD would face if the surviving spouse filed single; null when already single/mfs. */
+  survivor_first_year_rmd_marginal_rate?: number | null;
 }
 
 /** Multi-year roll-up of the recommended conversion sequence. */
