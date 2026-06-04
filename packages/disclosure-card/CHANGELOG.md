@@ -1,5 +1,16 @@
 # @protocolwealthos/disclosure-card
 
+## 0.3.0
+
+### Minor Changes
+
+- [#51](https://github.com/Protocol-Wealth/pwos-core/pull/51) [`3a33729`](https://github.com/Protocol-Wealth/pwos-core/commit/3a3372933025af8a63a57ac31085f593b81fb74e) Thanks [@rivendale](https://github.com/rivendale)! - Support zod 4. Replace the removed `z.SafeParseReturnType` alias in
+  `safeParseDisclosureCard` with the schema-derived return type
+  (`ReturnType<typeof disclosureCardSchema.safeParse>`), so the package builds
+  against its declared `zod ^4.4.3`. Runtime validation behavior is unchanged — the
+  safeParse result shape (`{ success, data | error }`) is identical; only the
+  compile-time type alias changed because zod itself removed it.
+
 ## 0.2.0
 
 ### Minor Changes
