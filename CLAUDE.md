@@ -28,7 +28,8 @@ pwos-core/
 │   ├── mcp-tools/          # Tool registry + tier classification + filters + confirm gate + tool-audit builder
 │   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + account-number masker
 │   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
-│   ├── disclosure-card/    # Machine-readable AI-system disclosure schema (Zod + dep-free JSON Schema); published to npm
+│   ├── disclosure-card/    # Machine-readable AI-system disclosure schema (Zod 4 + dep-free JSON Schema); published to npm
+│   ├── planning-contract/  # PII-free Roth/IRMAA planning ABI: PlanningContract + RothConversionAnalysis types + JSON-Schema + MCP tool defs (mirrors nexus-core); published to npm
 │   ├── shared/             # Cross-package types + two governance primitives (hitl + provenance); published to npm
 │   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
 │   └── workflow-engine/    # Storage-agnostic durable-job runtime
