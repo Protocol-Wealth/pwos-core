@@ -17,7 +17,7 @@
 
 | Item | Notes |
 |---|---|
-| **Rotate the CI npm token** | The Release workflow's `NPM_API_KEY` is dead (publish fails `E404-on-PUT`). `planning-contract@0.2.0` + `disclosure-card@0.3.0` were published manually via local `pnpm publish` to unblock; rotate the `@protocolwealthos` npm Automation token + update the GitHub secret to restore automated releases (and CI provenance) — otherwise every future release needs the local-publish dance. |
+| **Release via local publish (decided process)** | By decision, `@protocolwealthos` packages publish via a local `pnpm publish` after `npm login` (account `nickrygiel`) — NOT the CI `NPM_API_KEY` automation, which is intentionally unused (no token rotation; local auth each release is the standing process). Use `pnpm` (not `npm`) so `workspace:^` deps rewrite; `publishConfig` already sets `access: public` + `dist/`. Trade-off accepted: local publish skips CI provenance + the auto GitHub Release (cosmetic). `planning-contract@0.3.0` + `disclosure-card@0.3.0` shipped this way. |
 | **Toward 1.0 API stability** | The `0.x` series signals an unstable API. Stabilize the highest-adoption packages first (`disclosure-card`, `pii-guard`, `audit-log`, `shared/hitl`) toward `1.0` once their interfaces have baked through real adopter use. |
 | **`apps/evals` expansion** | More fixtures per category + a live-mode reference adapter; this is the credibility surface for the AI-safety claims. |
 | **Continued primitive extraction** | As the private estate (`pw-os-v2` / `pw-api`) generalizes a reusable pattern, extract the *shape* here (drop framework coupling + PW identifiers). New packages land with a changeset + per-package README + hermetic tests. |
