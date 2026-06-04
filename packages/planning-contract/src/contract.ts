@@ -22,7 +22,7 @@
 /** Semver of the PlanningContract + RothConversionAnalysis shapes. A breaking
  *  change is a cross-repo contract event: bump MAJOR in nexus-core, this package,
  *  and pwplan-core together. */
-export const PLANNING_CONTRACT_VERSION = "1.0.0" as const;
+export const PLANNING_CONTRACT_VERSION = "1.1.0" as const;
 
 /** single = one filer; mfj = married filing jointly; mfs = married filing separately. */
 export type ContractFilingStatus = "single" | "mfj" | "mfs";
@@ -62,6 +62,9 @@ export interface AccountBalances {
   first_roth_year?: number | null;
   /** Cash OUTSIDE the IRA available to pay the conversion tax. */
   taxable_liquidity?: number;
+  /** Pre-tax employer-plan (401k/403b) balances (contract v1.1.0). NOT directly
+   *  convertible (roll to an IRA first), but adds to the future RMD drag. */
+  employer_plan_aggregate?: number;
 }
 
 export interface ConversionIntent {

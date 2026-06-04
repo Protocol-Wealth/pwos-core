@@ -23,14 +23,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const srcDir = join(__dirname, "..", "src");
 
 describe("version", () => {
-  it("is semver and matches the canonical 1.0.0", () => {
+  it("is semver and matches the canonical 1.1.0", () => {
     expect(PLANNING_CONTRACT_VERSION).toMatch(/^\d+\.\d+\.\d+$/);
-    expect(PLANNING_CONTRACT_VERSION).toBe("1.0.0");
+    expect(PLANNING_CONTRACT_VERSION).toBe("1.1.0");
   });
 
-  it("the JSON-Schema $id pins the same major version", () => {
+  it("the JSON-Schema $id pins the same version", () => {
     expect(PLANNING_CONTRACT_JSON_SCHEMA.title).toBe("PlanningContract");
-    expect(PLANNING_CONTRACT_JSON_SCHEMA.$id).toContain("1.0.0");
+    expect(PLANNING_CONTRACT_JSON_SCHEMA.$id).toContain("1.1.0");
   });
 });
 

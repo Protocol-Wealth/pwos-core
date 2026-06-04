@@ -12,10 +12,10 @@
 
 export const PLANNING_CONTRACT_JSON_SCHEMA = {
   $schema: "https://json-schema.org/draft/2020-12/schema",
-  $id: "https://nexusmcp.site/schemas/planning-contract-1.0.0.json",
+  $id: "https://nexusmcp.site/schemas/planning-contract-1.1.0.json",
   title: "PlanningContract",
   description:
-    "PII-free case shape for multi-year Roth-conversion + IRMAA analysis. Canonical cross-language source of truth, mirrored by the nexus-core dataclass and the TypeScript @protocolwealthos/planning-contract package. Version 1.0.0.",
+    "PII-free case shape for multi-year Roth-conversion + IRMAA analysis. Canonical cross-language source of truth, mirrored by the nexus-core dataclass and the TypeScript @protocolwealthos/planning-contract package. Version 1.1.0 (additive-only since 1.0.0 — added accounts.employer_plan_aggregate).",
   type: "object",
   additionalProperties: false,
   required: [
@@ -33,7 +33,7 @@ export const PLANNING_CONTRACT_JSON_SCHEMA = {
       type: "string",
       description: "Semver of the PlanningContract shape. Engine requires a matching MAJOR.",
       pattern: "^\\d+\\.\\d+\\.\\d+$",
-      default: "1.0.0",
+      default: "1.1.0",
     },
     case_id: {
       type: "string",
@@ -149,6 +149,13 @@ export const PLANNING_CONTRACT_JSON_SCHEMA = {
           minimum: 0,
           default: 0,
           description: "Cash OUTSIDE the IRA available to pay the conversion tax.",
+        },
+        employer_plan_aggregate: {
+          type: "number",
+          minimum: 0,
+          default: 0,
+          description:
+            "Pre-tax employer-plan (401k/403b) balances. Added in v1.1.0. NOT directly convertible (roll to an IRA first), but adds to the future RMD drag.",
         },
       },
     },
