@@ -37,8 +37,8 @@
   },
   "devDependencies": {
     "typescript": "^6.0.3",
-    "vitest": "^4.1.7",
-    "@types/node": "^25.9.1"
+    "vitest": "^4.1.8",
+    "@types/node": "^25.9.2"
   },
   "publishConfig": {
     "access": "public",
