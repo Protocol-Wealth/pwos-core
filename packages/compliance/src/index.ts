@@ -24,6 +24,14 @@ export {
   verifyBundle,
 } from "./booksAndRecords.js";
 
+export { wrapWithCompliance } from "./complianceWrapper.js";
+export type {
+  ComplianceAuditContext,
+  ComplianceEnvelope,
+  ComplianceMeta,
+  WrapWithComplianceOptions,
+} from "./complianceWrapper.js";
+
 export {
   type EvaluatedEvent,
   type EventStatus,
