@@ -111,6 +111,10 @@ importers:
         version: 4.1.8(@types/node@25.9.2)(vite@6.4.2(@types/node@25.9.2)(lightningcss@1.32.0)(tsx@4.22.4))
 
   packages/compliance:
+    dependencies:
+      '@protocolwealthos/disclosure-card':
+        specifier: workspace:^
+        version: link:../disclosure-card
     devDependencies:
       '@types/node':
         specifier: ^25.9.2
