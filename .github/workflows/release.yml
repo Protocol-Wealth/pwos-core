@@ -1,24 +1,31 @@
-name: Release
+name: Release (version PR only)
+
+# Publishing is done LOCALLY by the maintainer (`npm login` + `pnpm
+# changeset:version` + `pnpm changeset:publish`) per the firm's convention —
+# the `NPM_API_KEY` CI secret is intentionally unused. This workflow's ONLY
+# job is to keep a "Version Packages" PR open that aggregates queued
+# changesets, so pending releases are visible. It does NOT publish to npm.
+#
+# (History: the prior version also ran `changeset:publish` in CI; that step
+# failed on every run because the npm auth path is local-only, which made a
+# routine red run look like a broken publish. Trimmed to version-PR-only.)
 
 on:
   push:
     branches:
       - main
 
-# Required so the changesets bot can open / update the version PR and
-# (when the version PR is merged) push a release commit.
 permissions:
   contents: write
   pull-requests: write
-  id-token: write  # for npm provenance
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  release:
-    name: Version + Publish
+  version-pr:
+    name: Version PR
     runs-on: ubuntu-latest
     # Do not run on the auto-generated changeset version-PR commits to avoid
     # an infinite loop when the bot's PR is merged back to main.
@@ -26,19 +33,16 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v6
         with:
-          # Required so changesets can read git tags + push commits back.
+          # Required so changesets can read git tags + push the version PR.
           fetch-depth: 0
-          # GITHUB_TOKEN is fine for opening PRs and writing commits;
-          # NPM_TOKEN handles the actual publish step.
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js 22
         uses: actions/setup-node@v6
         with:
           node-version: "22"
-          registry-url: https://registry.npmjs.org
 
       - name: Install pnpm
         uses: pnpm/action-setup@v6
@@ -52,26 +56,16 @@ jobs:
       - name: Run tests
         run: pnpm -r test
 
-      - name: Create release PR or publish to npm
+      - name: Open / update the Version Packages PR
         id: changesets
         uses: changesets/action@v1
         with:
-          # When pending changesets exist → opens / updates a "Version Packages" PR.
-          # When that PR is merged (no pending changesets) → publishes the new
-          # versions to npm.
-          publish: pnpm changeset:publish
+          # version-only: with no `publish` input, changesets/action opens or
+          # updates the "Version Packages" PR when changesets are pending and
+          # does NOTHING when there are none. It never publishes to npm — that
+          # is the maintainer's local `pnpm changeset:publish` step.
           version: pnpm changeset:version
           commit: "chore(release): version packages"
           title: "chore(release): version packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # `NODE_AUTH_TOKEN` is the canonical name `npm` / `pnpm publish`
-          # picks up automatically. The repo secret is named NPM_API_KEY per
-          # the maintainer's convention — we map it through here so the
-          # workflow doesn't need to be re-wired if someone later renames
-          # the secret to NPM_TOKEN.
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_API_KEY }}
-          NPM_TOKEN: ${{ secrets.NPM_API_KEY }}
-          # Enable npm provenance for supply-chain trust.
-          # Requires id-token: write permission above.
-          NPM_CONFIG_PROVENANCE: "true"
