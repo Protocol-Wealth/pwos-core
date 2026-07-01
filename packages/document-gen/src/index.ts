@@ -36,7 +36,7 @@
  * use end up in your bundle.
  */
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.2.1";
 
 export {
   escapeCsvField,

@@ -1,5 +1,14 @@
 # @protocolwealthos/planning-contract
 
+## 0.3.1
+
+### Patch Changes
+
+- [`420c388`](https://github.com/Protocol-Wealth/pwos-core/commit/420c388811893ddd202650c2d481a5aaa608559a) - Synchronize exported VERSION constants with package manifests and keep PlanningContract public descriptions aligned with contract v1.1.0.
+
+- Updated dependencies [[`420c388`](https://github.com/Protocol-Wealth/pwos-core/commit/420c388811893ddd202650c2d481a5aaa608559a)]:
+  - @protocolwealthos/mcp-tools@0.3.1
+
 ## 0.3.0
 
 ### Minor Changes
