@@ -33,14 +33,13 @@ jobs:
         run: npm install -g license-checker-rseidelsohn
 
       - name: Install project dependencies
-        run: pnpm install --frozen-lockfile || echo "Install may need lockfile"
-        continue-on-error: true
+        run: pnpm install --frozen-lockfile
 
       - name: Scan licenses
         id: scan
         run: |
-          license-checker-rseidelsohn --json --out dependency-licenses.json --production || echo "{}" > dependency-licenses.json
-          license-checker-rseidelsohn --summary > dependency-licenses-summary.txt || true
+          license-checker-rseidelsohn --json --out dependency-licenses.json --production
+          license-checker-rseidelsohn --summary --production > dependency-licenses-summary.txt
           cat dependency-licenses-summary.txt
 
       - name: Check for forbidden licenses

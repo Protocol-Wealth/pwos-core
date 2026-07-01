@@ -29,7 +29,7 @@ const CONTRACT_PROPERTY: JsonSchema = {
   type: "object",
   additionalProperties: true,
   description:
-    "A PII-free PlanningContract v1.0.0 (snake_case). Required: case_id (opaque, never identity-derived), tax_year (the earliest conversion year), filing_status (single|mfj|mfs), state_code (2-letter), birth_years (YEARS not DOBs), income_ex_conversion (wages/pension/social_security_gross/.../itemized_or_standard), accounts (trad_ira_aggregate, nondeductible_basis, roth_balance, taxable_liquidity), and intent (target_rule fill_to_rate|fill_to_irmaa_tier|fixed_amount, years[], target_rate?, fixed_amount?). See PLANNING_CONTRACT_JSON_SCHEMA for the full schema.",
+    "A PII-free PlanningContract v1.1.0 (snake_case). Required: case_id (opaque, never identity-derived), tax_year (the earliest conversion year), filing_status (single|mfj|mfs), state_code (2-letter), birth_years (YEARS not DOBs), income_ex_conversion (wages/pension/social_security_gross/.../itemized_or_standard), accounts (trad_ira_aggregate, nondeductible_basis, roth_balance, taxable_liquidity; optional employer_plan_aggregate), and intent (target_rule fill_to_rate|fill_to_irmaa_tier|fixed_amount, years[], target_rate?, fixed_amount?). See PLANNING_CONTRACT_JSON_SCHEMA for the full schema.",
 };
 
 const OPTIONAL_TABLE: JsonSchema = {

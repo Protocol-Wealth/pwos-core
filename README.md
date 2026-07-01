@@ -5,7 +5,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](https://patentcenter.uspto.gov/applications/64034215)
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6+-blue.svg)](https://www.typescriptlang.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/Protocol-Wealth/pwos-core?style=social)](https://github.com/Protocol-Wealth/pwos-core/stargazers)
 
@@ -88,7 +88,7 @@ Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core)
 | [`nexusmcp.site`](https://nexusmcp.site) | Sibling repo `nexus-core` production MCP foundation — ~243 financial-data tools surfaced as MCP-protocol tools |
 | [`protocolwealthllc.com/subprocessors`](https://protocolwealthllc.com/subprocessors) | Canonical subprocessor list — 16 vendors in PW's production stack with attestations |
 
-**Note (2026-05-19):** `/changelog`, `/factsheets`, and `/live` are launching today as the build-in-public Tier-1 substrate-transparency surfaces. If a link 404s briefly, that is the build-in-public posture functioning — visible work in progress.
+**Note (2026-07-01):** These public surfaces live outside this repo. Verify them directly before treating their current runtime state as part of a release decision.
 
 ## What This Is
 
@@ -96,26 +96,15 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 
 **This is not a toy.** It was built and tested in production by an SEC-registered RIA (Protocol Wealth LLC, CRD #335298) with real compliance requirements.
 
-## Features
+## Capability Surface
 
-- **AI Chat IDE** — Multi-model LLM chat with streaming SSE, projects, folders, templates, conversation management
-- **4-Layer PII Guard** — Regex (31 patterns) + NER + financial recognizers + domain allow-list with per-user modes (warn/block/redact)
-- **Streaming PII Rehydrator** — Buffer-aware placeholder rehydrator for SSE / chunked LLM output (handles placeholders split across chunks)
-- **Prompt Injection Detection** — 23 patterns across 6 attack categories
-- **Immutable Audit Trail** — Append-only log meeting SEC Rule 204-2 Books & Records requirements
-- **Tool Orchestration (advisor-driven, human-in-the-loop)** — Inside the advisor's IDE the LLM selects from a curated tool registry across multi-turn chat (up to 5 rounds); client-facing actions are gated separately by the Confirmation Gate (below), which requires an explicit advisor sign-off before any write tool affects client state. The framework does not ship an unattended client-action mode.
-- **Confirmation Gate for Write Tools** — Stateless, payload-bound two-turn gate so LLMs can't fudge fields between preview and execute
-- **Tool-Call Audit Builder** — SHA-256 hashed input + scrubbed-output audit rows for compliance-grade per-tool-call trails
-- **Practice Management** — Task tracking, meeting notes with AI action item extraction, CRM integration
-- **Financial Calculator** — Compound interest, CAGR, mortgage, RMD, future/present value, rule of 72
-- **Document Gen** — PDFs via pdfme/pdf-lib/react-pdf, Word via docx, PowerPoint via pptxgenjs
-- **Onchain Portfolio** — Viem + Wagmi for EVM wallets, DeFi positions, statements
-- **Workflow Engine** — Durable execution via Temporal or BullMQ
-- **Chart Generator** — SVG bar, pie, and line charts
-- **Template System** — Reusable templates with variable substitution
-- **Compliance Center** — AI tool inventory, PII dashboard, governance docs, email archiving (SEC 17a-4)
-- **Google OAuth + RBAC** — Role-based access (admin/partner/user/intern)
-- **Mobile Responsive** — Sidebar drawer, full-width chat, touch-optimized
+- **PII and AI guardrails** — PII scanner, streaming rehydrator, prompt-injection detector, account masker, cache-prefix PII boundary, model alias resolver, ZDR workspace assertion, content-free audit rows.
+- **Audit and governance** — Append-only audit log, recursive canonical JSON hashing, anomaly detectors, approver-separation guard, provenance hash-chain, fail-closed HITL evaluator, disclosure-card schema.
+- **Tool and workflow primitives** — MCP tool registry, tier classification, response filters, payload-bound confirmation gate, tool-call audit builder, durable-job interfaces, backoff strategies.
+- **Security and integration boundaries** — HS256 JWT/session helpers, scoped agent tokens, role/domain guards, webhook HMAC and dual-layer verification, idempotency, security headers, cache-key PII rejection.
+- **Advisor data shapes** — Ledger, holdings, CRM, document model, email archive, on-chain portfolio client/types, GCP helper interfaces.
+- **Planning ABI** — PlanningContract v1.1.0 snake_case TypeScript contract, Roth/IRMAA result types, JSON Schema, and MCP planning tool definitions. Math lives in `nexus-core`.
+- **Eval and examples** — Private deterministic AI-safety eval harness under `apps/evals/` and a composed RIA agent-substrate example under `examples/rias-agent-substrate/`.
 
 ## What You Get From npm
 
@@ -135,6 +124,14 @@ The `@protocolwealthos/*` packages are what's published. The deployed app at [pw
 | Package | Headline primitives |
 |---------|---------------------|
 | **`@protocolwealthos/ai-guardrails`** | `assertWorkspace()` (ZDR fail-fast) · `createModelResolver()` (env-aliased model strings, no hardcoded literals) · `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) · `buildAuditRow()` (sha256 of prompt + response + tool_use; no raw content) |
+
+### Governance + planning primitives
+
+| Package | Headline primitives |
+|---------|---------------------|
+| **`@protocolwealthos/shared`** | `hitl` fail-closed approval gate · `provenance` SHA-256 hash-chain records · shared constants/types |
+| **`@protocolwealthos/disclosure-card`** | Zod 4 disclosure-card schema · dependency-free JSON Schema · `assertNoVerifyMarkers()` pre-publish gate |
+| **`@protocolwealthos/planning-contract`** | PlanningContract v1.1.0 snake_case Roth/IRMAA ABI · result types · JSON Schema · MCP tool definitions |
 
 ### Auth + access primitives
 
@@ -181,27 +178,19 @@ The pwos-core primitive packages above implement individual capabilities; the *p
 ## Architecture
 
 ```
-PWOS Core (single deployment)
-├── React 19 + Tailwind v4 (frontend)
-├── Hono 4 (API server, serves frontend)
-├── 4-Layer PII Guard Pipeline
-├── Tool Orchestration (extensible via HTTP)
-├── Document Generation (pdfme, pdf-lib, react-pdf, docx, pptxgenjs)
-├── Onchain SDK (Viem, Wagmi, Ox)
-├── Workflow Engine (BullMQ + optional Temporal)
-├── Email Archive (OpenArchiver integration for SEC 17a-4)
-├── Gemma Engine (optional local AI)
-└── LLM API (Claude/GPT/Gemini with tool_use)
-    ├── PostgreSQL (Drizzle ORM)
-    ├── Redis (sessions)
-    └── External integrations (HTTP)
+pwos-core
+├── packages/     # Published framework-agnostic TypeScript primitives
+├── apps/evals/   # Private, deterministic eval harness workspace
+├── examples/     # Private integration examples
+├── docs/         # Canonical-pattern, attribution, publishing, architecture notes
+└── .github/      # PR CI, SPDX/license checks, version-PR workflow
 ```
 
 ## Built on the Shoulders of Giants
 
-PWOS Core stands on a foundation of exceptional open-source projects. We bundle or extend these libraries with full attribution — see [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for complete legal notices.
+PWOS Core stands on a foundation of exceptional open-source projects. Some are direct package dependencies; others are consumer-stack or reference-architecture projects credited for patterns, not copied code. See [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md) for complete legal notices.
 
-### Web Framework & Runtime
+### Consumer App Frameworks Credited For Reference Patterns
 - **[Hono](https://github.com/honojs/hono)** (MIT) — Edge-first web framework
 - **[React 19](https://github.com/facebook/react)** (MIT) — UI library
 - **[Vite](https://github.com/vitejs/vite)** (MIT) — Build tool + dev server
@@ -255,7 +244,7 @@ PWOS Core stands on a foundation of exceptional open-source projects. We bundle 
 
 PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
 
-**Open (Apache 2.0, this repo):** The 20 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types + governance primitives, disclosure-card schema, planning-contract Roth/IRMAA ABI), the canonical-pattern documentation under `docs/`, and the reference scaffold at `apps/api/`. Generic, hermetic, no firm-specific values.
+**Open (Apache 2.0, this repo):** The 20 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types + governance primitives, disclosure-card schema, planning-contract Roth/IRMAA ABI), the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values.
 
 **Private (not in this repo, never will be):**
 - The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).
@@ -272,35 +261,31 @@ PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not th
 git clone https://github.com/Protocol-Wealth/pwos-core.git
 cd pwos-core
 pnpm install
-cp .env.example .env          # Add your API keys
-pnpm --filter @protocolwealthos/shared build
-pnpm --filter @protocolwealthos/api migrate
-pnpm --filter @protocolwealthos/api seed
-pnpm dev
+pnpm -r build
+pnpm -r typecheck
+pnpm -r test
+pnpm -r lint
+pnpm versions:check
 ```
 
-Open http://localhost:5173 — sign in with Google, start chatting.
+This repository is a package workspace, not a runnable advisor app. Use the packages directly, or start from `examples/rias-agent-substrate` for a composed integration example.
 
 ## How to adopt a canonical pattern
 
 Pick the primitive you need; compose against the canonical pattern reference. Three examples:
 
-**Schema-level PII tagging at ingestion:**
+**PII scan before model egress:**
 
 ```ts
-// At your ingestion site (e.g., Wealthbox sync, custodian webhook)
-import { PII_TAGS } from '@protocolwealthos/pii-guard';
+import { markCacheable } from '@protocolwealthos/ai-guardrails';
+import { scan } from '@protocolwealthos/pii-guard';
 
-await db.insert(clientsTable).values({
-  ssn: payload.ssn,
-  pii_tags: PII_TAGS.client_ssn,  // canonical map; { 'ssn': 'pii.high' }
-  // ...
-});
+const staticPrefix = 'Static system prompt and tool definitions only.';
+const scanResult = await scan(staticPrefix);
 
-// At your prompt-construction site (LLM call boundary)
-import { excludeHighPiiFields } from '@protocolwealthos/ai-guardrails';
+if (scanResult.hasPII) throw new Error(`PII in cached prefix: ${scanResult.categories.join(', ')}`);
 
-const llmSafePayload = excludeHighPiiFields(record, record.pii_tags);
+const cacheableBlocks = markCacheable([{ type: 'text', text: staticPrefix }]);
 ```
 
 Full canonical: `shared/architecture/decisions/ADR-PII-tagging.md` R3.
@@ -311,12 +296,20 @@ Full canonical: `shared/architecture/decisions/ADR-PII-tagging.md` R3.
 // Failed write to immutable table → emit a sentinel-row referencing the failed row
 import { AuditLogger } from '@protocolwealthos/audit-log';
 
-const failedRow = await auditLogger.write({ action: 'kyc.session.create', ... });
+const failedRow = await auditLogger.log({
+  actorId: 'system',
+  action: 'kyc.session.create',
+  resourceType: 'kyc_session',
+  resourceId: 'session_opaque_123',
+});
 
 if (gcsWormMirrorFailed) {
-  await auditLogger.write({
+  await auditLogger.log({
+    actorId: 'system',
     action: 'kyc.session.retry_mirror',
-    detail: { referencesFailedRowId: failedRow.id, attempt: 1 },
+    resourceType: 'kyc_session',
+    resourceId: failedRow.id,
+    details: { referencesFailedRowId: failedRow.id, attempt: 1 },
     // recursion guard: if attempt > MAX_RETRIES, surface to operator
   });
 }
@@ -346,41 +339,35 @@ Full canonical: `shared/architecture/decisions/ADR-webhook-receiver-primitive.md
 
 | Layer | Technology |
 |-------|------------|
-| Frontend | React 19 + Vite 6 + Tailwind CSS v4 + Zustand 5 |
-| Backend | Hono 4 + @hono/node-server |
-| Database | PostgreSQL + Drizzle ORM |
-| Cache | Redis (Upstash compatible) |
-| Auth | Google OAuth 2.0 → JWT (jose) |
-| LLM | @anthropic-ai/sdk (extensible) |
-| PII | 31 regex + NER + financial recognizers + allow-list |
-| Validation | Zod 3 |
-| Workflow | BullMQ (lightweight) or Temporal (durable) |
+| Language | TypeScript 6, strict mode, ESM-only |
+| Package manager | pnpm 9 workspace |
+| Test runner | Vitest 4 per package |
+| Runtime deps | Kept intentionally small; most packages are zero-runtime-dependency |
+| Validation | Zod 4 only where runtime boundary validation is needed |
+| Release prep | Changesets version PR; maintainer local publish |
 
 ## PII Guard Pipeline
 
-Every outbound message passes through 4 layers before reaching any AI model:
+The `@protocolwealthos/pii-guard` package exposes the reusable scanner. Consumer apps decide where to enforce it; the reference pattern is at every model-egress boundary.
 
-1. **Layer 1: Regex** — 31 deterministic patterns (SSN, CC, email, phone, crypto keys, API keys, etc.)
+1. **Layer 1: Regex** — deterministic patterns (SSN, CC, email, phone, crypto keys, API keys, mortgage/RE/platform IDs, etc.)
 2. **Layer 2: NER** — Named entity recognition for person names, addresses, contextual PII
 3. **Layer 3: Financial Recognizers** — CUSIP, account references, policy numbers (context-boosted scoring)
 4. **Layer 4: Allow-List** — 60+ financial terms that should never be redacted ($amounts, AGI, 401k, etc.)
 
-Per-user modes: `off` | `warn` (confirm before send) | `block` (must remove PII) | `redact` (auto-mask with `<TYPE_N>` placeholders)
-
 ## For RIAs and Advisors
 
-Deploy your own instance on Fly.io (~$62/month) with your own database. Your data stays yours. Every AI interaction is logged in an immutable audit trail. Export Books & Records as JSON for SEC examiners.
+Use these packages as primitives inside your own advisor platform. This repo does not ship a ready-to-deploy production app, database schema, auth surface, or vendor integration layer.
 
-> Note on infrastructure choice: Protocol Wealth (the firm) runs its own production stack on Google Cloud Run (see [GCP Reference Architecture](docs/gcp-reference-architecture.md) for the regulated-workload posture we use internally). Fly.io is recommended here as a pragmatic small-scale starting point for independent RIAs and advisors deploying their own instance — lower setup overhead and predictable monthly cost. Adopters with existing GCP/AWS footprints or stricter compliance requirements should adapt the deployment to their own platform.
+> Note on infrastructure choice: Protocol Wealth (the firm) runs its own production stack on Google Cloud Run (see [GCP Reference Architecture](docs/gcp-reference-architecture.md) for the regulated-workload posture we use internally). Adopters with existing GCP/AWS/Fly footprints should adapt the primitives to their own platform, controls, retention windows, and CCO-approved policies.
 
 ## Documentation
 
 - [Canonical Patterns](docs/CANONICAL-PATTERNS.md) — six patterns extracted from the PW estate canonical set (PII_TAGS, sentinel-row reconciliation, Track B' webhook-receiver primitive, multi-agent dispatch infrastructure, design tokens v1.0, PII egress canary); each entry links to its ADR or design doc in `shared/` for the full canonical
-- [Architecture](docs/architecture.md)
-- [Packages Reference](docs/packages.md)
 - [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC
 - [PWOS + SmythOS (reference integration)](docs/pwos-smythos.md) — forward-looking compatibility note (not a partnership): how an MCP-compatible agent platform such as SmythOS can call the PWOS compliance/credential layer (pii-guard, mcp-tools tier + confirm-gate, hitl, disclosure-card, audit-log) over the open Model Context Protocol; SmythOS does not integrate PWOS today
 - [Attribution](docs/attribution.md) — detailed provenance per capability
+- [Publishing](docs/publishing.md) — local publish process and Changesets version-PR workflow
 - [Contributing](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security](SECURITY.md)

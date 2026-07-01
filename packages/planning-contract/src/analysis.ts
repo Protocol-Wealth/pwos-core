@@ -2,7 +2,7 @@
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
 /**
- * RothConversionAnalysis v1.0.0 — TypeScript mirror of the nexus-core output shape.
+ * RothConversionAnalysis v1.1.0 — TypeScript mirror of the nexus-core output shape.
  *
  * The output half of the planning ABI (the canonical definition is the dataclass
  * set in `nexus-core` `engine/planning/analysis.py`, with a generated JSON-Schema

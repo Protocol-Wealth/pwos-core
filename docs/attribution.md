@@ -1,12 +1,12 @@
 # Attribution & Provenance
 
-This document provides detailed provenance for every capability in PWOS Core. When an idea, algorithm, or code pattern came from a third-party project, we credit it here.
+This document provides detailed provenance for every capability in PWOS Core. When an idea, algorithm, or code pattern came from a third-party project, we credit it here. Some entries are direct package dependencies; others are consumer-stack or reference-architecture projects credited for patterns, not copied code.
 
 ---
 
 ## Capability Provenance Map
 
-### Web Framework & Runtime
+### Consumer App Frameworks Credited For Reference Patterns
 
 **Fully attributed to:**
 - **[Hono](https://github.com/honojs/hono)** by Yusuke Wada (MIT) — Edge-first web framework
@@ -18,7 +18,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[jose](https://github.com/panva/jose)** by Filip Skokan (MIT) — JWT signing/verification
 - **[Zod](https://github.com/colinhacks/zod)** by Colin McDonnell (MIT) — Runtime validation
 
-**Our original work:** Custom middleware stack (auth + PII guard + audit), multi-tenancy design, compliance-first routing patterns.
+**Our original work:** Framework-agnostic primitives that consumer apps can compose into auth, PII, audit, and compliance-routing boundaries.
 
 ### 4-Layer PII Guard Pipeline
 
@@ -49,7 +49,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[docx](https://github.com/dolanmiu/docx)** by Dolan Miu (MIT) — Word document generation
 - **[pptxgenjs](https://github.com/gitbrent/PptxGenJS)** by Brent Ely (MIT) — PowerPoint generation
 
-**Our original work:** `@protocolwealthos/document-gen` package that wraps all of these with unified branding templates, compliance watermarks, and data model binding.
+**Our original work:** `@protocolwealthos/document-gen` package with a portable document model, CSV/plain-text renderers, and renderer interfaces. Concrete PDF/PPTX/DOCX adapters live with consumers.
 
 ### Onchain Infrastructure
 
@@ -58,7 +58,7 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[Wagmi](https://github.com/wevm/wagmi)** (MIT) — React hooks for wallet connection
 - **[Ox](https://github.com/wevm/ox)** (MIT) — Low-level Ethereum utilities
 
-**Our original work:** `@protocolwealthos/onchain-sdk` package with wallet-to-client association model, DeFi position categorization for RIA compliance, and audit-trail integration for every on-chain read.
+**Our original work:** `@protocolwealthos/onchain-sdk` package with typed on-chain portfolio client/data shapes that consumer apps can bind to their own wallet and audit integrations.
 
 ### Workflow Engine
 
@@ -68,16 +68,16 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 - **[Trigger.dev](https://github.com/triggerdotdev/trigger.dev)** (MIT) — Background jobs with checkpoint-resume
 - **[Activepieces](https://github.com/activepieces/activepieces)** (MIT) — Workflow automation + MCP servers
 
-**Our original work:** `@protocolwealthos/workflow-engine` that wraps BullMQ for lightweight jobs and Temporal for mission-critical flows (client onboarding, regulatory filings), with audit-trail integration.
+**Our original work:** `@protocolwealthos/workflow-engine` storage-agnostic durable-job primitives, in-memory queue, and backoff policies that can be adapted to BullMQ, Temporal, or other runtimes.
 
 ### AI & LLM Integration
 
 **Fully attributed to:**
 - **[@anthropic-ai/sdk](https://github.com/anthropics/anthropic-sdk-typescript)** by Anthropic (MIT) — Claude API
 
-**Our original work:** Multi-turn tool-use orchestration (up to 5 rounds), streaming SSE with tool_use injection, PII-guarded prompt flows.
+**Our original work:** Model-provider-agnostic guardrails, MCP tool registry primitives, tool-call audit rows, confirmation gates, and PII/cache-boundary helpers.
 
-### CRM Module (Planned)
+### CRM Module
 
 **Reference architecture (AGPL code NOT copied):**
 - **[Twenty CRM](https://github.com/twentyhq/twenty)** (AGPL-3.0)
@@ -89,9 +89,9 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
   - Relationship-centric data model
   - Life event tracking
 
-**Our original work:** `@protocolwealthos/crm` package with household relationship graph, interaction logging, opportunity pipeline — all TypeScript/Drizzle/PostgreSQL native, no code copied from AGPL sources.
+**Our original work:** `@protocolwealthos/crm` package with storage-agnostic contact, household, interaction, opportunity, task, and household-profile primitives. No code copied from AGPL sources.
 
-### Portfolio Module (Planned)
+### Holdings / Portfolio Module
 
 **Reference architecture (AGPL code NOT copied):**
 - **[Ghostfolio](https://github.com/ghostfolio/ghostfolio)** (AGPL-3.0)
@@ -109,22 +109,22 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
   - Tax-loss harvesting logic
   - Multi-tiered billing
 
-**Our original work:** Drizzle schema design, multi-client household rollup, compliance-gated rebalancing workflow.
+**Our original work:** `@protocolwealthos/holdings` and `@protocolwealthos/ledger` packages with storage-agnostic holdings events, snapshots, double-entry ledger primitives, and bailment-mode checks.
 
-### Planning Module (Planned)
+### Planning Contract
 
 **Reference architecture (patterns only):**
 - **[Ignidash](https://github.com/schelskedevco/ignidash)** — AI-powered planning UI (Monte Carlo + AI chat)
 - **[SquirrelPlan](https://github.com/skapebolt/SquirrelPlan)** — Client-side planning UI patterns
 
-**Our original work:** `@protocolwealthos/planning-ui` package with regime-aware projections, tax-optimized withdrawal strategies.
+**Our original work:** `@protocolwealthos/planning-contract` package with the PlanningContract v1.1.0 TypeScript ABI, result types, JSON Schema, and MCP tool definitions. The math engine lives in sibling `nexus-core`.
 
-### Compliance Module (Planned)
+### Compliance / Email Archive
 
 **Fully attributed to:**
 - **[OpenArchiver](https://github.com/LogicLabs-OU/OpenArchiver)** (check license) — SEC Rule 17a-4 email archiving
 
-**Our original work:** `@protocolwealthos/compliance` package with AI tool inventory, PII incident tracking, SEC exam export, per-advisor PII mode tracking.
+**Our original work:** `@protocolwealthos/compliance` and `@protocolwealthos/email-archive` packages with retention, Books-and-Records bundling, incident classification, compliance calendar, vendor-document metadata, chain-of-custody hashing, and retention enforcement.
 
 ---
 
@@ -155,11 +155,12 @@ We run an automated license compliance check in CI on every PR:
 
 ```yaml
 # .github/workflows/license-compliance.yml
-- run: pnpm licenses list --json > licenses.json
-- run: node scripts/check-licenses.mjs licenses.json
+- run: npm install -g license-checker-rseidelsohn
+- run: pnpm install --frozen-lockfile
+- run: license-checker-rseidelsohn --json --out dependency-licenses.json --production
 ```
 
-The script fails the build if any dependency has a GPL/AGPL/SSPL license not present in our approved reference-only list.
+The workflow fails the build if any production dependency reports GPL-3.0, AGPL-3.0, or SSPL-1.0.
 
 ---
 

@@ -23,7 +23,7 @@
  * implementing the ``AuditStore`` interface.
  */
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.5.0";
 
 export { hashEntry, verifyChain, stableJsonString } from "./hash.js";
 export { AuditLogger, type AuditLoggerOptions } from "./logger.js";

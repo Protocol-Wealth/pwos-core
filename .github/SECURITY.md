@@ -21,10 +21,10 @@ within 5 business days.
 
 ## Scope
 
-This policy applies to:
-
-- The code in this repository
-- The production deployment (if applicable)
+This policy applies to code and package artifacts in this repository. Deployed
+Protocol Wealth app surfaces live in separate private estate repositories and
+should be reported through the same security contact unless a narrower channel
+is documented for that surface.
 
 ## Out of Scope
 

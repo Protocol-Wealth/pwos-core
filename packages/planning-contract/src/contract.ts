@@ -2,7 +2,7 @@
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
 /**
- * PlanningContract v1.0.0 — TypeScript mirror of the canonical nexus-core shape.
+ * PlanningContract v1.1.0 — TypeScript mirror of the canonical nexus-core shape.
  *
  * This is the input half of the ABI for the Roth-conversion + IRMAA planning
  * capability. The canonical definition is the Python dataclass + JSON-Schema in
@@ -80,7 +80,7 @@ export interface ConversionIntent {
 
 /** The PII-free planning case — the canonical input to the composite engine. */
 export interface PlanningContract {
-  /** Semver; the engine requires a matching MAJOR. Defaults to 1.0.0. */
+  /** Semver; the engine requires a matching MAJOR. Defaults to 1.1.0. */
   contract_version?: string;
   /** Opaque; MUST NOT be identity-derived. */
   case_id: string;

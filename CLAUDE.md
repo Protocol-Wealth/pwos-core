@@ -33,7 +33,7 @@ pwos-core/
 │   ├── shared/             # Cross-package types + two governance primitives (hitl + provenance); published to npm
 │   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
 │   └── workflow-engine/    # Storage-agnostic durable-job runtime
-├── apps/api/               # Reference scaffold (NOT published)
+├── apps/evals/             # Private deterministic eval harness workspace
 ├── examples/               # Integration examples
 ├── docs/
 │   ├── attribution.md                  # Per-capability provenance
@@ -47,11 +47,11 @@ pwos-core/
 
 | Layer | Choice |
 |-------|--------|
-| Language | TypeScript 5.6+, strict mode, ESM-only |
-| Test runner | vitest 2.1 (per-package) |
+| Language | TypeScript 6+, strict mode, ESM-only |
+| Test runner | vitest 4.1 (per-package) |
 | Monorepo | pnpm 9 workspaces (`packageManager` field pinned) |
-| Release | Changesets (`@changesets/cli` + `@changesets/changelog-github`) |
-| CI | GitHub Actions (release + provenance via `NPM_API_KEY` secret) |
+| Release | Changesets version PR + maintainer local publish |
+| CI | GitHub Actions PR CI, SPDX/license checks, version-PR workflow |
 | License | Apache 2.0 + USPTO 64/034,215 defensive patent + OIN |
 
 ## Development
@@ -61,6 +61,8 @@ pnpm install
 pnpm -r build           # tsc per package → dist/
 pnpm -r test            # vitest run per package
 pnpm -r typecheck       # tsc --noEmit per package
+pnpm -r lint            # tsc --noEmit per package
+pnpm versions:check     # exported VERSION constants match package manifests
 pnpm changeset          # queue a release entry
 pnpm changeset status   # see what's pending
 ```
@@ -76,7 +78,8 @@ pnpm --filter @protocolwealthos/<name> build
 
 1. Land a feature on `main` with a changeset file under `.changeset/`. Use `minor` for additive APIs, `patch` for fixes, `major` for breaking changes.
 2. The Changesets GitHub Action opens a "Version Packages" PR aggregating queued changesets.
-3. Merging that PR bumps versions, updates per-package CHANGELOGs, and publishes to npm with provenance.
+3. Merging that PR bumps versions and updates per-package CHANGELOGs.
+4. The maintainer publishes locally with `pnpm changeset:publish` after `npm login`. The CI workflow intentionally does not publish.
 
 See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 
@@ -84,7 +87,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 
 - **No client-specific code.** If something only makes sense for Protocol Wealth, it belongs in `pw-os-v2`, not here.
 - **Storage-agnostic by default.** Packages expose pure functions or interfaces; storage implementations are caller-supplied.
-- **Frame-agnostic by default.** No Hono / Express / React baked in. Adapters live at the edge of consumer apps.
+- **Framework-agnostic by default.** No Hono / Express / React baked in. Adapters live at the edge of consumer apps.
 - **TypeScript strict.** No `any` without a comment explaining why. Zod for runtime validation at boundaries only.
 - **One concept per file.** `camelCase.ts` modules.
 - **Tests live in `packages/<pkg>/__tests__/`.** Match source file names (`scanner.ts` → `scanner.test.ts`).

@@ -43,7 +43,7 @@ We will:
 
 ## Bug Bounty
 
-We do not currently operate a paid bug bounty program. We will credit reporters in security advisories and our [SECURITY_HALL_OF_FAME.md](SECURITY_HALL_OF_FAME.md) file (coming soon).
+We do not currently operate a paid bug bounty program. We will credit reporters in security advisories unless they prefer to remain anonymous.
 
 ## PGP
 

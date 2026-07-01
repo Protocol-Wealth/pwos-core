@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — repo audit, CI, and docs/state hardening (2026-07-01)
+
+- Added PR CI for `pnpm versions:check`, `pnpm -r build`, `pnpm -r typecheck`,
+  `pnpm -r test`, and `pnpm -r lint`.
+- Added `scripts/check-version-constants.mjs` and synchronized exported
+  `VERSION` constants with package manifests.
+- Removed stale tracked duplicate PII source under `apps/api/src/services/pii/*`;
+  `@protocolwealthos/pii-guard` is the maintained implementation.
+- Hardened license scanning to fail closed on install/scan errors.
+- Refreshed root state docs (`README.md`, `CLAUDE.md`, `AGENTS.md`,
+  `CURRENT-STATE.md`, `ROADMAP.md`, `HANDOFF.md`, `CONTRIBUTING.md`,
+  `docs/publishing.md`, `docs/attribution.md`) to match the package workspace,
+  local-publish release process, and private/public boundary.
+- Added a PlanningContract regression test that keeps public tool descriptions
+  aligned with `PLANNING_CONTRACT_VERSION`.
+
 ### Added — `@protocolwealthos/planning-contract` (Roth/IRMAA planning ABI) (2026-06-03)
 
 New package: the PII-free TypeScript ABI for the Roth-conversion + IRMAA planning
@@ -18,11 +34,11 @@ the nexus-core source of truth), and the MCP tool definitions
 `registerPlanningTools`. Declarations only — the math lives in nexus-core,
 reached over the planning gateway; registering the tools lets the agent path
 inherit them (with the disclaimer/PII pipeline) for free. PlanningContract
-v1.0.0; PII-free by construction (opaque `case_id`, birth years not DOBs,
+v1.1.0; PII-free by construction (opaque `case_id`, birth years not DOBs,
 aggregated balances). Depends on `@protocolwealthos/mcp-tools` for the
 `ToolDefinition`/`ToolRegistry` types; published as JS (`dist/`) via the standard
 `publishConfig`→`dist` + `prepack` build. **Published to npm as
-`@protocolwealthos/planning-contract@0.2.0` (2026-06-03).**
+`@protocolwealthos/planning-contract@0.3.0` (2026-06-03).**
 
 ### Changed — `@protocolwealthos/disclosure-card` supports zod 4 → `0.3.0` (2026-06-03)
 
@@ -30,9 +46,10 @@ zod 4 removed the `z.SafeParseReturnType` alias used by `safeParseDisclosureCard
 which broke the package build and the monorepo Release workflow. Replaced it with
 the schema-derived `ReturnType<typeof disclosureCardSchema.safeParse>` (runtime
 behavior unchanged); the package now builds against its declared `zod ^4.4.3`.
-**Published to npm as `@protocolwealthos/disclosure-card@0.3.0` (2026-06-03).** Both
-06-03 publishes went out via a local `pnpm publish` because the CI Release token
-(`NPM_API_KEY`) is dead (E404-on-PUT) — rotate it to restore automated releases.
+**Published to npm as `@protocolwealthos/disclosure-card@0.3.0` (2026-06-03).** The
+standing release process is maintainer-local `pnpm changeset:publish` after
+`npm login`; CI opens/updates the Changesets version PR but intentionally does
+not publish.
 
 ### Changed — Split `@protocolwealthos/disclosure-card` into its own focused package (2026-05-27)
 

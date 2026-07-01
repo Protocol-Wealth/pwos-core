@@ -117,12 +117,12 @@ Tests must be **hermetic** — no network calls, no live API keys, no real clien
 
 ## Package Layout
 
-PWOS Core is a pnpm 9 monorepo. The published surface lives under `packages/*`; everything in `apps/` is a non-published reference scaffold for integration examples.
+PWOS Core is a pnpm 9 monorepo. The publishable surface lives under `packages/*`; `apps/evals/` and `examples/*` are private workspace projects for testing and integration examples.
 
 ```
 pwos-core/
 ├── apps/
-│   └── api/                # Reference scaffold (NOT published to npm)
+│   └── evals/              # Private deterministic eval harness
 ├── packages/
 │   ├── ai-guardrails/      # ZDR workspace assert + model allowlist + cache markers + audit-row builder
 │   ├── audit-log/          # Append-only log + SHA-256 hash chaining + anomaly detectors + approver-separation
@@ -139,7 +139,7 @@ pwos-core/
 │   ├── onchain-sdk/        # Typed client for on-chain portfolio services (no internal URLs baked in)
 │   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + injection detector + account masker
 │   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
-│   ├── shared/             # Internal cross-package types (NOT published)
+│   ├── shared/             # Published shared types + hitl/provenance governance primitives
 │   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
 │   └── workflow-engine/    # Storage-agnostic durable-job runtime + backoff strategies
 └── examples/               # Runnable integration examples (no network credentials required)

@@ -122,6 +122,11 @@ describe("MCP tool definitions", () => {
     expect(SEQUENCE_CONVERSIONS_TOOL.input_schema.required).toContain("contract");
   });
 
+  it("the public contract description names the current contract version", () => {
+    const contractSchema = ANALYZE_ROTH_CONVERSION_TOOL.input_schema.properties.contract;
+    expect(contractSchema.description).toContain(`PlanningContract v${PLANNING_CONTRACT_VERSION}`);
+  });
+
   it("irmaa_headroom requires the projection inputs", () => {
     expect(IRMAA_HEADROOM_TOOL.input_schema.required).toEqual(
       expect.arrayContaining(["target_premium_year", "magi_ex_conversion", "per_person", "inflation", "buffer"]),

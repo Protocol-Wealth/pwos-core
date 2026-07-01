@@ -29,7 +29,8 @@
   },
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
     "build": "pnpm -r build",
@@ -37,9 +38,10 @@
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
+    "versions:check": "node scripts/check-version-constants.mjs",
     "licenses:check": "npx license-checker-rseidelsohn --summary --production",
     "changeset": "changeset",
-    "changeset:version": "changeset version",
+    "changeset:version": "changeset version && node scripts/sync-version-constants.mjs",
     "changeset:publish": "pnpm build && changeset publish"
   },
   "packageManager": "pnpm@9.0.0",
