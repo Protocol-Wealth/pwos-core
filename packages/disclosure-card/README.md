@@ -260,6 +260,20 @@ assertNoVerifyMarkers(myCard); // throws if any [VERIFY] remains; CI fails close
 
 ---
 
+## Contract Boundary
+
+`@protocolwealthos/disclosure-card` publishes a generic, adopter-facing public
+schema contract. Private-estate wiring feedback may expose reusable schema
+gaps, but only generic, non-private contract improvements belong in this
+repository (tracked in
+[#76](https://github.com/Protocol-Wealth/pwos-core/issues/76)).
+
+Do not commit private client/advisor data, credentials, API keys, production
+endpoint URLs, firm-specific settings, or private-estate identifiers in cards,
+examples, tests, or docs.
+
+---
+
 ## Versioning + back-compat policy
 
 `@protocolwealthos/disclosure-card` is currently `0.x`. The schema is the

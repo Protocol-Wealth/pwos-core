@@ -80,6 +80,18 @@ const result = await verifyChain(sealed);
   [`@protocolwealthos/disclosure-card`](https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/disclosure-card#readme)
   package.
 
+## Contract Boundary
+
+This package exposes a generic, adopter-facing public contract (`hitl` and
+`provenance`) and must not depend on private-estate data or wiring details.
+Private estate integration can reveal reusable contract gaps, but only
+non-private, generic improvements belong in this repository (tracked in
+[#76](https://github.com/Protocol-Wealth/pwos-core/issues/76)).
+
+Never commit private client/advisor data, credentials, API keys, production
+endpoint URLs, firm-specific settings, or private-estate identifiers to this
+package or its documentation.
+
 ## Apache 2.0 + defensive patent
 
 License: **Apache 2.0**.
