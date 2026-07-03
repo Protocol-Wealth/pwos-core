@@ -24,7 +24,7 @@
  * interface by subclassing and overriding ``request``.
  */
 
-export const VERSION = "0.2.0";
+export const VERSION = "0.2.1";
 
 export {
   OnchainClientError,

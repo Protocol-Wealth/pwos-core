@@ -1,5 +1,16 @@
 # @protocolwealthos/disclosure-card
 
+## 0.3.1
+
+### Patch Changes
+
+- [#78](https://github.com/Protocol-Wealth/pwos-core/pull/78) [`0e3b777`](https://github.com/Protocol-Wealth/pwos-core/commit/0e3b777b918ed69b6d7ca7e36c4932b06428cb7c) Thanks [@lifrmn](https://github.com/lifrmn)! - Document the contract boundary for the primitives consumed by the private
+  estate. Each README gains a "Contract Boundary" section clarifying that the
+  package exposes a generic, adopter-facing public contract that must not depend
+  on private-estate data, credentials, production endpoint URLs, firm-specific
+  settings, or private-estate identifiers. Only reusable, non-private contract
+  improvements land here; feedback is tracked in [#76](https://github.com/Protocol-Wealth/pwos-core/issues/76).
+
 ## 0.3.0
 
 ### Minor Changes
