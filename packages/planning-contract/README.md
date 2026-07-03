@@ -37,6 +37,17 @@ event — bump the major in nexus-core,
 this package, and pwplan-core together. The nexus-core JSON-Schema is the
 cross-language source of truth.
 
+## Contract Boundary
+
+`@protocolwealthos/planning-contract` is a generic, adopter-facing public
+contract for planning request/response shapes and tool definitions. Private
+estate wiring feedback may reveal reusable contract gaps; only generic,
+non-private improvements belong in this repository (tracked in
+[#76](https://github.com/Protocol-Wealth/pwos-core/issues/76)).
+
+Never commit private client/advisor data, credentials, API keys, production
+endpoint URLs, firm-specific settings, or private-estate identifiers.
+
 ## Example
 
 ```ts
