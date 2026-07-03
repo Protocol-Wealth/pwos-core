@@ -1,5 +1,14 @@
 # @protocolwealthos/compliance
 
+## 0.4.1
+
+### Patch Changes
+
+- [`420c388`](https://github.com/Protocol-Wealth/pwos-core/commit/420c388811893ddd202650c2d481a5aaa608559a) - Synchronize exported VERSION constants with package manifests and keep PlanningContract public descriptions aligned with contract v1.1.0.
+
+- Updated dependencies [[`0e3b777`](https://github.com/Protocol-Wealth/pwos-core/commit/0e3b777b918ed69b6d7ca7e36c4932b06428cb7c)]:
+  - @protocolwealthos/disclosure-card@0.3.1
+
 ## 0.4.0
 
 ### Minor Changes

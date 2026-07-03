@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/document-gen",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Document model + CSV generator + renderer interface for advisor reports",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/document-gen#readme",
