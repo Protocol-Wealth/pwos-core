@@ -6,7 +6,7 @@
 
 ## What's published
 
-**21 package manifests are active under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). Twenty are published; the new onchain-accounting contract is queued through Changesets and is not yet on npm. All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process; CI opens/updates the Changesets version PR but does not publish to npm.
+**21 package manifests are active under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). Twenty are published; the onchain-accounting contract is versioned at `0.2.0` for its first public release and awaits maintainer-local npm publication and registry verification. All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process; CI opens/updates the Changesets version PR but does not publish to npm.
 
 | Package | Version | Purpose |
 |---|---|---|
@@ -26,7 +26,7 @@
 | `holdings` | 0.2.0 | Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot |
 | `ledger` | 0.2.0 | Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger |
 | `onchain-sdk` | 0.2.0 | Onchain data-shape primitives |
-| `onchain-accounting-contract` | 0.1.0 source (first release queued as 0.2.0) | Strict PII-free TypeScript/runtime mirror of deployed Nexus accounting contract 0.2.0; package and wire versions are independent |
+| `onchain-accounting-contract` | 0.2.0 (registry publish pending) | Strict PII-free TypeScript/runtime mirror of deployed Nexus accounting contract 0.2.0; package and wire versions are independent |
 | `security-headers` | 0.2.0 | HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy |
 | `shared` | 0.2.0 | Cross-package types + two governance primitives (`hitl` fail-closed gate + `provenance` hash-chain) |
 | `webhooks` | 0.2.0 | HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency |
@@ -36,7 +36,7 @@
 
 ## What shipped recently
 
-- **Onchain accounting contract package queued (2026-07-16):**
+- **Onchain accounting contract package versioned for release (2026-07-16):**
   - Added strict request/response Zod schemas, generated structural schema
     hints, exact decimal/arithmetic/partition validation, version/tool
     constants, tri-state correlation assessment, engine-scoped composition
@@ -48,9 +48,9 @@
   - Cost-basis and PnL correlation is `unverifiable` in wire `0.2.0` because no
     canonical request digest is echoed. Private transport/audit binding is
     mandatory; adding a digest requires a coordinated contract bump.
-  - The package is not yet published; the queued minor Changeset intentionally
-    makes `0.2.0` its first public package version. npm and wire versions are
-    independent even though they initially match.
+  - The release PR consumed the minor Changeset and versioned the package at
+    `0.2.0`; maintainer-local npm publication and registry verification remain.
+    npm and wire versions are independent even though they initially match.
 
 - **Repo audit hardening (2026-07-01):**
   - Added PR CI for `build`, `typecheck`, `test`, `lint`, and `versions:check`.
