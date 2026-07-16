@@ -7,6 +7,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — `@protocolwealthos/onchain-accounting-contract` (2026-07-16)
+
+- Added a publish-ready local package mirroring deployed Nexus accounting
+  contract `0.2.0`: strict Zod request/response schemas, exact bounded decimal
+  strings and aggregate arithmetic, generated Draft 2020-12 structural schema
+  hints, version/tool constants, tri-state correlation assessment,
+  engine-scoped composition eligibility, exact discovery, and advisor-tier
+  read-only tool declarations.
+- Hardened response validation against negative proceeds/counters, inconsistent
+  disposal and PnL arithmetic, forged completeness/coverage partitions, raw
+  wallet-shaped response refs, and unbounded response refs/sources.
+- Enforced Nexus-exact UTC holding periods, disposal basis-fee bounds, exact
+  known cost-basis totals with unmatched-transfer suppression, and exact
+  semantic disposal shortfall sets.
+- Required unique in-query price overrides while preserving deterministic
+  duplicate query slots, and marked un-echoed decoder counterparties as partial
+  rather than fully verified correlation.
+- Rejected opening-state replay metadata with pre-period events and complete PnL
+  results with unknown-basis open lots; non-transfer classifications that drop
+  caller transfer metadata now produce partial correlation.
+- Cost-basis and PnL correlation is explicitly `unverifiable` under wire
+  contract `0.2.0`; private consumers must bind authenticated requests,
+  responses, and immutable audit records until a future coordinated contract
+  bump adds a canonical request digest.
+- Added synthetic Nexus-derived golden fixtures for historical pricing, event
+  decode, account-scoped FIFO cost basis/replay, and realized-PnL output.
+- Preserved the public/private boundary: only opaque references and public-chain
+  facts cross the contract. Private identity/wallet linkage, egress canaries,
+  statement composition, approval, release, and retention remain consumer work.
+- Queued the first release through a minor Changeset, intentionally producing
+  package `0.2.0` from `0.1.0` source. Package semver and Nexus wire versions are
+  independent despite initially matching; nothing was published from this
+  feature branch.
+
 ### Changed — repo audit, CI, and docs/state hardening (2026-07-01)
 
 - Added PR CI for `pnpm versions:check`, `pnpm -r build`, `pnpm -r typecheck`,

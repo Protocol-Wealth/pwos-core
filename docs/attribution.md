@@ -60,6 +60,20 @@ This document provides detailed provenance for every capability in PWOS Core. Wh
 
 **Our original work:** `@protocolwealthos/onchain-sdk` package with typed on-chain portfolio client/data shapes that consumer apps can bind to their own wallet and audit integrations.
 
+### Onchain Accounting Contract
+
+**Public specifications and methodology references:**
+- IRS digital-asset FAQs and Publication 544 holding-period summaries
+- Standard FIFO lot-accounting mechanics and public protocol transaction shapes
+- The Apache-2.0 `nexus-core` accounting contract and methodology maintained by
+  Protocol Wealth
+
+**Our original work:** `@protocolwealthos/onchain-accounting-contract` is the
+strict TypeScript/runtime mirror of the public-safe Nexus v0.2.0 wire ABI. It
+contains de-identified schemas, decimal-string validation, tool declarations,
+and synthetic fixtures only; no client linkage, statement composition, tax
+return logic, or AGPL source code.
+
 ### Workflow Engine
 
 **Fully attributed to:**

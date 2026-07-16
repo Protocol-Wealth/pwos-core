@@ -2,11 +2,11 @@
 
 > Adopter-facing snapshot of what's published and what's live. For the architecture + conventions read [`CLAUDE.md`](./CLAUDE.md); for forward work read [`ROADMAP.md`](./ROADMAP.md); for cross-repo wiring the private estate must pick up read [`HANDOFF.md`](./HANDOFF.md).
 >
-> **Last verified:** 2026-07-01.
+> **Last verified:** 2026-07-16.
 
 ## What's published
 
-**20 package manifests are active under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process; CI opens/updates the Changesets version PR but does not publish to npm.
+**21 package manifests are active under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). Twenty are published; the new onchain-accounting contract is queued through Changesets and is not yet on npm. All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process; CI opens/updates the Changesets version PR but does not publish to npm.
 
 | Package | Version | Purpose |
 |---|---|---|
@@ -26,6 +26,7 @@
 | `holdings` | 0.2.0 | Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot |
 | `ledger` | 0.2.0 | Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger |
 | `onchain-sdk` | 0.2.0 | Onchain data-shape primitives |
+| `onchain-accounting-contract` | 0.1.0 source (first release queued as 0.2.0) | Strict PII-free TypeScript/runtime mirror of deployed Nexus accounting contract 0.2.0; package and wire versions are independent |
 | `security-headers` | 0.2.0 | HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy |
 | `shared` | 0.2.0 | Cross-package types + two governance primitives (`hitl` fail-closed gate + `provenance` hash-chain) |
 | `webhooks` | 0.2.0 | HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency |
@@ -34,6 +35,22 @@
 `apps/evals/` (eval harness v0) and `examples/rias-agent-substrate/` are private workspace projects — fork-to-use, not published. The old tracked `apps/api/src/services/pii/*` duplicate scaffold was removed because it was not a workspace package and had fallen behind `@protocolwealthos/pii-guard`.
 
 ## What shipped recently
+
+- **Onchain accounting contract package queued (2026-07-16):**
+  - Added strict request/response Zod schemas, generated structural schema
+    hints, exact decimal/arithmetic/partition validation, version/tool
+    constants, tri-state correlation assessment, engine-scoped composition
+    eligibility, exact discovery, and read-only tool declarations for Nexus
+    contract `0.2.0`.
+  - Golden fixtures are synthetic and de-identified. Client linkage, value-level
+    PII egress guards, statement composition, governance approval, and retention
+    remain private consumer responsibilities.
+  - Cost-basis and PnL correlation is `unverifiable` in wire `0.2.0` because no
+    canonical request digest is echoed. Private transport/audit binding is
+    mandatory; adding a digest requires a coordinated contract bump.
+  - The package is not yet published; the queued minor Changeset intentionally
+    makes `0.2.0` its first public package version. npm and wire versions are
+    independent even though they initially match.
 
 - **Repo audit hardening (2026-07-01):**
   - Added PR CI for `build`, `typecheck`, `test`, `lint`, and `versions:check`.
@@ -54,7 +71,7 @@
 
 ## Open / private boundary
 
-**Open (this repo):** the 20 package manifests under `packages/*` — generic, storage-agnostic, framework-agnostic primitives (the *shape*) — plus canonical-pattern docs, the private eval harness, and integration examples. **Private (in `pw-os-v2` / `pw-api` / `pw-portal-v2`):** the production orchestrator, real client data, firm-wired vendor clients, production thresholds / kill-rule cutoffs / decay constants, and credentials (the *settings*). Principle: **shape is open, settings are private.**
+**Open (this repo):** the 21 package manifests under `packages/*` — generic, storage-agnostic, framework-agnostic primitives (the *shape*) — plus canonical-pattern docs, the private eval harness, and integration examples. **Private (in `pw-os-v2` / `pw-api` / `pw-portal-v2`):** the production orchestrator, real client data, firm-wired vendor clients, production thresholds / kill-rule cutoffs / decay constants, and credentials (the *settings*). Principle: **shape is open, settings are private.**
 
 ## Build / test status
 

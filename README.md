@@ -66,6 +66,7 @@ The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as fol
 | **`crm`** | Rule 204A-1 client-data handling + Marketing Rule §206(4)-1 communication tracking primitives | Contacts; households; interactions; opportunities; tasks; status/aging helpers; `HouseholdProfile` (versioned) for "financial memory" pattern |
 | **`document-gen`** | Rule 204-2(a)(11) communications retention substrate | Document model; RFC 4180 CSV; plain-text renderer; `DocumentRenderer` interface (PDF / PPTX / DOCX backends) |
 | **`onchain-sdk`** | Custody Rule §275.206(4)-2 relevant for crypto-touching advisors (typed RIA-shadow-portfolio surfaces, NOT custody itself) | Typed client + models for on-chain portfolio services |
+| **`onchain-accounting-contract`** | Rule 204-2(a)(3)/(13) recordkeeping and digital-asset tax-awareness substrate; not a tax return or tax advice | PII-free Nexus accounting v0.2.0 request/response ABI; exact decimal strings; FIFO/replay/lineage/completeness schemas; read-only tool declarations |
 | **`gcp-helpers`** | SEC Rule 17a-4(f)(2)(ii) electronic-storage substrate + structured-logging Reg S-P §248.30(b) adjacent | `createCloudLogger()` (JSON-line structured logging); `pickConnectionStrategy()` (Cloud SQL IAM auth, refuses silent password fallback); `createCachingSecretLoader()`; `buildFrontendErrorReport()` |
 | **`cache-keys`** | Reg S-P §248.30(b) safeguards — cache-key PII isolation | Namespace-enforced builder (`vendor:resource:identifier`); PII pattern rejection (email / SSN / credit card / US phone / UUID); `hashed()` escape hatch |
 
@@ -104,6 +105,7 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Security and integration boundaries** — HS256 JWT/session helpers, scoped agent tokens, role/domain guards, webhook HMAC and dual-layer verification, idempotency, security headers, cache-key PII rejection.
 - **Advisor data shapes** — Ledger, holdings, CRM, document model, email archive, on-chain portfolio client/types, GCP helper interfaces.
 - **Planning ABI** — PlanningContract v1.1.0 snake_case TypeScript contract, Roth/IRMAA result types, JSON Schema, and MCP planning tool definitions. Math lives in `nexus-core`.
+- **Onchain accounting ABI** — Nexus contract v0.2.0 strict runtime schemas and structural JSON hints for de-identified historical pricing, event decode, account-scoped FIFO replay, and realized-PnL output. Math lives in `nexus-core`; client linkage and statements stay private.
 - **Eval and examples** — Private deterministic AI-safety eval harness under `apps/evals/` and a composed RIA agent-substrate example under `examples/rias-agent-substrate/`.
 
 ## What You Get From npm
@@ -132,6 +134,7 @@ The `@protocolwealthos/*` packages are what's published. The deployed app at [pw
 | **`@protocolwealthos/shared`** | `hitl` fail-closed approval gate · `provenance` SHA-256 hash-chain records · shared constants/types |
 | **`@protocolwealthos/disclosure-card`** | Zod 4 disclosure-card schema · dependency-free JSON Schema · `assertNoVerifyMarkers()` pre-publish gate |
 | **`@protocolwealthos/planning-contract`** | PlanningContract v1.1.0 snake_case Roth/IRMAA ABI · result types · JSON Schema · MCP tool definitions |
+| **`@protocolwealthos/onchain-accounting-contract`** | Nexus accounting v0.2.0 strict runtime + structural schema hints · exact decimal/partition validation · tri-state correlation · engine-scoped composition eligibility · read-only tool definitions |
 
 ### Auth + access primitives
 
@@ -244,7 +247,7 @@ PWOS Core stands on a foundation of exceptional open-source projects. Some are d
 
 PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
 
-**Open (Apache 2.0, this repo):** The 20 framework-agnostic primitive packages under `packages/*` (PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared types + governance primitives, disclosure-card schema, planning-contract Roth/IRMAA ABI), the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values.
+**Open (Apache 2.0, this repo):** The 21 framework-agnostic primitive package manifests under `packages/*` (20 currently published plus the queued onchain-accounting contract), the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values. The package surface includes PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared governance primitives, disclosure-card schema, planning ABI, and the PII-free onchain-accounting ABI.
 
 **Private (not in this repo, never will be):**
 - The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).
