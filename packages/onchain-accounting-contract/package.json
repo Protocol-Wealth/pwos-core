@@ -1,0 +1,68 @@
+{
+  "name": "@protocolwealthos/onchain-accounting-contract",
+  "version": "0.1.0",
+  "description": "PII-free TypeScript ABI for nexus-core onchain accounting contract 0.2.0: strict runtime schemas, decimal-string types, JSON Schemas, and read-only tool definitions.",
+  "private": false,
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/onchain-accounting-contract#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Protocol-Wealth/pwos-core.git",
+    "directory": "packages/onchain-accounting-contract"
+  },
+  "bugs": {
+    "url": "https://github.com/Protocol-Wealth/pwos-core/issues"
+  },
+  "keywords": [
+    "onchain-accounting",
+    "cost-basis",
+    "realized-pnl",
+    "fifo",
+    "mcp",
+    "ria",
+    "pii-free",
+    "fintech"
+  ],
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit",
+    "lint": "tsc --noEmit",
+    "prepack": "pnpm run build"
+  },
+  "dependencies": {
+    "@protocolwealthos/mcp-tools": "workspace:^",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10",
+    "@types/node": "^26.1.1"
+  },
+  "publishConfig": {
+    "access": "public",
+    "main": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "import": "./dist/index.js",
+        "default": "./dist/index.js"
+      }
+    }
+  }
+}

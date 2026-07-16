@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added — `@protocolwealthos/onchain-accounting-contract` (2026-07-16)
+
+- Added a publish-ready local package mirroring deployed Nexus accounting
+  contract `0.2.0`: strict Zod request/response schemas, exact bounded decimal
+  strings, generated Draft 2020-12 JSON Schemas, version/tool constants,
+  response-correlation and governance-readiness helpers, and advisor-tier
+  read-only tool declarations.
+- Added synthetic Nexus-derived golden fixtures for historical pricing, event
+  decode, account-scoped FIFO cost basis/replay, and realized-PnL output.
+- Preserved the public/private boundary: only opaque references and public-chain
+  facts cross the contract. Private identity/wallet linkage, egress canaries,
+  statement composition, approval, release, and retention remain consumer work.
+- Queued the first release through Changesets; no package was published directly
+  from this feature branch.
+
 ### Changed — repo audit, CI, and docs/state hardening (2026-07-01)
 
 - Added PR CI for `pnpm versions:check`, `pnpm -r build`, `pnpm -r typecheck`,

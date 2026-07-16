@@ -1,12 +1,12 @@
 # HANDOFF — `pwos-core` (open-source repo)
 
-Current as of 2026-07-01. This file tracks only active public/private boundary
+Current as of 2026-07-16. This file tracks only active public/private boundary
 work; historical session details belong in changelogs, not the current handoff.
 
 ## Current Local State
 
 - Branch: `main`
-- Workspace: 20 package manifests under `packages/*`, private `apps/evals/`,
+- Workspace: 21 package manifests under `packages/*`, private `apps/evals/`,
   private `examples/rias-agent-substrate/`
 - Removed: stale tracked `apps/api/src/services/pii/*` duplicate code. The
   maintained PII implementation is `@protocolwealthos/pii-guard`.
@@ -29,6 +29,12 @@ additional code in this repo:
 4. Keep the private planning gateway aligned with
    `@protocolwealthos/planning-contract` contract version `1.1.0`; math remains
    in `nexus-core`.
+5. Replace the private onchain-accounting ABI stopgap with
+   `@protocolwealthos/onchain-accounting-contract` contract `0.2.0` after its
+   first release. Retain the private value-level PII/canary guard, runtime
+   version handshake, and client-linkage boundary. Do not enable statement
+   composition until the consumer compatibility gate and recorded methodology
+   approval both pass.
 
 Public contract feedback from this wiring is tracked in
 [#76](https://github.com/Protocol-Wealth/pwos-core/issues/76). Do not put

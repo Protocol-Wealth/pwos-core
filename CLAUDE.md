@@ -26,6 +26,7 @@ pwos-core/
 │   ├── holdings/           # Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot
 │   ├── ledger/             # Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger
 │   ├── mcp-tools/          # Tool registry + tier classification + filters + confirm gate + tool-audit builder
+│   ├── onchain-accounting-contract/ # PII-free Nexus accounting v0.2.0 ABI + runtime/JSON schemas + tool defs
 │   ├── pii-guard/          # 4-layer PII scanner + streaming rehydrator + account-number masker
 │   ├── security-headers/   # HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy
 │   ├── disclosure-card/    # Machine-readable AI-system disclosure schema (Zod 4 + dep-free JSON Schema); published to npm
