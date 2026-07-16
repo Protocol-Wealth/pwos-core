@@ -8,7 +8,7 @@ import {
   type ToolRegistry,
 } from "@protocolwealthos/mcp-tools";
 
-import { ACCOUNTING_REQUEST_JSON_SCHEMAS } from "./jsonSchema.js";
+import { ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS } from "./jsonSchema.js";
 
 const ACCOUNTING_TAGS = ["financial", "accounting", "onchain", "read"] as const;
 
@@ -32,7 +32,7 @@ export const PRICE_HISTORY_TOOL: ToolDefinition = {
     idempotentHint: true,
     openWorldHint: true,
   },
-  input_schema: asObjectSchema(ACCOUNTING_REQUEST_JSON_SCHEMAS.price_history),
+  input_schema: asObjectSchema(ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.price_history),
 };
 
 /** `decode_onchain_events` declaration. */
@@ -48,7 +48,7 @@ export const DECODE_ONCHAIN_EVENTS_TOOL: ToolDefinition = {
     idempotentHint: true,
     openWorldHint: false,
   },
-  input_schema: asObjectSchema(ACCOUNTING_REQUEST_JSON_SCHEMAS.decode_onchain_events),
+  input_schema: asObjectSchema(ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.decode_onchain_events),
 };
 
 /** `compute_cost_basis` declaration. */
@@ -64,7 +64,7 @@ export const COMPUTE_COST_BASIS_TOOL: ToolDefinition = {
     idempotentHint: true,
     openWorldHint: false,
   },
-  input_schema: asObjectSchema(ACCOUNTING_REQUEST_JSON_SCHEMAS.compute_cost_basis),
+  input_schema: asObjectSchema(ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.compute_cost_basis),
 };
 
 /** `onchain_pnl_report` declaration. */
@@ -80,7 +80,7 @@ export const ONCHAIN_PNL_REPORT_TOOL: ToolDefinition = {
     idempotentHint: true,
     openWorldHint: false,
   },
-  input_schema: asObjectSchema(ACCOUNTING_REQUEST_JSON_SCHEMAS.onchain_pnl_report),
+  input_schema: asObjectSchema(ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.onchain_pnl_report),
 };
 
 /** Calculation-tool declarations in the gateway's canonical order. */

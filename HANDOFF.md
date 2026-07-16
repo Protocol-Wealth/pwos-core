@@ -32,9 +32,13 @@ additional code in this repo:
 5. Replace the private onchain-accounting ABI stopgap with
    `@protocolwealthos/onchain-accounting-contract` contract `0.2.0` after its
    first release. Retain the private value-level PII/canary guard, runtime
-   version handshake, and client-linkage boundary. Do not enable statement
-   composition until the consumer compatibility gate and recorded methodology
-   approval both pass.
+   version handshake, and client-linkage boundary. Bind every calculation
+   response to its originating authenticated request and immutable audit record:
+   wire `0.2.0` has no canonical request digest, so cost/PnL correlation is
+   intentionally `unverifiable`. Treat
+   `isNexusAccountingResultEligibleForComposition` only as an engine-output
+   gate; client delivery still requires the private compatibility, advisor/CCO,
+   records-retention, and release workflow.
 
 Public contract feedback from this wiring is tracked in
 [#76](https://github.com/Protocol-Wealth/pwos-core/issues/76). Do not put

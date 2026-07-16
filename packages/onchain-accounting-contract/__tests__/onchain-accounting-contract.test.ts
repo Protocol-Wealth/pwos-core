@@ -1,28 +1,37 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
+import { readFileSync } from "node:fs";
+
 import { ToolRegistry, ToolTier } from "@protocolwealthos/mcp-tools";
 import { describe, expect, it } from "vitest";
 
 import {
   ACCOUNTING_CONTRACT_VERSION,
+  ACCOUNTING_GATEWAY_TOOL_IDS,
   ACCOUNTING_METHOD_VERSION,
-  ACCOUNTING_REQUEST_JSON_SCHEMAS,
+  ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS,
+  ACCOUNTING_RESPONSE_STRUCTURE_SCHEMA_HINTS,
   ACCOUNTING_TOOL_DEFINITIONS,
   ACCOUNTING_TOOL_IDS,
   AccountingIdentityKeyError,
   MAX_ACCOUNTING_DECIMAL_STRING_LENGTH,
+  VERSION,
+  accountingDecimalSubtractEquals,
+  accountingDecimalSumEquals,
   accountingToolDiscoverySchema,
   accountingDecimalProductFitsDerivedEnvelope,
   accountingDecimalStringsEqual,
+  assessAccountingResponseCorrelation,
   computeCostBasisRequestSchema,
   computeCostBasisResponseSchema,
   decodeOnchainEventsResponseSchema,
   describeAccountingResponseSchema,
   findAccountingIdentityKeys,
-  getAccountingJsonSchemas,
-  isAccountingResponseCorrelated,
-  isAccountingStatementReady,
+  getAccountingJsonSchemaHints,
+  isAccountingGatewayCompatible,
+  isAccountingResponseCorrelationVerified,
+  isNexusAccountingResultEligibleForComposition,
   onchainPnlReportResponseSchema,
   parseAccountingRequest,
   parseAccountingResponse,
@@ -280,6 +289,12 @@ const GOLDEN_REQUEST = {
 
 describe("contract and decimal invariants", () => {
   it("pins the deployed contract and methodology independently", () => {
+    const manifest = JSON.parse(
+      readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+    ) as { version: string; dependencies: Record<string, string> };
+    expect(VERSION).toBe(manifest.version);
+    expect(VERSION).toBe("0.1.0");
+    expect(manifest.dependencies["@protocolwealthos/mcp-tools"]).toBe("workspace:^0.3.0");
     expect(ACCOUNTING_CONTRACT_VERSION).toBe("0.2.0");
     expect(ACCOUNTING_METHOD_VERSION).toBe("2.0.0");
     expect(ACCOUNTING_TOOL_IDS).toEqual([
@@ -318,6 +333,8 @@ describe("contract and decimal invariants", () => {
       }).success,
     ).toBe(false);
     expect(accountingDecimalStringsEqual("1.00", "1e0")).toBe(true);
+    expect(accountingDecimalSumEquals(["0.1", "2e-1"], "0.3")).toBe(true);
+    expect(accountingDecimalSubtractEquals("100.01", "0.02", "99.99")).toBe(true);
   });
 
   it("enforces the bounded decimal envelope before arithmetic", () => {
@@ -447,15 +464,20 @@ describe("replay and response parity", () => {
     const pnl = parseAccountingResponse("onchain_pnl_report", GOLDEN_PNL_RESPONSE);
     expect(cost.disposals[0]?.realized_gain_usd).toBe("20");
     expect(pnl.by_year[0]?.long_term_gain_usd).toBe("20");
-    expect(isAccountingResponseCorrelated("compute_cost_basis", costRequest, cost)).toBe(true);
-    expect(isAccountingResponseCorrelated("onchain_pnl_report", pnlRequest, pnl)).toBe(true);
-    expect(
-      isAccountingResponseCorrelated("compute_cost_basis", costRequest, {
-        ...cost,
-        replay: { ...cost.replay, input_event_count: 1 },
-      }),
-    ).toBe(false);
-    expect(isAccountingStatementReady(cost)).toBe(false);
+    expect(assessAccountingResponseCorrelation("compute_cost_basis", costRequest, cost).status).toBe(
+      "unverifiable",
+    );
+    expect(assessAccountingResponseCorrelation("onchain_pnl_report", pnlRequest, pnl).status).toBe(
+      "unverifiable",
+    );
+    expect(isAccountingResponseCorrelationVerified("compute_cost_basis", costRequest, cost)).toBe(
+      false,
+    );
+    expect(isAccountingResponseCorrelationVerified("onchain_pnl_report", pnlRequest, pnl)).toBe(
+      false,
+    );
+    expect(isNexusAccountingResultEligibleForComposition(cost)).toBe(false);
+    expect(isNexusAccountingResultEligibleForComposition(pnl)).toBe(false);
   });
 
   it("fails closed on a forged pending-review statement_ready flag", () => {
@@ -467,33 +489,44 @@ describe("replay and response parity", () => {
     ).toBe(false);
   });
 
-  it("preserves a negative net proceed after a fee exceeds gross proceeds", () => {
-    const parsed = computeCostBasisResponseSchema.parse({
-      ...GOLDEN_COST_BASIS_RESPONSE,
-      disposals: [
-        {
-          ...DISPOSAL,
-          gross_proceeds_usd: "1",
-          fee_adjustment_usd: "2",
-          proceeds_usd: "-1",
-          realized_gain_usd: "-11",
-        },
-      ],
-      totals: { ...GOLDEN_COST_BASIS_RESPONSE.totals, realized_gain_usd: "-11" },
-    });
-    expect(parsed.disposals[0]?.proceeds_usd).toBe("-1");
+  it("rejects negative proceeds and non-exact disposal arithmetic", () => {
+    const invalidDisposals = [
+      {
+        ...DISPOSAL,
+        gross_proceeds_usd: "1",
+        fee_adjustment_usd: "2",
+        proceeds_usd: "-1",
+        realized_gain_usd: "-11",
+      },
+      { ...DISPOSAL, proceeds_usd: "29" },
+      { ...DISPOSAL, realized_gain_usd: "19" },
+    ];
+    for (const disposal of invalidDisposals) {
+      expect(
+        computeCostBasisResponseSchema.safeParse({
+          ...GOLDEN_COST_BASIS_RESPONSE,
+          disposals: [disposal],
+        }).success,
+      ).toBe(false);
+    }
   });
 
-  it("allows statement readiness only after explicit methodology approval", () => {
+  it("allows engine composition eligibility only after explicit methodology approval", () => {
     const approved = computeCostBasisResponseSchema.parse({
       ...GOLDEN_COST_BASIS_RESPONSE,
       methodology: { ...METHODOLOGY, review_status: "approved" },
       completeness: { ...COMPLETENESS, statement_ready: true },
     });
-    expect(isAccountingStatementReady(approved)).toBe(true);
+    const approvedPnl = onchainPnlReportResponseSchema.parse({
+      ...GOLDEN_PNL_RESPONSE,
+      methodology: { ...METHODOLOGY, review_status: "approved" },
+      completeness: { ...COMPLETENESS, statement_ready: true },
+    });
+    expect(isNexusAccountingResultEligibleForComposition(approved)).toBe(true);
+    expect(isNexusAccountingResultEligibleForComposition(approvedPnl)).toBe(true);
   });
 
-  it("rejects response extras and inconsistent gap counts", () => {
+  it("rejects response extras, inconsistent gaps, and forged completeness", () => {
     expect(
       onchainPnlReportResponseSchema.safeParse({ ...GOLDEN_PNL_RESPONSE, client_id: "x" }).success,
     ).toBe(false);
@@ -501,6 +534,164 @@ describe("replay and response parity", () => {
       computeCostBasisResponseSchema.safeParse({
         ...GOLDEN_COST_BASIS_RESPONSE,
         completeness: { ...COMPLETENESS, gap_count: 1 },
+      }).success,
+    ).toBe(false);
+
+    const incompleteDisposal = {
+      ...DISPOSAL,
+      gross_proceeds_usd: null,
+      proceeds_usd: null,
+      realized_gain_usd: null,
+      complete: false,
+      missing_fields: ["proceeds_usd"],
+    };
+    const incompleteResponse = {
+      ...GOLDEN_COST_BASIS_RESPONSE,
+      disposals: [incompleteDisposal],
+      coverage: {
+        ...COVERAGE,
+        complete_disposition_count: 0,
+        incomplete_disposition_count: 1,
+      },
+      totals: { ...GOLDEN_COST_BASIS_RESPONSE.totals, realized_gain_usd: null },
+      completeness: {
+        complete: false,
+        statement_ready: false,
+        gap_count: 1,
+        gaps: [
+          {
+            code: "unknown_disposition_proceeds",
+            message: "Synthetic disposition proceeds are unknown.",
+            event_id: "sell",
+            account_ref: "account-opaque-1",
+            asset_id: ASSET.asset_id,
+          },
+        ],
+      },
+    };
+    const parsedIncomplete = computeCostBasisResponseSchema.parse(incompleteResponse);
+    expect(isNexusAccountingResultEligibleForComposition(parsedIncomplete)).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...incompleteResponse,
+        methodology: { ...METHODOLOGY, review_status: "approved" },
+        completeness: {
+          complete: true,
+          statement_ready: true,
+          gap_count: 0,
+          gaps: [],
+        },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects raw wallets in response refs and malformed constructed counters", () => {
+    const rawWallet = `0x${"a".repeat(40)}`;
+    const responseWithOpaqueGap = {
+      ...GOLDEN_COST_BASIS_RESPONSE,
+      completeness: {
+        complete: false,
+        statement_ready: false,
+        gap_count: 1,
+        gaps: [
+          {
+            code: "fixture_gap",
+            message: "Synthetic incomplete fixture.",
+            event_id: "sell",
+            account_ref: "account-opaque-1",
+            asset_id: ASSET.asset_id,
+          },
+        ],
+      },
+    };
+    expect(computeCostBasisResponseSchema.safeParse(responseWithOpaqueGap).success).toBe(true);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        open_lots: [{ ...GOLDEN_COST_BASIS_RESPONSE.open_lots[0], account_ref: rawWallet }],
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [{ ...DISPOSAL, account_ref: rawWallet }],
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...responseWithOpaqueGap,
+        completeness: {
+          ...responseWithOpaqueGap.completeness,
+          gaps: [{ ...responseWithOpaqueGap.completeness.gaps[0], account_ref: rawWallet }],
+        },
+      }).success,
+    ).toBe(false);
+
+    const invalidResults = [
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        coverage: { ...COVERAGE, account_count: -1 },
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        replay: { ...REPLAY, input_event_count: -1 },
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        open_lots: [
+          { ...GOLDEN_COST_BASIS_RESPONSE.open_lots[0], acquisition_leg_index: -1 },
+        ],
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [{ ...DISPOSAL, holding_days: -1 }],
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        open_lots: [
+          {
+            ...GOLDEN_COST_BASIS_RESPONSE.open_lots[0],
+            basis_source: "x".repeat(129),
+          },
+        ],
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [{ ...DISPOSAL, disposition_ref: " ".repeat(257) }],
+      },
+      {
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        warnings: ["   "],
+      },
+    ];
+    for (const invalid of invalidResults) {
+      expect(computeCostBasisResponseSchema.safeParse(invalid).success).toBe(false);
+    }
+  });
+
+  it("rejects contradictory PnL aggregates, partitions, and counts", () => {
+    expect(
+      onchainPnlReportResponseSchema.safeParse({
+        ...GOLDEN_PNL_RESPONSE,
+        summary: { ...GOLDEN_PNL_RESPONSE.summary, realized_gain_usd: "21" },
+      }).success,
+    ).toBe(false);
+    expect(
+      onchainPnlReportResponseSchema.safeParse({
+        ...GOLDEN_PNL_RESPONSE,
+        by_year: [{ ...GOLDEN_PNL_RESPONSE.by_year[0], disposal_count: 2 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      onchainPnlReportResponseSchema.safeParse({
+        ...GOLDEN_PNL_RESPONSE,
+        by_year: [{ ...GOLDEN_PNL_RESPONSE.by_year[0], year: 2022 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      onchainPnlReportResponseSchema.safeParse({
+        ...GOLDEN_PNL_RESPONSE,
+        summary: { ...GOLDEN_PNL_RESPONSE.summary, disposal_count: -1 },
       }).success,
     ).toBe(false);
   });
@@ -544,6 +735,58 @@ describe("price and decoder correlation", () => {
         ],
       }).success,
     ).toBe(false);
+  });
+
+  it("verifies authoritative price overrides only when value and provenance match", () => {
+    const request = parseAccountingRequest("price_history", {
+      queries: [{ coin: "ethereum:asset-1", timestamp: 100 }],
+      overrides: [{ coin: "ethereum:asset-1", timestamp: 100, price_usd: "12.50" }],
+    });
+    const response = parseAccountingResponse("price_history", {
+      contractVersion: "0.2.0",
+      disclaimer: "Not advice.",
+      prices: [
+        {
+          coin: "ethereum:asset-1",
+          timestamp: 100,
+          status: "priced",
+          priceUsd: "12.5",
+          source: "override",
+          asOf: 100,
+          confidence: null,
+          reason: null,
+        },
+      ],
+    });
+    expect(assessAccountingResponseCorrelation("price_history", request, response).status).toBe(
+      "verified",
+    );
+    expect(isAccountingResponseCorrelationVerified("price_history", request, response)).toBe(true);
+
+    for (const prices of [
+      [{ ...response.prices[0]!, priceUsd: "12.51" }],
+      [{ ...response.prices[0]!, source: "oracle" }],
+      [
+        {
+          coin: "ethereum:asset-1",
+          timestamp: 100,
+          status: "unpriced" as const,
+          priceUsd: null,
+          source: null,
+          asOf: null,
+          confidence: null,
+          reason: "missing",
+        },
+      ],
+    ]) {
+      const candidate = priceHistoryResponseSchema.parse({ ...response, prices });
+      expect(assessAccountingResponseCorrelation("price_history", request, candidate).status).toBe(
+        "unverifiable",
+      );
+      expect(isAccountingResponseCorrelationVerified("price_history", request, candidate)).toBe(
+        false,
+      );
+    }
   });
 
   it("correlates ordered decoder output to the exact normalized request", () => {
@@ -608,27 +851,120 @@ describe("price and decoder correlation", () => {
         },
       ],
     });
-    expect(isAccountingResponseCorrelated("decode_onchain_events", request, response)).toBe(true);
+    expect(assessAccountingResponseCorrelation("decode_onchain_events", request, response)).toMatchObject(
+      {
+        status: "partial",
+        unverified: ["event classification for hinted transactions"],
+      },
+    );
+    expect(isAccountingResponseCorrelationVerified("decode_onchain_events", request, response)).toBe(
+      false,
+    );
     expect(
-      isAccountingResponseCorrelated("decode_onchain_events", request, {
+      assessAccountingResponseCorrelation("decode_onchain_events", request, {
         ...response,
         events: [{ ...response.events[0]!, event_id: "wrong-transaction" }],
-      }),
-    ).toBe(false);
+      }).status,
+    ).toBe("unverifiable");
+  });
+
+  it("fully verifies a hintless deterministic decoder classification", () => {
+    const request = parseAccountingRequest("decode_onchain_events", {
+      transactions: [
+        {
+          account_ref: "account-opaque-1",
+          chain: "Ethereum",
+          timestamp: 1_600_000_000,
+          tx_ref: "transaction-opaque-2",
+          movements: [
+            {
+              asset: { asset_id: "ethereum:asset-1" },
+              direction: "out",
+              amount: "1",
+            },
+          ],
+        },
+      ],
+    });
+    const response = decodeOnchainEventsResponseSchema.parse({
+      contractVersion: "0.2.0",
+      disclaimer: "Not advice.",
+      eventCountsByKind: { transfer_out: 1 },
+      events: [
+        {
+          event_id: "transaction-opaque-2",
+          account_ref: "account-opaque-1",
+          kind: "transfer_out",
+          timestamp: 1_600_000_000,
+          sequence: null,
+          tx_ref: "transaction-opaque-2",
+          legs: [
+            {
+              asset: {
+                asset_id: "ethereum:asset-1",
+                symbol: null,
+                chain: "ethereum",
+                decimals: null,
+              },
+              direction: "out",
+              amount: "1",
+              unit_price_usd: null,
+              usd_value: null,
+              role: "principal",
+              price_source: null,
+              price_as_of: null,
+            },
+          ],
+          fee_usd: null,
+          fee_allocation: null,
+          fee_payment: null,
+          transfer_ref: "transaction-opaque-2",
+          transfer_treatment: "unknown",
+          tax_treatment: null,
+        },
+      ],
+    });
+    expect(assessAccountingResponseCorrelation("decode_onchain_events", request, response).status).toBe(
+      "verified",
+    );
+    expect(isAccountingResponseCorrelationVerified("decode_onchain_events", request, response)).toBe(
+      true,
+    );
+
+    const misclassified = decodeOnchainEventsResponseSchema.parse({
+      ...response,
+      eventCountsByKind: { other: 1 },
+      events: [
+        {
+          ...response.events[0]!,
+          kind: "other",
+          transfer_ref: null,
+          transfer_treatment: null,
+        },
+      ],
+    });
+    expect(
+      assessAccountingResponseCorrelation("decode_onchain_events", request, misclassified).status,
+    ).toBe("unverifiable");
   });
 });
 
 describe("JSON Schemas and tool declarations", () => {
-  it("generates detached Draft 2020-12 object schemas from runtime validators", () => {
-    const schema = ACCOUNTING_REQUEST_JSON_SCHEMAS.compute_cost_basis;
+  it("generates detached structural hints with input defaults left optional", () => {
+    const schema = ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.compute_cost_basis;
     expect(schema.type).toBe("object");
     expect(schema.additionalProperties).toBe(false);
     expect((schema.properties as Record<string, unknown>).report_window).toBeDefined();
+    expect(schema.required).toEqual(["events"]);
+    expect(ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS.price_history.required).toEqual(["queries"]);
+    expect(ACCOUNTING_RESPONSE_STRUCTURE_SCHEMA_HINTS.compute_cost_basis.required).toContain(
+      "completeness",
+    );
     expect(schema.$id).toMatch(/^https:\/\/github\.com\/Protocol-Wealth\/pwos-core\//);
-    expect(getAccountingJsonSchemas().requests.compute_cost_basis).not.toBe(schema);
+    expect(getAccountingJsonSchemaHints().modelInputs.compute_cost_basis).not.toBe(schema);
   });
 
-  it("validates discovery and describe version handshakes", () => {
+  it("requires exact duplicate-free discovery while accepting any tool order", () => {
     const tools = [
       "compute_cost_basis",
       "decode_onchain_events",
@@ -639,6 +975,33 @@ describe("JSON Schemas and tool declarations", () => {
     expect(
       accountingToolDiscoverySchema.parse({ contractVersion: "0.2.0", tools }).tools,
     ).toEqual(tools);
+    expect(isAccountingGatewayCompatible({ contractVersion: "0.2.0", tools })).toBe(true);
+    expect(
+      isAccountingGatewayCompatible({
+        contractVersion: "0.2.0",
+        tools: ACCOUNTING_GATEWAY_TOOL_IDS,
+      }),
+    ).toBe(true);
+    expect(
+      isAccountingGatewayCompatible({ contractVersion: "0.2.0", tools: tools.slice(0, 4) }),
+    ).toBe(false);
+    expect(
+      isAccountingGatewayCompatible({
+        contractVersion: "0.2.0",
+        tools: [...tools.slice(0, 4), "compute_cost_basis"],
+      }),
+    ).toBe(false);
+    expect(isAccountingGatewayCompatible({ contractVersion: "0.1.0", tools })).toBe(false);
+  });
+
+  it("validates the exact describe version handshake", () => {
+    const tools = [
+      "compute_cost_basis",
+      "decode_onchain_events",
+      "describe",
+      "onchain_pnl_report",
+      "price_history",
+    ];
     expect(
       describeAccountingResponseSchema.parse({
         contractVersion: "0.2.0",

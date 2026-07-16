@@ -5,6 +5,7 @@ import { z } from "zod";
 
 import {
   accountingAccountRefSchema,
+  boundedAccountingStringSchema,
   eventKindSchema,
   feeAllocationSchema,
   feePaymentSchema,
@@ -22,9 +23,9 @@ const unixSecondsSchema = z.number().int().nonnegative();
 
 /** Exact `model_dump(mode="json")` asset shape: nullable fields are present. */
 export const serializedAssetRefSchema = z.strictObject({
-  asset_id: z.string().min(1).max(128),
+  asset_id: boundedAccountingStringSchema(128),
   symbol: z.string().max(32).nullable(),
-  chain: z.string().min(1).max(32).nullable(),
+  chain: boundedAccountingStringSchema(32).nullable(),
   decimals: z.number().int().min(0).max(36).nullable(),
 });
 
@@ -36,7 +37,7 @@ export const serializedLedgerLegSchema = z
     unit_price_usd: nonNegativeAccountingDecimalSchema.nullable(),
     usd_value: nonNegativeAccountingTotalSchema.nullable(),
     role: z.enum(["principal", "fee"]),
-    price_source: z.string().min(1).max(128).nullable(),
+    price_source: boundedAccountingStringSchema(128).nullable(),
     price_as_of: unixSecondsSchema.nullable(),
   })
   .superRefine((value, context) => {
@@ -68,17 +69,17 @@ export const serializedLedgerLegSchema = z
 
 export const serializedLedgerEventSchema = z
   .strictObject({
-    event_id: z.string().min(1).max(128),
+    event_id: boundedAccountingStringSchema(128),
     account_ref: accountingAccountRefSchema,
     kind: eventKindSchema,
     timestamp: unixSecondsSchema,
     sequence: unixSecondsSchema.nullable(),
-    tx_ref: z.string().min(1).max(128).nullable(),
+    tx_ref: boundedAccountingStringSchema(128).nullable(),
     legs: z.array(serializedLedgerLegSchema).min(1),
     fee_usd: nonNegativeAccountingTotalSchema.nullable(),
     fee_allocation: feeAllocationSchema.nullable(),
     fee_payment: feePaymentSchema.nullable(),
-    transfer_ref: z.string().min(1).max(128).nullable(),
+    transfer_ref: boundedAccountingStringSchema(128).nullable(),
     transfer_treatment: transferTreatmentSchema.nullable(),
     tax_treatment: taxTreatmentSchema.nullable(),
   })

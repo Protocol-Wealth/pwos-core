@@ -22,7 +22,8 @@ const BITCOIN_BECH32 = /(?:^|[^0-9a-z])(?:bc1|tb1)[02-9ac-hj-np-z]{20,}(?:$|[^0-
 const BASE58_ADDRESS = /(?:^|[^1-9A-HJ-NP-Za-km-z])[1-9A-HJ-NP-Za-km-z]{32,44}(?:$|[^1-9A-HJ-NP-Za-km-z])/;
 const BITCOIN_LEGACY = /(?:^|[^1-9A-HJ-NP-Za-km-z])[123mn][1-9A-HJ-NP-Za-km-z]{25,34}(?:$|[^1-9A-HJ-NP-Za-km-z])/;
 
-const trimmedString = (maxLength: number): z.ZodString =>
+/** Bounded, canonicalized non-blank string used by echoed refs and sources. */
+export const boundedAccountingStringSchema = (maxLength: number): z.ZodString =>
   z.string().max(maxLength).trim().min(1).max(maxLength);
 
 const unixSecondsSchema = z.number().int().nonnegative();
@@ -37,7 +38,7 @@ function isOpaqueAccountRef(value: string): boolean {
 }
 
 /** Opaque account reference; supported-chain raw wallet shapes fail closed. */
-export const accountingAccountRefSchema = trimmedString(128).refine(
+export const accountingAccountRefSchema = boundedAccountingStringSchema(128).refine(
   isOpaqueAccountRef,
   "account_ref must be opaque; raw wallet addresses are not accepted",
 );
@@ -50,7 +51,7 @@ export const feePaymentSchema = z.enum(ACCOUNTING_FEE_PAYMENTS);
 
 /** Public-safe asset identity. Account/wallet ownership does not belong here. */
 export const assetRefSchema = z.strictObject({
-  asset_id: trimmedString(128),
+  asset_id: boundedAccountingStringSchema(128),
   symbol: z.string().max(32).nullish(),
   chain: z.string().max(32).trim().toLowerCase().min(1).max(32).nullish(),
   decimals: z.number().int().min(0).max(36).nullish(),
@@ -103,7 +104,7 @@ export const ledgerLegSchema = z
     unit_price_usd: nonNegativeAccountingDecimalSchema.nullish(),
     usd_value: nonNegativeAccountingTotalSchema.nullish(),
     role: z.enum(["principal", "fee"]).default("principal"),
-    price_source: trimmedString(128).nullish(),
+    price_source: boundedAccountingStringSchema(128).nullish(),
     price_as_of: unixSecondsSchema.nullish(),
   })
   .superRefine((value, context) => addPriceProvenanceIssues(value, context, "leg"));
@@ -120,17 +121,17 @@ const TAX_TREATMENT_KINDS = new Set([
 
 export const ledgerEventSchema = z
   .strictObject({
-    event_id: trimmedString(128),
+    event_id: boundedAccountingStringSchema(128),
     account_ref: accountingAccountRefSchema,
     kind: eventKindSchema,
     timestamp: unixSecondsSchema,
     sequence: unixSecondsSchema.nullish(),
-    tx_ref: trimmedString(128).nullish(),
+    tx_ref: boundedAccountingStringSchema(128).nullish(),
     legs: z.array(ledgerLegSchema).min(1),
     fee_usd: nonNegativeAccountingTotalSchema.nullish(),
     fee_allocation: feeAllocationSchema.nullish(),
     fee_payment: feePaymentSchema.nullish(),
-    transfer_ref: trimmedString(128).nullish(),
+    transfer_ref: boundedAccountingStringSchema(128).nullish(),
     transfer_treatment: transferTreatmentSchema.nullish(),
     tax_treatment: taxTreatmentSchema.nullish(),
   })
@@ -173,7 +174,7 @@ export const movementInputSchema = z
     unit_price_usd: nonNegativeAccountingDecimalSchema.nullish(),
     usd_value: nonNegativeAccountingTotalSchema.nullish(),
     role: z.enum(["principal", "fee"]).default("principal"),
-    price_source: trimmedString(128).nullish(),
+    price_source: boundedAccountingStringSchema(128).nullish(),
     price_as_of: unixSecondsSchema.nullish(),
   })
   .superRefine((value, context) => addPriceProvenanceIssues(value, context, "movement"));
@@ -185,13 +186,13 @@ export const rawTransactionInputSchema = z
     timestamp: unixSecondsSchema,
     sequence: unixSecondsSchema.nullish(),
     movements: z.array(movementInputSchema).min(1),
-    tx_ref: trimmedString(128).nullish(),
+    tx_ref: boundedAccountingStringSchema(128).nullish(),
     protocol_hint: z.string().max(64).nullish(),
     method: z.string().max(64).nullish(),
     fee_usd: nonNegativeAccountingTotalSchema.nullish(),
     fee_allocation: feeAllocationSchema.nullish(),
     fee_payment: feePaymentSchema.nullish(),
-    transfer_ref: trimmedString(128).nullish(),
+    transfer_ref: boundedAccountingStringSchema(128).nullish(),
     transfer_treatment: transferTreatmentSchema.nullish(),
     tax_treatment: taxTreatmentSchema.nullish(),
   })

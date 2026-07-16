@@ -11,16 +11,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 - Added a publish-ready local package mirroring deployed Nexus accounting
   contract `0.2.0`: strict Zod request/response schemas, exact bounded decimal
-  strings, generated Draft 2020-12 JSON Schemas, version/tool constants,
-  response-correlation and governance-readiness helpers, and advisor-tier
+  strings and aggregate arithmetic, generated Draft 2020-12 structural schema
+  hints, version/tool constants, tri-state correlation assessment,
+  engine-scoped composition eligibility, exact discovery, and advisor-tier
   read-only tool declarations.
+- Hardened response validation against negative proceeds/counters, inconsistent
+  disposal and PnL arithmetic, forged completeness/coverage partitions, raw
+  wallet-shaped response refs, and unbounded response refs/sources.
+- Cost-basis and PnL correlation is explicitly `unverifiable` under wire
+  contract `0.2.0`; private consumers must bind authenticated requests,
+  responses, and immutable audit records until a future coordinated contract
+  bump adds a canonical request digest.
 - Added synthetic Nexus-derived golden fixtures for historical pricing, event
   decode, account-scoped FIFO cost basis/replay, and realized-PnL output.
 - Preserved the public/private boundary: only opaque references and public-chain
   facts cross the contract. Private identity/wallet linkage, egress canaries,
   statement composition, approval, release, and retention remain consumer work.
-- Queued the first release through Changesets; no package was published directly
-  from this feature branch.
+- Queued the first release through a minor Changeset, intentionally producing
+  package `0.2.0` from `0.1.0` source. Package semver and Nexus wire versions are
+  independent despite initially matching; nothing was published from this
+  feature branch.
 
 ### Changed — repo audit, CI, and docs/state hardening (2026-07-01)
 

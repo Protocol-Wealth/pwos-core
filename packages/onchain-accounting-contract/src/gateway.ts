@@ -27,9 +27,6 @@ import {
   type PriceHistoryResponse,
 } from "./outputs.js";
 
-type LedgerCalculationRequest = ComputeCostBasisRequest | OnchainPnlReportRequest;
-type LedgerCalculationResponse = ComputeCostBasisResponse | OnchainPnlReportResponse;
-
 export interface AccountingRequestMap {
   price_history: PriceHistoryRequest;
   decode_onchain_events: DecodeOnchainEventsRequest;
@@ -86,157 +83,274 @@ function optionalDecimalsEqual(left: string | null, right: string | null | undef
   return accountingDecimalStringsEqual(left, right);
 }
 
-/** Verify gateway-echoed coordinates against the ordered request. */
-export function isAccountingResponseCorrelated<T extends AccountingToolId>(
+export type AccountingCorrelationAssessment =
+  | {
+      status: "verified";
+      toolId: AccountingToolId;
+      reason: string;
+    }
+  | {
+      status: "partial";
+      toolId: AccountingToolId;
+      reason: string;
+      unverified: readonly string[];
+    }
+  | {
+      status: "unverifiable";
+      toolId: AccountingToolId;
+      reason: string;
+    };
+
+function verified(toolId: AccountingToolId, reason: string): AccountingCorrelationAssessment {
+  return { status: "verified", toolId, reason };
+}
+
+function partial(
+  toolId: AccountingToolId,
+  reason: string,
+  unverified: readonly string[],
+): AccountingCorrelationAssessment {
+  return { status: "partial", toolId, reason, unverified };
+}
+
+function unverifiable(toolId: AccountingToolId, reason: string): AccountingCorrelationAssessment {
+  return { status: "unverifiable", toolId, reason };
+}
+
+function priceCoordinate(coin: string, timestamp: number): string {
+  return JSON.stringify([coin, timestamp]);
+}
+
+function assessPriceCorrelation(
+  request: PriceHistoryRequest,
+  response: PriceHistoryResponse,
+): AccountingCorrelationAssessment {
+  if (response.prices.length !== request.queries.length) {
+    return unverifiable("price_history", "response length does not match ordered price queries");
+  }
+
+  const overrides = new Map<string, string>();
+  for (const override of request.overrides) {
+    overrides.set(priceCoordinate(override.coin, override.timestamp), override.price_usd);
+  }
+  for (let index = 0; index < response.prices.length; index += 1) {
+    const price = response.prices[index];
+    const query = request.queries[index];
+    if (!price || !query || price.coin !== query.coin || price.timestamp !== query.timestamp) {
+      return unverifiable("price_history", `price coordinate mismatch at ordered index ${index}`);
+    }
+    const override = overrides.get(priceCoordinate(query.coin, query.timestamp));
+    if (
+      override !== undefined &&
+      (price.status !== "priced" ||
+        !accountingDecimalStringsEqual(price.priceUsd, override) ||
+        price.source !== "override" ||
+        price.asOf !== query.timestamp ||
+        price.confidence !== null ||
+        price.reason !== null)
+    ) {
+      return unverifiable(
+        "price_history",
+        `authoritative override was not preserved at ordered index ${index}`,
+      );
+    }
+  }
+  return verified(
+    "price_history",
+    "ordered coordinates and every authoritative override match the response",
+  );
+}
+
+type DecoderTransaction = DecodeOnchainEventsRequest["transactions"][number];
+
+function hintlessEventKind(transaction: DecoderTransaction): DecodeOnchainEventsResponse["events"][number]["kind"] {
+  const principal = transaction.movements.filter((movement) => movement.role === "principal");
+  if (principal.length === 0) return "fee";
+  const hasIn = principal.some((movement) => movement.direction === "in");
+  const hasOut = principal.some((movement) => movement.direction === "out");
+  if (hasIn && hasOut) return "other";
+  if (hasIn) return "transfer_in";
+  if (hasOut) return "transfer_out";
+  return "other";
+}
+
+function assessDecoderCorrelation(
+  request: DecodeOnchainEventsRequest,
+  response: DecodeOnchainEventsResponse,
+): AccountingCorrelationAssessment {
+  if (response.events.length !== request.transactions.length) {
+    return unverifiable("decode_onchain_events", "response length does not match transactions");
+  }
+
+  let hasUnverifiableHints = false;
+  const expectedCounts: Partial<Record<string, number>> = {};
+  for (let index = 0; index < response.events.length; index += 1) {
+    const event = response.events[index];
+    const transaction = request.transactions[index];
+    if (!event || !transaction) {
+      return unverifiable("decode_onchain_events", `missing ordered item at index ${index}`);
+    }
+    const sequenceSuffix = transaction.sequence == null ? "" : `:${transaction.sequence}`;
+    const expectedEventId =
+      transaction.tx_ref ??
+      `${transaction.chain}:${transaction.account_ref}:${transaction.timestamp}${sequenceSuffix}`;
+    if (
+      event.event_id !== expectedEventId ||
+      event.account_ref !== transaction.account_ref ||
+      event.timestamp !== transaction.timestamp ||
+      event.sequence !== (transaction.sequence ?? null) ||
+      event.tx_ref !== (transaction.tx_ref ?? null) ||
+      !optionalDecimalsEqual(event.fee_usd, transaction.fee_usd) ||
+      event.fee_allocation !== (transaction.fee_allocation ?? null) ||
+      event.fee_payment !== (transaction.fee_payment ?? null) ||
+      event.tax_treatment !== (transaction.tax_treatment ?? null) ||
+      event.legs.length !== transaction.movements.length
+    ) {
+      return unverifiable("decode_onchain_events", `echoed decoder fields mismatch at index ${index}`);
+    }
+
+    const hasHints = transaction.protocol_hint != null || transaction.method != null;
+    hasUnverifiableHints ||= hasHints;
+    if (!hasHints && event.kind !== hintlessEventKind(transaction)) {
+      return unverifiable(
+        "decode_onchain_events",
+        `hintless deterministic classification mismatch at index ${index}`,
+      );
+    }
+    const isTransfer = event.kind === "transfer_in" || event.kind === "transfer_out";
+    if (
+      event.transfer_ref !== (isTransfer ? (transaction.transfer_ref ?? event.event_id) : null) ||
+      event.transfer_treatment !==
+        (isTransfer ? (transaction.transfer_treatment ?? "unknown") : null)
+    ) {
+      return unverifiable("decode_onchain_events", `transfer metadata mismatch at index ${index}`);
+    }
+
+    for (let legIndex = 0; legIndex < event.legs.length; legIndex += 1) {
+      const leg = event.legs[legIndex];
+      const movement = transaction.movements[legIndex];
+      if (
+        !leg ||
+        !movement ||
+        leg.asset.asset_id !== movement.asset.asset_id ||
+        leg.asset.symbol !== (movement.asset.symbol ?? null) ||
+        leg.asset.chain !== (movement.asset.chain ?? transaction.chain) ||
+        leg.asset.decimals !== (movement.asset.decimals ?? null) ||
+        leg.direction !== movement.direction ||
+        leg.role !== movement.role ||
+        !accountingDecimalStringsEqual(leg.amount, movement.amount) ||
+        !optionalDecimalsEqual(leg.unit_price_usd, movement.unit_price_usd) ||
+        !optionalDecimalsEqual(leg.usd_value, movement.usd_value) ||
+        leg.price_source !== (movement.price_source ?? null) ||
+        leg.price_as_of !== (movement.price_as_of ?? null)
+      ) {
+        return unverifiable(
+          "decode_onchain_events",
+          `echoed decoder leg mismatch at transaction ${index}, leg ${legIndex}`,
+        );
+      }
+    }
+    expectedCounts[event.kind] = (expectedCounts[event.kind] ?? 0) + 1;
+  }
+
+  const actual = response.eventCountsByKind;
+  const expectedKinds = Object.keys(expectedCounts);
+  if (
+    Object.keys(actual).length !== expectedKinds.length ||
+    !expectedKinds.every((kind) => actual[kind as keyof typeof actual] === expectedCounts[kind])
+  ) {
+    return unverifiable("decode_onchain_events", "eventCountsByKind does not match events");
+  }
+  if (hasUnverifiableHints) {
+    return partial(
+      "decode_onchain_events",
+      "echoed fields match, but protocol_hint/method are not echoed by wire 0.2.0",
+      ["event classification for hinted transactions"],
+    );
+  }
+  return verified(
+    "decode_onchain_events",
+    "all echoed fields and hintless deterministic classifications match",
+  );
+}
+
+/**
+ * Assess response binding without overstating what wire contract 0.2.0 echoes.
+ * Calculation responses are always unverifiable until a request digest is added.
+ */
+export function assessAccountingResponseCorrelation<T extends AccountingToolId>(
+  toolId: T,
+  request: AccountingRequestMap[T],
+  response: AccountingResponseMap[T],
+): AccountingCorrelationAssessment {
+  if (toolId === "price_history") {
+    return assessPriceCorrelation(request as PriceHistoryRequest, response as PriceHistoryResponse);
+  }
+  if (toolId === "decode_onchain_events") {
+    return assessDecoderCorrelation(
+      request as DecodeOnchainEventsRequest,
+      response as DecodeOnchainEventsResponse,
+    );
+  }
+  if (toolId === "compute_cost_basis" || toolId === "onchain_pnl_report") {
+    return unverifiable(
+      toolId,
+      "wire contract 0.2.0 does not echo a canonical request digest for calculation results",
+    );
+  }
+  return unverifiable(toolId, "unsupported accounting tool correlation assessment");
+}
+
+/** Fail-closed convenience boolean: true only for a fully verified assessment. */
+export function isAccountingResponseCorrelationVerified<T extends AccountingToolId>(
   toolId: T,
   request: AccountingRequestMap[T],
   response: AccountingResponseMap[T],
 ): boolean {
-  if (toolId === "price_history") {
-    const priceRequest = request as PriceHistoryRequest;
-    const priceResponse = response as PriceHistoryResponse;
-    if (priceResponse.prices.length !== priceRequest.queries.length) return false;
-    return priceResponse.prices.every((price, index) => {
-      const query = priceRequest.queries[index];
-      return query !== undefined && price.coin === query.coin && price.timestamp === query.timestamp;
-    });
-  }
-
-  if (toolId === "decode_onchain_events") {
-    const decodeRequest = request as DecodeOnchainEventsRequest;
-    const decodeResponse = response as DecodeOnchainEventsResponse;
-    if (decodeResponse.events.length !== decodeRequest.transactions.length) return false;
-
-    const expectedCounts: Partial<Record<string, number>> = {};
-    for (let index = 0; index < decodeResponse.events.length; index += 1) {
-      const event = decodeResponse.events[index];
-      const transaction = decodeRequest.transactions[index];
-      if (!event || !transaction) return false;
-      const sequenceSuffix = transaction.sequence == null ? "" : `:${transaction.sequence}`;
-      const expectedEventId =
-        transaction.tx_ref ??
-        `${transaction.chain}:${transaction.account_ref}:${transaction.timestamp}${sequenceSuffix}`;
-      if (
-        event.event_id !== expectedEventId ||
-        event.account_ref !== transaction.account_ref ||
-        event.timestamp !== transaction.timestamp ||
-        event.sequence !== (transaction.sequence ?? null) ||
-        event.tx_ref !== (transaction.tx_ref ?? null) ||
-        !optionalDecimalsEqual(event.fee_usd, transaction.fee_usd) ||
-        event.fee_allocation !== (transaction.fee_allocation ?? null) ||
-        event.fee_payment !== (transaction.fee_payment ?? null) ||
-        event.tax_treatment !== (transaction.tax_treatment ?? null) ||
-        event.legs.length !== transaction.movements.length
-      ) {
-        return false;
-      }
-      const isTransfer = event.kind === "transfer_in" || event.kind === "transfer_out";
-      if (
-        event.transfer_ref !== (isTransfer ? (transaction.transfer_ref ?? event.event_id) : null) ||
-        event.transfer_treatment !==
-          (isTransfer ? (transaction.transfer_treatment ?? "unknown") : null)
-      ) {
-        return false;
-      }
-      for (let legIndex = 0; legIndex < event.legs.length; legIndex += 1) {
-        const leg = event.legs[legIndex];
-        const movement = transaction.movements[legIndex];
-        if (
-          !leg ||
-          !movement ||
-          leg.asset.asset_id !== movement.asset.asset_id ||
-          leg.asset.symbol !== (movement.asset.symbol ?? null) ||
-          leg.asset.chain !== (movement.asset.chain ?? transaction.chain) ||
-          leg.asset.decimals !== (movement.asset.decimals ?? null) ||
-          leg.direction !== movement.direction ||
-          leg.role !== movement.role ||
-          !accountingDecimalStringsEqual(leg.amount, movement.amount) ||
-          !optionalDecimalsEqual(leg.unit_price_usd, movement.unit_price_usd) ||
-          !optionalDecimalsEqual(leg.usd_value, movement.usd_value) ||
-          leg.price_source !== (movement.price_source ?? null) ||
-          leg.price_as_of !== (movement.price_as_of ?? null)
-        ) {
-          return false;
-        }
-      }
-      expectedCounts[event.kind] = (expectedCounts[event.kind] ?? 0) + 1;
-    }
-
-    const actual = decodeResponse.eventCountsByKind;
-    const expectedKinds = Object.keys(expectedCounts);
-    return (
-      Object.keys(actual).length === expectedKinds.length &&
-      expectedKinds.every((kind) => actual[kind as keyof typeof actual] === expectedCounts[kind])
-    );
-  }
-
-  if (toolId === "compute_cost_basis" || toolId === "onchain_pnl_report") {
-    return isLedgerCalculationResponseCorrelated(
-      request as LedgerCalculationRequest,
-      response as LedgerCalculationResponse,
-    );
-  }
-
-  return true;
+  return assessAccountingResponseCorrelation(toolId, request, response).status === "verified";
 }
 
-function isLedgerCalculationResponseCorrelated(
-  request: LedgerCalculationRequest,
-  response: LedgerCalculationResponse,
-): boolean {
-  if (response.method !== request.method) return false;
-  const replay = response.replay;
-  if (replay.input_event_count !== request.events.length) return false;
-
-  const window = request.report_window;
-  if (window == null) {
-    return (
-      replay.mode === "all_events" &&
-      replay.start_at === null &&
-      replay.end_at === null &&
-      replay.opening_state_ref === null &&
-      replay.opening_state_schema_version === null &&
-      replay.opening_state_source === null &&
-      replay.opening_state_last_verified === null &&
-      replay.opening_state_basis_method === null &&
-      replay.opening_state_basis_method_version === null &&
-      replay.opening_state_snapshot_complete === null &&
-      replay.replayed_event_count === request.events.length &&
-      replay.pre_period_event_count === 0 &&
-      replay.in_period_event_count === request.events.length &&
-      replay.post_period_excluded_count === 0
-    );
-  }
-
-  const replayed = request.events.filter((event) => event.timestamp < window.end_at);
-  const prePeriod = replayed.filter((event) => event.timestamp < window.start_at).length;
-  const opening = window.opening_state;
-  return (
-    replay.mode === (window.full_history ? "full_history" : "opening_state") &&
-    replay.start_at === window.start_at &&
-    replay.end_at === window.end_at &&
-    replay.opening_state_ref === (opening?.state_ref ?? null) &&
-    replay.opening_state_schema_version === (opening?.schema_version ?? null) &&
-    replay.opening_state_source === (opening?.source ?? null) &&
-    replay.opening_state_last_verified === (opening?.last_verified ?? null) &&
-    replay.opening_state_basis_method === (opening?.basis_method ?? null) &&
-    replay.opening_state_basis_method_version === (opening?.basis_method_version ?? null) &&
-    replay.opening_state_snapshot_complete === (opening?.snapshot_complete ?? null) &&
-    replay.replayed_event_count === replayed.length &&
-    replay.pre_period_event_count === prePeriod &&
-    replay.in_period_event_count === replayed.length - prePeriod &&
-    replay.post_period_excluded_count === request.events.length - replayed.length
-  );
-}
-
-/** True only when Nexus itself reports calculation, replay, and governance ready. */
-export function isAccountingStatementReady(
+/**
+ * Engine-scoped calculation eligibility for private composition. This is never
+ * client-delivery, authorization, books-and-records, or advisor approval state.
+ */
+export function isNexusAccountingResultEligibleForComposition(
   response: ComputeCostBasisResponse | OnchainPnlReportResponse,
 ): boolean {
+  const parsed =
+    "summary" in response
+      ? onchainPnlReportResponseSchema.safeParse(response)
+      : computeCostBasisResponseSchema.safeParse(response);
+  if (!parsed.success) return false;
+  const result = parsed.data;
+  const dispositions = "summary" in result ? result.dispositions : result.disposals;
+  const baseEligible =
+    result.methodology.review_status === "approved" &&
+    result.replay.mode !== "all_events" &&
+    result.completeness.complete &&
+    result.completeness.statement_ready &&
+    result.completeness.gap_count === 0 &&
+    result.coverage.incomplete_disposition_count === 0 &&
+    result.coverage.unresolved_event_count === 0 &&
+    result.coverage.unresolved_transfer_count === 0 &&
+    result.coverage.unresolved_fee_count === 0 &&
+    dispositions.every(
+      (disposition) => disposition.complete && disposition.missing_fields.length === 0,
+    );
+  if (!baseEligible) return false;
+  if ("summary" in result) {
+    return (
+      result.summary.complete &&
+      result.summary.incomplete_count === 0 &&
+      result.summary.calculation_gap_count === 0 &&
+      result.by_year.every(
+        (bucket) =>
+          bucket.complete && bucket.incomplete_count === 0 && bucket.calculation_gap_count === 0,
+      )
+    );
+  }
   return (
-    response.methodology.review_status === "approved" &&
-    response.replay.mode !== "all_events" &&
-    response.completeness.complete &&
-    response.completeness.statement_ready
+    result.coverage.unknown_basis_open_lot_count === 0 &&
+    result.open_lots.every((lot) => lot.cost_basis_usd !== null)
   );
 }

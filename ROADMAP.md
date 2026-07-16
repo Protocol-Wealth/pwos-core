@@ -7,7 +7,7 @@
 ## Done
 
 - **20 packages published** to npm under `@protocolwealthos/*` (Apache 2.0 / OIN / patent-pending); the 21st manifest, `onchain-accounting-contract`, is queued for its first Changesets release.
-- **`onchain-accounting-contract` source complete** — strict PII-free TypeScript/runtime ABI for deployed Nexus accounting contract `0.2.0`, including request/response and JSON schemas, exact decimals, tool declarations, and synthetic golden fixtures. Publication remains in the standard Changesets/local-publish flow.
+- **`onchain-accounting-contract` source complete** — strict PII-free TypeScript/runtime ABI for deployed Nexus accounting contract `0.2.0`, including authoritative runtime schemas, structural schema hints, exact decimal/aggregate validation, tri-state correlation, exact discovery, tool declarations, and synthetic golden fixtures. The queued minor Changeset intentionally produces the first public package version `0.2.0`; package and wire versions remain independent. Publication stays in the standard Changesets/local-publish flow.
 - **`planning-contract@0.3.0`** — PlanningContract v1.1.0 PII-free ABI for the Roth-conversion + IRMAA planning capability (types + JSON-Schema + MCP tool defs; mirrors the nexus-core engine). Published 2026-06-03.
 - **zod 3 → 4 migration done** — `disclosure-card@0.3.0` migrated (the only zod consumer that broke; `shared` was already clean), unblocking the Release build. Published 2026-06-03.
 - **Flagship governance primitives** — `disclosure-card` (Zod + dep-free JSON Schema adoptable standard), `@protocolwealthos/shared` `hitl` (fail-closed gate) + `provenance` (hash-chain) — published 2026-05-27.

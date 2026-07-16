@@ -105,7 +105,7 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Security and integration boundaries** — HS256 JWT/session helpers, scoped agent tokens, role/domain guards, webhook HMAC and dual-layer verification, idempotency, security headers, cache-key PII rejection.
 - **Advisor data shapes** — Ledger, holdings, CRM, document model, email archive, on-chain portfolio client/types, GCP helper interfaces.
 - **Planning ABI** — PlanningContract v1.1.0 snake_case TypeScript contract, Roth/IRMAA result types, JSON Schema, and MCP planning tool definitions. Math lives in `nexus-core`.
-- **Onchain accounting ABI** — Nexus contract v0.2.0 strict runtime/JSON schemas for de-identified historical pricing, event decode, account-scoped FIFO replay, and realized-PnL output. Math lives in `nexus-core`; client linkage and statements stay private.
+- **Onchain accounting ABI** — Nexus contract v0.2.0 strict runtime schemas and structural JSON hints for de-identified historical pricing, event decode, account-scoped FIFO replay, and realized-PnL output. Math lives in `nexus-core`; client linkage and statements stay private.
 - **Eval and examples** — Private deterministic AI-safety eval harness under `apps/evals/` and a composed RIA agent-substrate example under `examples/rias-agent-substrate/`.
 
 ## What You Get From npm
@@ -134,7 +134,7 @@ The `@protocolwealthos/*` packages are what's published. The deployed app at [pw
 | **`@protocolwealthos/shared`** | `hitl` fail-closed approval gate · `provenance` SHA-256 hash-chain records · shared constants/types |
 | **`@protocolwealthos/disclosure-card`** | Zod 4 disclosure-card schema · dependency-free JSON Schema · `assertNoVerifyMarkers()` pre-publish gate |
 | **`@protocolwealthos/planning-contract`** | PlanningContract v1.1.0 snake_case Roth/IRMAA ABI · result types · JSON Schema · MCP tool definitions |
-| **`@protocolwealthos/onchain-accounting-contract`** | Nexus accounting v0.2.0 strict runtime + JSON schemas · exact decimal strings · version/correlation/readiness helpers · read-only tool definitions |
+| **`@protocolwealthos/onchain-accounting-contract`** | Nexus accounting v0.2.0 strict runtime + structural schema hints · exact decimal/partition validation · tri-state correlation · engine-scoped composition eligibility · read-only tool definitions |
 
 ### Auth + access primitives
 

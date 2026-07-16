@@ -167,6 +167,51 @@ function decimalPartsLessThanOrEqual(a: DecimalParts, b: DecimalParts): boolean 
   return a.negative ? leftScaled >= rightScaled : leftScaled <= rightScaled;
 }
 
+function signedCoefficient(parts: DecimalParts): bigint {
+  return parts.negative ? -parts.coefficient : parts.coefficient;
+}
+
+function exactDecimalLinearCombinationEquals(
+  positive: readonly string[],
+  negative: readonly string[],
+  expected: string,
+): boolean {
+  const positiveParts = positive.map(canonicalDecimal);
+  const negativeParts = negative.map(canonicalDecimal);
+  const target = canonicalDecimal(expected);
+  if (
+    target === null ||
+    positiveParts.some((part) => part === null) ||
+    negativeParts.some((part) => part === null)
+  ) {
+    return false;
+  }
+
+  const parts = [
+    ...(positiveParts as DecimalParts[]),
+    ...(negativeParts as DecimalParts[]),
+    target,
+  ];
+  const commonExponent = parts.reduce(
+    (minimum, part) =>
+      part.decimalExponent < minimum ? part.decimalExponent : minimum,
+    parts[0]?.decimalExponent ?? 0n,
+  );
+  if (parts.some((part) => part.decimalExponent - commonExponent > 512n)) return false;
+
+  const scale = (part: DecimalParts): bigint =>
+    signedCoefficient(part) * 10n ** (part.decimalExponent - commonExponent);
+  const total = (positiveParts as DecimalParts[]).reduce(
+    (sum, part) => sum + scale(part),
+    0n,
+  );
+  const deductions = (negativeParts as DecimalParts[]).reduce(
+    (sum, part) => sum + scale(part),
+    0n,
+  );
+  return total - deductions === scale(target);
+}
+
 /** Exact represented-decimal equality without converting through a JS number. */
 export function accountingDecimalStringsEqual(left: string, right: string): boolean {
   const a = canonicalDecimal(left);
@@ -213,6 +258,23 @@ export function accountingDecimalProductsLessThanOrEqual(
   const a = canonicalProduct(left);
   const b = canonicalProduct(right);
   return a !== null && b !== null && decimalPartsLessThanOrEqual(a, b);
+}
+
+/** Exact represented-decimal sum equality, including the empty sum as zero. */
+export function accountingDecimalSumEquals(
+  values: readonly string[],
+  expected: string,
+): boolean {
+  return exactDecimalLinearCombinationEquals(values, [], expected);
+}
+
+/** Exact `minuend - subtrahend === expected` without floating-point arithmetic. */
+export function accountingDecimalSubtractEquals(
+  minuend: string,
+  subtrahend: string,
+  expected: string,
+): boolean {
+  return exactDecimalLinearCombinationEquals([minuend], [subtrahend], expected);
 }
 
 /** Whether an exact product fits the authoritative replay/result envelope. */

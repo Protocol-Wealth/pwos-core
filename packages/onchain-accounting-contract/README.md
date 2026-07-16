@@ -6,8 +6,8 @@ Strict, PII-free TypeScript ABI for nexus-core onchain accounting contract
 The math and methodology live in the sibling Python engine. This package ships
 the reusable cross-language boundary: TypeScript types inferred from strict Zod
 schemas, runtime request/response validation, generated Draft 2020-12 JSON
-Schemas, version/tool constants, response-correlation helpers, and read-only MCP
-tool declarations.
+Schema hints, version/tool constants, fail-closed response-correlation
+assessments, and read-only MCP tool declarations.
 
 ```bash
 npm install @protocolwealthos/onchain-accounting-contract
@@ -37,7 +37,7 @@ These versions are intentionally distinct:
 
 | Constant | Current | Meaning |
 |---|---:|---|
-| `VERSION` | `0.1.0` | npm package source version; Changesets owns releases |
+| `VERSION` | `0.1.0` | npm package source version on this branch; Changesets owns releases |
 | `ACCOUNTING_CONTRACT_VERSION` | `0.2.0` | Nexus request/response wire ABI |
 | `ACCOUNTING_METHOD_VERSION` | `2.0.0` | FIFO calculation methodology |
 | `ACCOUNTING_REPLAY_VERSION` | `1.0.0` | Report-window replay protocol |
@@ -47,9 +47,17 @@ that validation includes the exact `contractVersion` handshake. A contract
 change is a cross-repo event: update Nexus, this package, fixtures, and every
 consumer together.
 
-The runtime Zod schemas are authoritative. Generated JSON Schema describes the
-wire shape, while cross-field accounting invariants remain enforced by the
-runtime parsers and correlation helpers.
+The queued minor Changeset deliberately makes `0.2.0` the first published npm
+version from the current `0.1.0` source. That package version is independent of
+the Nexus wire version; both happen to be `0.2.0` at first publication and may
+diverge afterward. `VERSION` is checked against the package manifest in CI and
+is updated by the Changesets version workflow.
+
+The runtime Zod schemas are authoritative. `ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS`
+and `ACCOUNTING_RESPONSE_STRUCTURE_SCHEMA_HINTS` are generated with explicit
+input/output modes for model discovery and structural documentation. They do
+not represent custom Zod refinements such as exact accounting arithmetic,
+partition counts, or opaque-reference checks; always call the runtime parsers.
 
 ## Exact Decimals
 
@@ -72,8 +80,9 @@ integer coefficients rather than binary floating point.
 ```ts
 import {
   ACCOUNTING_CONTRACT_VERSION,
-  isAccountingResponseCorrelated,
-  isAccountingStatementReady,
+  assessAccountingResponseCorrelation,
+  isAccountingResponseCorrelationVerified,
+  isNexusAccountingResultEligibleForComposition,
   parseAccountingRequest,
   parseAccountingResponse,
 } from "@protocolwealthos/onchain-accounting-contract";
@@ -93,19 +102,39 @@ declare const wireBody: unknown;
 const response = parseAccountingResponse("compute_cost_basis", wireBody);
 
 console.log(ACCOUNTING_CONTRACT_VERSION); // "0.2.0"
-console.log(isAccountingResponseCorrelated("compute_cost_basis", request, response));
-console.log(isAccountingStatementReady(response));
+const correlation = assessAccountingResponseCorrelation(
+  "compute_cost_basis",
+  request,
+  response,
+);
+console.log(correlation.status); // "unverifiable" in wire contract 0.2.0
+console.log(
+  isAccountingResponseCorrelationVerified("compute_cost_basis", request, response),
+); // false
+console.log(isNexusAccountingResultEligibleForComposition(response));
 ```
 
-The correlation helper checks every deterministic request coordinate echoed by
-the gateway. Cost-basis and PnL responses do not carry a request digest, so the
-consumer must also bind each response to its originating in-flight request and
-audit record at the transport layer.
+Correlation is intentionally tri-state: `verified`, `partial`, or
+`unverifiable`. Price overrides verify only when their exact value and override
+provenance are echoed. Hintless decoder classifications can verify; decoder
+requests carrying `protocol_hint` or `method` are only partial because contract
+`0.2.0` does not echo those hints. Cost-basis and PnL responses are always
+unverifiable because they do not carry a canonical request digest. The boolean
+helper returns `true` only for `verified`.
 
-`isAccountingStatementReady` is deliberately fail-closed. Contract `0.2.0`
-currently reports methodology review status `pending_governance_review`, so
-`completeness.statement_ready` remains `false` even when the calculation itself
-is complete. Passing CI or code review is not methodology approval.
+Private consumers must bind each response to its originating in-flight request,
+request identifier, authenticated transport context, and immutable audit record
+before accepting it. A future canonical request digest requires a coordinated
+wire-contract version bump across Nexus, this package, fixtures, and consumers.
+
+`isNexusAccountingResultEligibleForComposition` is deliberately engine-scoped
+and fail-closed. It requires a strictly valid result, approved methodology,
+bounded replay, complete partitions, no gaps or unresolved coverage, and
+complete dispositions. It does not authorize client delivery, approve a
+statement, satisfy books-and-records retention, or replace advisor/CCO review.
+Contract `0.2.0` currently reports `pending_governance_review`, so composition
+eligibility remains false. Passing CI or code review is not methodology
+approval.
 
 ## Tool Declarations
 
@@ -114,6 +143,10 @@ four calculation tools as advisor-tier, read-only, idempotent tools. They do not
 implement math or transport. The `describe` handler is REST introspection and is
 therefore represented in gateway constants/schemas, not registered as a global
 model-visible tool with a collision-prone generic name.
+
+`isAccountingGatewayCompatible` accepts discovery only when the contract is
+exactly `0.2.0` and the duplicate-free handler set contains all five handlers
+(`describe` plus the four calculations), regardless of order.
 
 ## Contract Boundary
 
