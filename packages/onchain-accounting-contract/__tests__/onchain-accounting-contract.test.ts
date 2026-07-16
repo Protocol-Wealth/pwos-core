@@ -35,6 +35,7 @@ import {
   onchainPnlReportResponseSchema,
   parseAccountingRequest,
   parseAccountingResponse,
+  priceHistoryRequestSchema,
   priceHistoryResponseSchema,
   registerAccountingTools,
   reportWindowInputSchema,
@@ -511,6 +512,208 @@ describe("replay and response parity", () => {
     }
   });
 
+  it("requires Nexus-exact UTC holding days and anniversary terms", () => {
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [{ ...DISPOSAL, holding_days: DISPOSAL.holding_days - 1 }],
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [{ ...DISPOSAL, term: "short" }],
+      }).success,
+    ).toBe(false);
+
+    const leapDay = Date.UTC(2020, 1, 29, 23, 30) / 1_000;
+    const anniversary = Date.UTC(2021, 1, 28, 0, 1) / 1_000;
+    const afterAnniversary = Date.UTC(2021, 2, 1, 0, 1) / 1_000;
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [
+          {
+            ...DISPOSAL,
+            acquired_at: leapDay,
+            disposed_at: anniversary,
+            holding_days: 365,
+            term: "short",
+          },
+        ],
+      }).success,
+    ).toBe(true);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        disposals: [
+          {
+            ...DISPOSAL,
+            acquired_at: leapDay,
+            disposed_at: afterAnniversary,
+            holding_days: 366,
+            term: "long",
+          },
+        ],
+      }).success,
+    ).toBe(true);
+  });
+
+  it("requires exact known totals while preserving hidden transfer suppression", () => {
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        totals: { ...GOLDEN_COST_BASIS_RESPONSE.totals, open_cost_basis_usd: null },
+      }).success,
+    ).toBe(false);
+
+    const valuedLot = {
+      ...GOLDEN_COST_BASIS_RESPONSE.open_lots[0],
+      market_value_usd: "15",
+      unrealized_pnl_usd: "5",
+      market_price_source: "fixture",
+      market_price_as_of: 1_640_000_000,
+    };
+    const valuedResponse = {
+      ...GOLDEN_COST_BASIS_RESPONSE,
+      open_lots: [valuedLot],
+      totals: {
+        ...GOLDEN_COST_BASIS_RESPONSE.totals,
+        open_market_value_usd: "15",
+        open_unrealized_pnl_usd: "5",
+      },
+    };
+    expect(computeCostBasisResponseSchema.safeParse(valuedResponse).success).toBe(true);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...valuedResponse,
+        totals: { ...valuedResponse.totals, open_market_value_usd: null },
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...valuedResponse,
+        totals: { ...valuedResponse.totals, open_unrealized_pnl_usd: null },
+      }).success,
+    ).toBe(false);
+
+    const hiddenTransferResponse = {
+      ...valuedResponse,
+      coverage: { ...COVERAGE, unresolved_transfer_count: 1 },
+      completeness: {
+        complete: false,
+        statement_ready: false,
+        gap_count: 1,
+        gaps: [
+          {
+            code: "unmatched_transfer_out",
+            message: "Synthetic unmatched transfer hides remaining inventory.",
+            event_id: "transfer-out",
+            account_ref: "account-opaque-1",
+            asset_id: ASSET.asset_id,
+          },
+        ],
+      },
+      totals: {
+        ...valuedResponse.totals,
+        open_cost_basis_usd: null,
+        open_market_value_usd: null,
+        open_unrealized_pnl_usd: null,
+      },
+    };
+    expect(computeCostBasisResponseSchema.safeParse(hiddenTransferResponse).success).toBe(true);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...hiddenTransferResponse,
+        coverage: { ...hiddenTransferResponse.coverage, unresolved_transfer_count: 0 },
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...hiddenTransferResponse,
+        totals: { ...hiddenTransferResponse.totals, open_cost_basis_usd: "10" },
+      }).success,
+    ).toBe(false);
+  });
+
+  it("requires the exact semantic shortfall set for unmatched unpriced disposals", () => {
+    const unmatchedDisposal = {
+      ...DISPOSAL,
+      gross_proceeds_usd: null,
+      proceeds_usd: null,
+      cost_basis_usd: null,
+      realized_gain_usd: null,
+      lot_ref: null,
+      acquisition_event_id: null,
+      origin_lot_ref: null,
+      basis_source: null,
+      basis_price_source: null,
+      basis_price_as_of: null,
+      proceeds_price_source: null,
+      proceeds_price_as_of: null,
+      acquired_at: null,
+      holding_days: null,
+      term: null,
+      complete: false,
+      missing_fields: [
+        "matching_lot",
+        "proceeds_usd",
+        "cost_basis_usd",
+        "acquired_at",
+        "proceeds_price_provenance",
+      ],
+    };
+    const response = {
+      ...GOLDEN_COST_BASIS_RESPONSE,
+      disposals: [unmatchedDisposal],
+      coverage: {
+        ...COVERAGE,
+        complete_disposition_count: 0,
+        incomplete_disposition_count: 1,
+      },
+      completeness: {
+        complete: false,
+        statement_ready: false,
+        gap_count: 1,
+        gaps: [
+          {
+            code: "unmatched_disposition",
+            message: "Synthetic unmatched and unpriced disposition.",
+            event_id: "sell",
+            account_ref: "account-opaque-1",
+            asset_id: ASSET.asset_id,
+          },
+        ],
+      },
+      totals: { ...GOLDEN_COST_BASIS_RESPONSE.totals, realized_gain_usd: null },
+    };
+    expect(computeCostBasisResponseSchema.safeParse(response).success).toBe(true);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...response,
+        disposals: [
+          {
+            ...unmatchedDisposal,
+            missing_fields: unmatchedDisposal.missing_fields.filter(
+              (field) => field !== "proceeds_usd",
+            ),
+          },
+        ],
+      }).success,
+    ).toBe(false);
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...response,
+        disposals: [
+          {
+            ...unmatchedDisposal,
+            missing_fields: [...unmatchedDisposal.missing_fields, "basis_provenance"],
+          },
+        ],
+      }).success,
+    ).toBe(false);
+  });
+
   it("allows engine composition eligibility only after explicit methodology approval", () => {
     const approved = computeCostBasisResponseSchema.parse({
       ...GOLDEN_COST_BASIS_RESPONSE,
@@ -789,6 +992,50 @@ describe("price and decoder correlation", () => {
     }
   });
 
+  it("rejects orphan and duplicate overrides while correlating duplicate query slots", () => {
+    expect(
+      priceHistoryRequestSchema.safeParse({
+        queries: [{ coin: "ethereum:asset-1", timestamp: 100 }],
+        overrides: [{ coin: "ethereum:asset-2", timestamp: 100, price_usd: "12.5" }],
+      }).success,
+    ).toBe(false);
+    expect(
+      priceHistoryRequestSchema.safeParse({
+        queries: [{ coin: "ethereum:asset-1", timestamp: 100 }],
+        overrides: [
+          { coin: "ethereum:asset-1", timestamp: 100, price_usd: "12.5" },
+          { coin: "ethereum:asset-1", timestamp: 100, price_usd: "12.5" },
+        ],
+      }).success,
+    ).toBe(false);
+
+    const request = priceHistoryRequestSchema.parse({
+      queries: [
+        { coin: "ethereum:asset-1", timestamp: 100 },
+        { coin: "ethereum:asset-1", timestamp: 100 },
+      ],
+      overrides: [{ coin: "ethereum:asset-1", timestamp: 100, price_usd: "12.5" }],
+    });
+    const price = {
+      coin: "ethereum:asset-1",
+      timestamp: 100,
+      status: "priced" as const,
+      priceUsd: "12.5",
+      source: "override",
+      asOf: 100,
+      confidence: null,
+      reason: null,
+    };
+    const response = priceHistoryResponseSchema.parse({
+      contractVersion: "0.2.0",
+      disclaimer: "Not advice.",
+      prices: [price, price],
+    });
+    expect(assessAccountingResponseCorrelation("price_history", request, response).status).toBe(
+      "verified",
+    );
+  });
+
   it("correlates ordered decoder output to the exact normalized request", () => {
     const request = parseAccountingRequest("decode_onchain_events", {
       transactions: [
@@ -930,6 +1177,34 @@ describe("price and decoder correlation", () => {
     expect(isAccountingResponseCorrelationVerified("decode_onchain_events", request, response)).toBe(
       true,
     );
+
+    const requestWithCounterparty = parseAccountingRequest("decode_onchain_events", {
+      transactions: [
+        {
+          ...request.transactions[0],
+          movements: [
+            {
+              ...request.transactions[0]!.movements[0],
+              counterparty: "counterparty-opaque-1",
+            },
+          ],
+        },
+      ],
+    });
+    expect(
+      assessAccountingResponseCorrelation(
+        "decode_onchain_events",
+        requestWithCounterparty,
+        response,
+      ),
+    ).toMatchObject({ status: "partial", unverified: ["movement counterparties"] });
+    expect(
+      isAccountingResponseCorrelationVerified(
+        "decode_onchain_events",
+        requestWithCounterparty,
+        response,
+      ),
+    ).toBe(false);
 
     const misclassified = decodeOnchainEventsResponseSchema.parse({
       ...response,

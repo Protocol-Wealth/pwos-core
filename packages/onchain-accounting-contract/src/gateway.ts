@@ -129,9 +129,19 @@ function assessPriceCorrelation(
     return unverifiable("price_history", "response length does not match ordered price queries");
   }
 
+  const queryCoordinates = new Set(
+    request.queries.map((query) => priceCoordinate(query.coin, query.timestamp)),
+  );
   const overrides = new Map<string, string>();
   for (const override of request.overrides) {
-    overrides.set(priceCoordinate(override.coin, override.timestamp), override.price_usd);
+    const coordinate = priceCoordinate(override.coin, override.timestamp);
+    if (!queryCoordinates.has(coordinate)) {
+      return unverifiable("price_history", "price override does not match a requested coordinate");
+    }
+    if (overrides.has(coordinate)) {
+      return unverifiable("price_history", "duplicate price override coordinate is ambiguous");
+    }
+    overrides.set(coordinate, override.price_usd);
   }
   for (let index = 0; index < response.prices.length; index += 1) {
     const price = response.prices[index];
@@ -182,7 +192,7 @@ function assessDecoderCorrelation(
     return unverifiable("decode_onchain_events", "response length does not match transactions");
   }
 
-  let hasUnverifiableHints = false;
+  const unverifiedInputs = new Set<string>();
   const expectedCounts: Partial<Record<string, number>> = {};
   for (let index = 0; index < response.events.length; index += 1) {
     const event = response.events[index];
@@ -210,7 +220,10 @@ function assessDecoderCorrelation(
     }
 
     const hasHints = transaction.protocol_hint != null || transaction.method != null;
-    hasUnverifiableHints ||= hasHints;
+    if (hasHints) unverifiedInputs.add("event classification for hinted transactions");
+    if (transaction.movements.some((movement) => movement.counterparty != null)) {
+      unverifiedInputs.add("movement counterparties");
+    }
     if (!hasHints && event.kind !== hintlessEventKind(transaction)) {
       return unverifiable(
         "decode_onchain_events",
@@ -261,11 +274,11 @@ function assessDecoderCorrelation(
   ) {
     return unverifiable("decode_onchain_events", "eventCountsByKind does not match events");
   }
-  if (hasUnverifiableHints) {
+  if (unverifiedInputs.size > 0) {
     return partial(
       "decode_onchain_events",
-      "echoed fields match, but protocol_hint/method are not echoed by wire 0.2.0",
-      ["event classification for hinted transactions"],
+      "echoed fields match, but some request fields are not echoed by wire 0.2.0",
+      [...unverifiedInputs],
     );
   }
   return verified(

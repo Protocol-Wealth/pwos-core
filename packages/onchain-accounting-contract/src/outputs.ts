@@ -32,6 +32,35 @@ import { serializedAssetRefSchema, serializedLedgerEventSchema } from "./seriali
 const unixSecondsSchema = z.number().int().nonnegative();
 const nonNegativeIntegerSchema = z.number().int().nonnegative();
 const nullableRef = (maxLength: number) => boundedAccountingStringSchema(maxLength).nullable();
+const SECONDS_PER_DAY = 86_400;
+const MILLISECONDS_PER_DAY = SECONDS_PER_DAY * 1_000;
+
+function expectedHoldingPeriod(
+  acquiredAt: number,
+  disposedAt: number,
+): { holdingDays: number; term: "short" | "long" } | null {
+  const acquiredDay = Math.floor(acquiredAt / SECONDS_PER_DAY);
+  const disposedDay = Math.floor(disposedAt / SECONDS_PER_DAY);
+  if (!Number.isSafeInteger(acquiredDay) || !Number.isSafeInteger(disposedDay)) return null;
+
+  const acquired = new Date(acquiredDay * MILLISECONDS_PER_DAY);
+  const disposed = new Date(disposedDay * MILLISECONDS_PER_DAY);
+  if (Number.isNaN(acquired.getTime()) || Number.isNaN(disposed.getTime())) return null;
+
+  const anniversaryYear = acquired.getUTCFullYear() + 1;
+  const anniversaryMonth = acquired.getUTCMonth();
+  const acquisitionDayOfMonth = acquired.getUTCDate();
+  let anniversary = new Date(
+    Date.UTC(anniversaryYear, anniversaryMonth, acquisitionDayOfMonth),
+  );
+  if (anniversary.getUTCMonth() !== anniversaryMonth) {
+    anniversary = new Date(Date.UTC(anniversaryYear, anniversaryMonth + 1, 0));
+  }
+  return {
+    holdingDays: disposedDay - acquiredDay,
+    term: disposed.getTime() > anniversary.getTime() ? "long" : "short",
+  };
+}
 
 const responseEnvelopeShape = {
   contractVersion: z.literal(ACCOUNTING_CONTRACT_VERSION),
@@ -488,6 +517,31 @@ export const disposalRecordSchema = z
         message: "disposal cannot precede acquisition",
       });
     }
+    if (value.acquired_at !== null && value.holding_days !== null && value.term !== null) {
+      const expected = expectedHoldingPeriod(value.acquired_at, value.disposed_at);
+      if (expected === null) {
+        context.addIssue({
+          code: "custom",
+          path: ["holding_days"],
+          message: "holding period timestamps are outside the supported UTC calendar range",
+        });
+      } else {
+        if (value.holding_days !== expected.holdingDays) {
+          context.addIssue({
+            code: "custom",
+            path: ["holding_days"],
+            message: "holding_days must match UTC calendar dates",
+          });
+        }
+        if (value.term !== expected.term) {
+          context.addIssue({
+            code: "custom",
+            path: ["term"],
+            message: "term must be long only after the one-year calendar anniversary",
+          });
+        }
+      }
+    }
 
     const missing = new Set(value.missing_fields);
     if (value.complete !== (missing.size === 0)) {
@@ -497,62 +551,25 @@ export const disposalRecordSchema = z
         message: "complete must match missing_fields",
       });
     }
-    if (missing.has("matching_lot") !== (value.lot_ref === null)) {
-      context.addIssue({
-        code: "custom",
-        path: ["lot_ref"],
-        message: "matching-lot status is inconsistent",
-      });
+    const expectedMissing = new Set<string>();
+    if (value.lot_ref === null) expectedMissing.add("matching_lot");
+    if (value.cost_basis_usd === null) expectedMissing.add("cost_basis_usd");
+    if (value.acquired_at === null) expectedMissing.add("acquired_at");
+    if (value.proceeds_usd === null) expectedMissing.add("proceeds_usd");
+    const lacksBasisProvenance =
+      value.lot_ref !== null &&
+      (value.basis_price_source === null || value.basis_price_as_of === null) &&
+      (value.basis_evidence_source === null || value.basis_last_verified === null);
+    if (lacksBasisProvenance) expectedMissing.add("basis_provenance");
+    if (value.proceeds_price_source === null || value.proceeds_price_as_of === null) {
+      expectedMissing.add("proceeds_price_provenance");
     }
-    if (missing.has("cost_basis_usd") !== (value.cost_basis_usd === null)) {
-      context.addIssue({
-        code: "custom",
-        path: ["cost_basis_usd"],
-        message: "basis missing-field status is inconsistent",
-      });
-    }
-    if (missing.has("acquired_at") !== (value.acquired_at === null)) {
-      context.addIssue({
-        code: "custom",
-        path: ["acquired_at"],
-        message: "acquisition-date missing-field status is inconsistent",
-      });
-    }
-    if (value.lot_ref === null) {
-      const shortfallFields = new Set(["matching_lot", "cost_basis_usd", "acquired_at"]);
-      if ([...missing].some((field) => !shortfallFields.has(field))) {
+    for (const field of disposalMissingFieldSchema.options) {
+      if (missing.has(field) !== expectedMissing.has(field)) {
         context.addIssue({
           code: "custom",
           path: ["missing_fields"],
-          message: "unmatched-lot missing fields do not match the Nexus shortfall shape",
-        });
-      }
-    } else {
-      const lacksBasisProvenance =
-        (value.basis_price_source === null || value.basis_price_as_of === null) &&
-        (value.basis_evidence_source === null || value.basis_last_verified === null);
-      if (missing.has("proceeds_usd") !== (value.proceeds_usd === null)) {
-        context.addIssue({
-          code: "custom",
-          path: ["proceeds_usd"],
-          message: "proceeds missing-field status is inconsistent",
-        });
-      }
-      if (missing.has("basis_provenance") !== lacksBasisProvenance) {
-        context.addIssue({
-          code: "custom",
-          path: ["basis_provenance"],
-          message: "basis-provenance missing-field status is inconsistent",
-        });
-      }
-      if (
-        missing.has("proceeds_price_provenance") !==
-        (value.proceeds_price_source === null || value.proceeds_price_as_of === null)
-      ) {
-        context.addIssue({
-          code: "custom",
-          path: ["proceeds_price_provenance"],
-          message: "proceeds-provenance missing-field status is inconsistent",
+          message: `${field} missing-field status is inconsistent`,
         });
       }
     }
@@ -644,16 +661,25 @@ function addNullableAggregateIssue(
   total: string | null,
   path: string,
   context: z.RefinementCtx,
-  requireWhenKnown: boolean,
+  suppressKnownTotal: boolean,
 ): void {
   const allKnown = values.every((value): value is string => value !== null);
-  if ((!allKnown && total !== null) || (requireWhenKnown && allKnown && total === null)) {
+  if (!allKnown || suppressKnownTotal) {
+    if (total === null) return;
     context.addIssue({
       code: "custom",
       path: ["totals", path],
-      message: `${path} nullability is inconsistent`,
+      message: `${path} must be null when a component or hidden transfer is unknown`,
     });
-  } else if (allKnown && total !== null && !accountingDecimalSumEquals(values, total)) {
+    return;
+  }
+  if (total === null) {
+    context.addIssue({
+      code: "custom",
+      path: ["totals", path],
+      message: `${path} is required when every component is known`,
+    });
+  } else if (!accountingDecimalSumEquals(values, total)) {
     context.addIssue({
       code: "custom",
       path: ["totals", path],
@@ -713,33 +739,45 @@ export const computeCostBasisResponseSchema = z
         message: "complete calculation cannot contain unknown open-lot basis",
       });
     }
+    const hasUnmatchedTransferGap = value.completeness.gaps.some(
+      (gap) => gap.code === "unmatched_transfer_out",
+    );
+    if (hasUnmatchedTransferGap && value.coverage.unresolved_transfer_count === 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["coverage", "unresolved_transfer_count"],
+        message: "unmatched transfer inventory requires unresolved transfer coverage",
+      });
+    }
+    const suppressOpenTotals =
+      hasUnmatchedTransferGap && value.coverage.unresolved_transfer_count > 0;
     addNullableAggregateIssue(
       value.open_lots.map((lot) => lot.cost_basis_usd),
       value.totals.open_cost_basis_usd,
       "open_cost_basis_usd",
       context,
-      false,
+      suppressOpenTotals,
     );
     addNullableAggregateIssue(
       value.open_lots.map((lot) => lot.market_value_usd),
       value.totals.open_market_value_usd,
       "open_market_value_usd",
       context,
-      false,
+      suppressOpenTotals,
     );
     addNullableAggregateIssue(
       value.open_lots.map((lot) => lot.unrealized_pnl_usd),
       value.totals.open_unrealized_pnl_usd,
       "open_unrealized_pnl_usd",
       context,
-      false,
+      suppressOpenTotals,
     );
     addNullableAggregateIssue(
       value.disposals.map((disposal) => disposal.realized_gain_usd),
       value.totals.realized_gain_usd,
       "realized_gain_usd",
       context,
-      true,
+      false,
     );
   });
 

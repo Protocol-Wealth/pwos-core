@@ -50,10 +50,35 @@ export const priceOverrideInputSchema = z.strictObject({
   price_usd: nonNegativeAccountingDecimalSchema,
 });
 
-export const priceHistoryRequestSchema = z.strictObject({
-  queries: z.array(priceQueryInputSchema).min(1).max(500),
-  overrides: z.array(priceOverrideInputSchema).max(500).default([]),
-});
+export const priceHistoryRequestSchema = z
+  .strictObject({
+    queries: z.array(priceQueryInputSchema).min(1).max(500),
+    overrides: z.array(priceOverrideInputSchema).max(500).default([]),
+  })
+  .superRefine((value, context) => {
+    const queryCoordinates = new Set(
+      value.queries.map((query) => JSON.stringify([query.coin, query.timestamp])),
+    );
+    const overrideCoordinates = new Set<string>();
+    value.overrides.forEach((override, index) => {
+      const coordinate = JSON.stringify([override.coin, override.timestamp]);
+      if (!queryCoordinates.has(coordinate)) {
+        context.addIssue({
+          code: "custom",
+          path: ["overrides", index],
+          message: "every price override must match a requested coin/timestamp coordinate",
+        });
+      }
+      if (overrideCoordinates.has(coordinate)) {
+        context.addIssue({
+          code: "custom",
+          path: ["overrides", index],
+          message: "price overrides must be unique by coin/timestamp coordinate",
+        });
+      }
+      overrideCoordinates.add(coordinate);
+    });
+  });
 
 export const decodeOnchainEventsRequestSchema = z.strictObject({
   transactions: z.array(rawTransactionInputSchema).min(1).max(2_000),
