@@ -10,11 +10,14 @@ decimal-string validation; generated Draft 2020-12 JSON Schemas; version/tool
 constants; tri-state response-correlation assessment; engine-scoped composition
 eligibility; exact discovery; and advisor-tier read-only tool declarations.
 Response schemas reject inconsistent arithmetic, partitions, counts, raw wallet
-references, forged holding periods or known totals, and incomplete dispositions
-whose semantic shortfall set is incomplete or overstated. Price overrides are
-unique in-query coordinates; duplicate query slots remain deterministic, and
-un-echoed decoder counterparties produce partial correlation. Generated JSON
-Schema is explicitly a structural hint; strict Zod parsing is authoritative.
+references, forged holding periods, acquisition-fee bounds, or known totals,
+and incomplete dispositions whose semantic shortfall set is incomplete or
+overstated. Price overrides are unique in-query coordinates; duplicate query
+slots remain deterministic, and un-echoed decoder counterparties produce
+partial correlation. Engine-impossible opening replay/unknown-basis completeness
+states are rejected, and non-transfer classifications that drop transfer
+metadata are also partial. Generated JSON Schema is explicitly a structural
+hint; strict Zod parsing is authoritative.
 The math, transport binding, private client linkage, statement composition,
 delivery approvals, and records retention remain outside this package.
 

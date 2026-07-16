@@ -458,6 +458,40 @@ describe("replay and response parity", () => {
     ).toBe(true);
   });
 
+  it("rejects engine-impossible opening replay and complete unknown-basis coverage", () => {
+    expect(
+      computeCostBasisResponseSchema.safeParse({
+        ...GOLDEN_COST_BASIS_RESPONSE,
+        replay: {
+          ...REPLAY,
+          mode: "opening_state",
+          opening_state_ref: "opening-state-opaque-1",
+          opening_state_schema_version: "2.0.0",
+          opening_state_source: "fixture",
+          opening_state_last_verified: "2026-07-16",
+          opening_state_basis_method: "fifo",
+          opening_state_basis_method_version: "2.0.0",
+          opening_state_snapshot_complete: true,
+          pre_period_event_count: 1,
+          in_period_event_count: 1,
+        },
+      }).success,
+    ).toBe(false);
+
+    expect(
+      onchainPnlReportResponseSchema.safeParse({
+        ...GOLDEN_PNL_RESPONSE,
+        methodology: { ...METHODOLOGY, review_status: "approved" },
+        coverage: {
+          ...COVERAGE,
+          known_basis_open_lot_count: 0,
+          unknown_basis_open_lot_count: 1,
+        },
+        completeness: { ...COMPLETENESS, statement_ready: true },
+      }).success,
+    ).toBe(false);
+  });
+
   it("parses Nexus-derived v0.2.0 cost-basis and PnL fixtures", () => {
     const costRequest = parseAccountingRequest("compute_cost_basis", GOLDEN_REQUEST);
     const pnlRequest = parseAccountingRequest("onchain_pnl_report", GOLDEN_REQUEST);
@@ -501,6 +535,7 @@ describe("replay and response parity", () => {
       },
       { ...DISPOSAL, proceeds_usd: "29" },
       { ...DISPOSAL, realized_gain_usd: "19" },
+      { ...DISPOSAL, basis_fee_adjustment_usd: "11" },
     ];
     for (const disposal of invalidDisposals) {
       expect(
@@ -1205,6 +1240,64 @@ describe("price and decoder correlation", () => {
         response,
       ),
     ).toBe(false);
+
+    const bidirectionalRequest = parseAccountingRequest("decode_onchain_events", {
+      transactions: [
+        {
+          ...request.transactions[0],
+          transfer_ref: "transfer-opaque-1",
+          transfer_treatment: "same_owner",
+          movements: [
+            request.transactions[0]!.movements[0],
+            {
+              asset: { asset_id: "ethereum:asset-2" },
+              direction: "in",
+              amount: "2",
+            },
+          ],
+        },
+      ],
+    });
+    const bidirectionalResponse = decodeOnchainEventsResponseSchema.parse({
+      ...response,
+      eventCountsByKind: { other: 1 },
+      events: [
+        {
+          ...response.events[0]!,
+          kind: "other",
+          transfer_ref: null,
+          transfer_treatment: null,
+          legs: [
+            response.events[0]!.legs[0],
+            {
+              asset: {
+                asset_id: "ethereum:asset-2",
+                symbol: null,
+                chain: "ethereum",
+                decimals: null,
+              },
+              direction: "in",
+              amount: "2",
+              unit_price_usd: null,
+              usd_value: null,
+              role: "principal",
+              price_source: null,
+              price_as_of: null,
+            },
+          ],
+        },
+      ],
+    });
+    expect(
+      assessAccountingResponseCorrelation(
+        "decode_onchain_events",
+        bidirectionalRequest,
+        bidirectionalResponse,
+      ),
+    ).toMatchObject({
+      status: "partial",
+      unverified: ["transfer metadata for non-transfer classifications"],
+    });
 
     const misclassified = decodeOnchainEventsResponseSchema.parse({
       ...response,

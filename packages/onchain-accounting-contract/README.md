@@ -63,10 +63,13 @@ Runtime response validation mirrors Nexus calendar and aggregate semantics.
 `holding_days` is the difference between UTC calendar dates, and a disposition
 is long term only after its one-year calendar anniversary (February 29 rolls to
 February 28 in a non-leap anniversary year). Known serialized totals are
-required and exact. Open-lot totals are null only when a serialized component
-is unknown or an `unmatched_transfer_out` gap means inventory is hidden.
-Incomplete dispositions must enumerate the exact semantic `missing_fields`
-implied by their values and provenance.
+required and exact, and a disposal's acquisition-fee component cannot exceed
+its matched cost basis. Open-lot totals are null only when a serialized
+component is unknown or an `unmatched_transfer_out` gap means inventory is
+hidden. Incomplete dispositions must enumerate the exact semantic
+`missing_fields` implied by their values and provenance. A complete result
+cannot report unknown-basis open lots, and an opening-state replay cannot also
+claim pre-period events.
 
 ## Exact Decimals
 
@@ -129,10 +132,11 @@ coin/timestamp coordinate and verifies only when its exact value and override
 provenance are echoed. Duplicate query coordinates are allowed; one unique
 override applies deterministically to each matching ordered response slot.
 Hintless decoder classifications can verify; decoder requests carrying
-`protocol_hint`, `method`, or movement `counterparty` values are only partial
-because contract `0.2.0` does not echo those inputs. Cost-basis and PnL responses
-are always unverifiable because they do not carry a canonical request digest.
-The boolean helper returns `true` only for `verified`.
+`protocol_hint`, `method`, movement `counterparty`, or transfer metadata dropped
+by a non-transfer classification are only partial because contract `0.2.0` does
+not echo those inputs. Cost-basis and PnL responses are always unverifiable
+because they do not carry a canonical request digest. The boolean helper returns
+`true` only for `verified`.
 
 Private consumers must bind each response to its originating in-flight request,
 request identifier, authenticated transport context, and immutable audit record

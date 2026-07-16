@@ -18,11 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Hardened response validation against negative proceeds/counters, inconsistent
   disposal and PnL arithmetic, forged completeness/coverage partitions, raw
   wallet-shaped response refs, and unbounded response refs/sources.
-- Enforced Nexus-exact UTC holding periods, exact known cost-basis totals with
-  unmatched-transfer suppression, and exact semantic disposal shortfall sets.
+- Enforced Nexus-exact UTC holding periods, disposal basis-fee bounds, exact
+  known cost-basis totals with unmatched-transfer suppression, and exact
+  semantic disposal shortfall sets.
 - Required unique in-query price overrides while preserving deterministic
   duplicate query slots, and marked un-echoed decoder counterparties as partial
   rather than fully verified correlation.
+- Rejected opening-state replay metadata with pre-period events and complete PnL
+  results with unknown-basis open lots; non-transfer classifications that drop
+  caller transfer metadata now produce partial correlation.
 - Cost-basis and PnL correlation is explicitly `unverifiable` under wire
   contract `0.2.0`; private consumers must bind authenticated requests,
   responses, and immutable audit records until a future coordinated contract

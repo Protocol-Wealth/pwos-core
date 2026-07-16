@@ -232,6 +232,12 @@ function assessDecoderCorrelation(
     }
     const isTransfer = event.kind === "transfer_in" || event.kind === "transfer_out";
     if (
+      !isTransfer &&
+      (transaction.transfer_ref != null || transaction.transfer_treatment != null)
+    ) {
+      unverifiedInputs.add("transfer metadata for non-transfer classifications");
+    }
+    if (
       event.transfer_ref !== (isTransfer ? (transaction.transfer_ref ?? event.event_id) : null) ||
       event.transfer_treatment !==
         (isTransfer ? (transaction.transfer_treatment ?? "unknown") : null)

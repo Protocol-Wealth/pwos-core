@@ -273,6 +273,13 @@ export const replayMetadataSchema = z
     ) {
       context.addIssue({ code: "custom", message: "opening_state replay metadata is incomplete" });
     }
+    if (value.mode === "opening_state" && value.pre_period_event_count !== 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["pre_period_event_count"],
+        message: "opening_state replay cannot include pre-period events",
+      });
+    }
   });
 
 export const coverageMetadataSchema = z
@@ -502,6 +509,16 @@ export const disposalRecordSchema = z
         message: "realized_gain_usd must equal proceeds minus cost basis",
       });
     }
+    if (
+      value.cost_basis_usd !== null &&
+      !accountingDecimalLessThanOrEqual(value.basis_fee_adjustment_usd, value.cost_basis_usd)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["basis_fee_adjustment_usd"],
+        message: "acquisition fee basis cannot exceed matched cost basis",
+      });
+    }
 
     const hasHoldingPeriod = value.acquired_at !== null;
     if (
@@ -637,6 +654,7 @@ function addCalculationPartitionIssues(
     value.completeness.complete &&
     (completeDisposals !== disposals.length ||
       value.coverage.incomplete_disposition_count !== 0 ||
+      value.coverage.unknown_basis_open_lot_count !== 0 ||
       value.coverage.unresolved_event_count !== 0 ||
       value.coverage.unresolved_transfer_count !== 0 ||
       value.coverage.unresolved_fee_count !== 0)
@@ -644,7 +662,8 @@ function addCalculationPartitionIssues(
     context.addIssue({
       code: "custom",
       path: ["completeness", "complete"],
-      message: "complete calculation cannot contain incomplete or unresolved coverage",
+      message:
+        "complete calculation cannot contain incomplete, unknown-basis, or unresolved coverage",
     });
   }
 }
