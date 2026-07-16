@@ -294,7 +294,7 @@ describe("contract and decimal invariants", () => {
       readFileSync(new URL("../package.json", import.meta.url), "utf8"),
     ) as { version: string; dependencies: Record<string, string> };
     expect(VERSION).toBe(manifest.version);
-    expect(VERSION).toBe("0.1.0");
+    expect(VERSION).toBe("0.2.0");
     expect(manifest.dependencies["@protocolwealthos/mcp-tools"]).toBe("workspace:^0.3.0");
     expect(ACCOUNTING_CONTRACT_VERSION).toBe("0.2.0");
     expect(ACCOUNTING_METHOD_VERSION).toBe("2.0.0");

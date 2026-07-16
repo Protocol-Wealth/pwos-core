@@ -27,7 +27,7 @@
   version from `0.1.0` source. npm package semver and Nexus wire-contract versions
   are independent even though both are `0.2.0` at first publication.
 
-## 0.1.0 (source; first public release queued as 0.2.0)
+## 0.1.0 (pre-release source baseline; first public release shipped as 0.2.0)
 
 ### Added
 
@@ -45,5 +45,5 @@
 - Synthetic Nexus-derived golden fixtures covering price history, event decode,
   FIFO cost basis/replay, realized PnL, and the de-identified boundary.
 
-The queued minor Changeset owns the first public release version (`0.2.0`). npm
-package semver remains independent of Nexus wire-contract versioning.
+This source baseline was not published. The first public release is `0.2.0`;
+npm package semver remains independent of Nexus wire-contract versioning.
