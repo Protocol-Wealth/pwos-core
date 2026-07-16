@@ -23,11 +23,11 @@
   The math, transport binding, private client linkage, statement composition,
   delivery approvals, and records retention remain outside this package.
 
-  This minor Changeset intentionally makes `0.2.0` the package's first published
-  version from `0.1.0` source. npm package semver and Nexus wire-contract versions
-  are independent even though both are `0.2.0` at first publication.
+  This minor release intentionally prepares `0.2.0` as the package's first public
+  version from the `0.1.0` source baseline. npm package semver and Nexus
+  wire-contract versions are independent even though both currently read `0.2.0`.
 
-## 0.1.0 (pre-release source baseline; first public release shipped as 0.2.0)
+## 0.1.0 (pre-release source baseline; first public release prepared as 0.2.0)
 
 ### Added
 
@@ -45,5 +45,6 @@
 - Synthetic Nexus-derived golden fixtures covering price history, event decode,
   FIFO cost basis/replay, realized PnL, and the de-identified boundary.
 
-This source baseline was not published. The first public release is `0.2.0`;
-npm package semver remains independent of Nexus wire-contract versioning.
+This source baseline was not published. `0.2.0` is versioned as the first public
+release, with registry publication still pending; npm package semver remains
+independent of Nexus wire-contract versioning.

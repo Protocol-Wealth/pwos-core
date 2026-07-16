@@ -47,9 +47,10 @@ that validation includes the exact `contractVersion` handshake. A contract
 change is a cross-repo event: update Nexus, this package, fixtures, and every
 consumer together.
 
-`0.2.0` is the first public npm release, promoted from the pre-release `0.1.0`
-source baseline. The package version is independent of the Nexus wire version;
-both happen to be `0.2.0` at first publication and may diverge afterward.
+`0.2.0` is versioned and prepared as the first public npm release, promoted
+from the pre-release `0.1.0` source baseline. Maintainer-local npm publication
+and registry verification remain pending. The package version is independent
+of the Nexus wire version; both currently read `0.2.0` and may diverge later.
 `VERSION` is checked against the package manifest in CI and is updated by the
 Changesets version workflow.
 
