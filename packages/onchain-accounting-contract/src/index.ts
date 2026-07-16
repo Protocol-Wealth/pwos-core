@@ -9,7 +9,7 @@
  * de-identified ABI, schemas, tool declarations, and compatibility helpers.
  */
 
-export const VERSION = "0.1.0";
+export const VERSION = "0.2.0";
 
 export * from "./constants.js";
 export * from "./decimal.js";

@@ -37,7 +37,7 @@ These versions are intentionally distinct:
 
 | Constant | Current | Meaning |
 |---|---:|---|
-| `VERSION` | `0.1.0` | npm package source version on this branch; Changesets owns releases |
+| `VERSION` | `0.2.0` | npm package version; Changesets owns releases |
 | `ACCOUNTING_CONTRACT_VERSION` | `0.2.0` | Nexus request/response wire ABI |
 | `ACCOUNTING_METHOD_VERSION` | `2.0.0` | FIFO calculation methodology |
 | `ACCOUNTING_REPLAY_VERSION` | `1.0.0` | Report-window replay protocol |
@@ -47,11 +47,12 @@ that validation includes the exact `contractVersion` handshake. A contract
 change is a cross-repo event: update Nexus, this package, fixtures, and every
 consumer together.
 
-The queued minor Changeset deliberately makes `0.2.0` the first published npm
-version from the current `0.1.0` source. That package version is independent of
-the Nexus wire version; both happen to be `0.2.0` at first publication and may
-diverge afterward. `VERSION` is checked against the package manifest in CI and
-is updated by the Changesets version workflow.
+`0.2.0` is versioned and prepared as the first public npm release, promoted
+from the pre-release `0.1.0` source baseline. Maintainer-local npm publication
+and registry verification remain pending. The package version is independent
+of the Nexus wire version; both currently read `0.2.0` and may diverge later.
+`VERSION` is checked against the package manifest in CI and is updated by the
+Changesets version workflow.
 
 The runtime Zod schemas are authoritative. `ACCOUNTING_MODEL_INPUT_SCHEMA_HINTS`
 and `ACCOUNTING_RESPONSE_STRUCTURE_SCHEMA_HINTS` are generated with explicit

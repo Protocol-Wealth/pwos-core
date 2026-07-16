@@ -36,10 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 - Preserved the public/private boundary: only opaque references and public-chain
   facts cross the contract. Private identity/wallet linkage, egress canaries,
   statement composition, approval, release, and retention remain consumer work.
-- Queued the first release through a minor Changeset, intentionally producing
-  package `0.2.0` from `0.1.0` source. Package semver and Nexus wire versions are
-  independent despite initially matching; nothing was published from this
-  feature branch.
+- Consumed the first-release minor Changeset, versioning package `0.2.0` from
+  the pre-release `0.1.0` source baseline. Package semver and Nexus wire versions
+  are independent despite initially matching; maintainer-local npm publication
+  and registry verification remain pending.
 
 ### Changed — repo audit, CI, and docs/state hardening (2026-07-01)
 
