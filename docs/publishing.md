@@ -22,6 +22,10 @@ locally, merges the version PR, then runs the local publish command.
 ## Local Publish Command
 
 ```bash
+nvm install 22
+nvm use 22
+corepack enable
+corepack prepare pnpm@9.0.0 --activate
 npm login
 pnpm install --frozen-lockfile
 pnpm versions:check
@@ -32,6 +36,12 @@ git push origin main --tags
 
 Use `pnpm`, not `npm publish`, so workspace protocol dependencies rewrite
 correctly for published packages.
+
+Publication is pinned to Node 22.x, npm 10.x, and pnpm 9.x. npm 12 changes the
+JSON shape returned by `npm info --json`, which causes Changesets 2.x to
+misclassify already-published workspace versions, and it rejects pnpm's
+`--no-git-checks` handoff. `pnpm changeset:publish` runs a fail-fast preflight
+that fetches `origin/main` and requires a clean local `main` at the same commit.
 
 ## Contributor Notes
 

@@ -42,7 +42,8 @@
     "licenses:check": "npx license-checker-rseidelsohn --summary --production",
     "changeset": "changeset",
     "changeset:version": "changeset version && node scripts/sync-version-constants.mjs",
-    "changeset:publish": "pnpm build && changeset publish"
+    "publish:check": "node scripts/check-publish-toolchain.mjs",
+    "changeset:publish": "pnpm publish:check && pnpm build && changeset publish"
   },
   "packageManager": "pnpm@9.0.0",
   "pnpm": {
