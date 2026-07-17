@@ -6,37 +6,37 @@
 
 ## What's published
 
-**21 package manifests are active under the `@protocolwealthos/*` scope** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). Twenty are published; the onchain-accounting contract is versioned at `0.2.0` for its first public release and awaits maintainer-local npm publication and registry verification. All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process; CI opens/updates the Changesets version PR but does not publish to npm.
+**All 21 package manifests under the `@protocolwealthos/*` scope are published to npm** (Apache 2.0; USPTO patent-pending #64/034,215; OIN member). The onchain-accounting contract is available at `0.2.0`, and the 2026-07-16 patch-release batch is registry-verified with its Git tags pushed. All are `0.x` — the pre-1.0 series signals an intentionally-unstable API where breaking changes are permitted in minor versions until `1.0`. Release publication is a maintainer-local `pnpm changeset:publish` process on Node 22.x/npm 10.x/pnpm 9.x; CI opens/updates the Changesets version PR but does not publish to npm.
 
 | Package | Version | Purpose |
 |---|---|---|
-| `audit-log` | 0.5.0 | Append-only log + SHA-256 hash chaining + 3 anomaly detectors + approver-separation |
-| `pii-guard` | 0.4.0 | 4-layer PII scanner + streaming rehydrator + account-number masker |
-| `compliance` | 0.4.0 | SEC 204-2 retention, Books & Records bundler, calendar, incidents, vendor-doc metadata |
-| `crm` | 0.3.0 | Contacts / households / interactions / opportunities / tasks |
-| `mcp-tools` | 0.3.0 | Tool registry + tier classification + filters + confirmation gate + tool-audit builder |
+| `audit-log` | 0.5.1 | Append-only log + SHA-256 hash chaining + 3 anomaly detectors + approver-separation |
+| `pii-guard` | 0.4.1 | 4-layer PII scanner + streaming rehydrator + account-number masker |
+| `compliance` | 0.4.1 | SEC 204-2 retention, Books & Records bundler, calendar, incidents, vendor-doc metadata |
+| `crm` | 0.3.1 | Contacts / households / interactions / opportunities / tasks |
+| `mcp-tools` | 0.3.1 | Tool registry + tier classification + filters + confirmation gate + tool-audit builder |
 | `ai-guardrails` | 0.2.0 | Workspace (ZDR) assertion + model allowlist + prompt-cache + content-free audit row |
 | `auth` | 0.2.0 | HS256 JWT session + role guard + Workspace-domain restriction + per-agent tokens |
 | `cache-keys` | 0.2.0 | Namespace-enforced cache-key builder with PII-pattern rejection |
-| `disclosure-card` | 0.3.0 | Machine-readable AI-system disclosure schema (Zod 4 + dep-free JSON Schema) — flagship adoptable standard |
-| `planning-contract` | 0.3.0 | PII-free PlanningContract v1.1.0 ABI for the Roth-conversion + IRMAA planning capability: `PlanningContract` + `RothConversionAnalysis` types + JSON-Schema + MCP tool defs (mirrors the nexus-core engine) |
-| `document-gen` | 0.2.0 | Document model + CSV + plain-text renderer + DocumentRenderer interface |
-| `email-archive` | 0.2.0 | SEC 17a-4 archive primitives |
+| `disclosure-card` | 0.3.1 | Machine-readable AI-system disclosure schema (Zod 4 + dep-free JSON Schema) — flagship adoptable standard |
+| `planning-contract` | 0.3.1 | PII-free PlanningContract v1.1.0 ABI for the Roth-conversion + IRMAA planning capability: `PlanningContract` + `RothConversionAnalysis` types + JSON-Schema + MCP tool defs (mirrors the nexus-core engine) |
+| `document-gen` | 0.2.1 | Document model + CSV + plain-text renderer + DocumentRenderer interface |
+| `email-archive` | 0.2.1 | SEC 17a-4 archive primitives |
 | `gcp-helpers` | 0.2.0 | Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape |
 | `holdings` | 0.2.0 | Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot |
 | `ledger` | 0.2.0 | Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger |
-| `onchain-sdk` | 0.2.0 | Onchain data-shape primitives |
-| `onchain-accounting-contract` | 0.2.0 (registry publish pending) | Strict PII-free TypeScript/runtime mirror of deployed Nexus accounting contract 0.2.0; package and wire versions are independent |
+| `onchain-sdk` | 0.2.1 | Onchain data-shape primitives |
+| `onchain-accounting-contract` | 0.2.0 | Strict PII-free TypeScript/runtime mirror of deployed Nexus accounting contract 0.2.0; package and wire versions are independent |
 | `security-headers` | 0.2.0 | HSTS / strict CSP / X-Frame / X-Content-Type / Referrer-Policy / Permissions-Policy |
-| `shared` | 0.2.0 | Cross-package types + two governance primitives (`hitl` fail-closed gate + `provenance` hash-chain) |
+| `shared` | 0.2.1 | Cross-package types + two governance primitives (`hitl` fail-closed gate + `provenance` hash-chain) |
 | `webhooks` | 0.2.0 | HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency |
-| `workflow-engine` | 0.2.0 | Storage-agnostic durable-job runtime |
+| `workflow-engine` | 0.2.1 | Storage-agnostic durable-job runtime |
 
 `apps/evals/` (eval harness v0) and `examples/rias-agent-substrate/` are private workspace projects — fork-to-use, not published. The old tracked `apps/api/src/services/pii/*` duplicate scaffold was removed because it was not a workspace package and had fallen behind `@protocolwealthos/pii-guard`.
 
 ## What shipped recently
 
-- **Onchain accounting contract package versioned for release (2026-07-16):**
+- **Onchain accounting contract package published (2026-07-16):**
   - Added strict request/response Zod schemas, generated structural schema
     hints, exact decimal/arithmetic/partition validation, version/tool
     constants, tri-state correlation assessment, engine-scoped composition
@@ -49,8 +49,9 @@
     canonical request digest is echoed. Private transport/audit binding is
     mandatory; adding a digest requires a coordinated contract bump.
   - The release PR consumed the minor Changeset and versioned the package at
-    `0.2.0`; maintainer-local npm publication and registry verification remain.
-    npm and wire versions are independent even though they initially match.
+    `0.2.0`; maintainer-local npm publication, registry verification, and Git
+    tag publication are complete. npm and wire versions are independent even
+    though they initially match.
 
 - **Repo audit hardening (2026-07-01):**
   - Added PR CI for `build`, `typecheck`, `test`, `lint`, and `versions:check`.
