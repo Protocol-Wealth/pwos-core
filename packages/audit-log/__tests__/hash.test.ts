@@ -8,6 +8,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  AuditLogger,
+  InMemoryAuditStore,
   hashEntry,
   stableJsonString,
   verifyChain,
@@ -146,5 +148,68 @@ describe("hashEntry / verifyChain — uses stableJsonString", () => {
 
     const result = await verifyChain([e1, e2]);
     expect(result).toBeNull();
+  });
+});
+
+describe("verifyChain — tamper detection (linkage)", () => {
+  // Build a valid, oldest-first chain using the real logger so the hashes
+  // and previousHash links follow the exact write-side convention
+  // (genesis previousHash === "").
+  async function buildChain(actions: string[]): Promise<AuditEntry[]> {
+    const store = new InMemoryAuditStore();
+    const logger = new AuditLogger({
+      store,
+      idProvider: (() => {
+        let i = 0;
+        return () => `evt_${++i}`;
+      })(),
+      clock: (() => {
+        let t = Date.parse("2026-01-01T00:00:00Z");
+        return () => new Date((t += 1000));
+      })(),
+    });
+    for (const action of actions) {
+      await logger.log({ actorId: "u1", action });
+    }
+    // query() is newest-first; reverse → oldest-first, as verifyChain expects.
+    return (await store.query({ limit: 100 })).reverse();
+  }
+
+  it("(a) intact chain returns null", async () => {
+    const chain = await buildChain(["a", "b", "c", "d"]);
+    expect(await verifyChain(chain)).toBeNull();
+  });
+
+  it("(b) deleting a middle entry is detected", async () => {
+    const chain = await buildChain(["a", "b", "c", "d"]);
+    // Drop the 3rd entry; the 4th entry's stored link now dangles.
+    const tampered = [chain[0], chain[1], chain[3]];
+    expect(await verifyChain(tampered)).toBe(chain[3].id);
+  });
+
+  it("(c) editing a middle row + recomputing only its own hash is detected", async () => {
+    const chain = await buildChain(["a", "b", "c", "d"]);
+    const victim = chain[1];
+    victim.actorId = "attacker";
+    // Attacker recomputes ONLY the victim row's own hash so it is internally
+    // self-consistent — the exact case the old verifyChain missed.
+    victim.hash = await hashEntry(victim, victim.previousHash ?? "");
+    // The victim row itself now passes, but its successor's stored link still
+    // points at the pre-edit hash → the break surfaces at the successor.
+    expect(await verifyChain(chain)).toBe(chain[2].id);
+  });
+
+  it("(d) front-truncating the genesis entry is detected", async () => {
+    const chain = await buildChain(["a", "b", "c", "d"]);
+    // Drop the genesis; the new first entry's previousHash is non-empty and
+    // no longer matches the "" genesis anchor.
+    const truncated = chain.slice(1);
+    expect(await verifyChain(truncated)).toBe(truncated[0].id);
+  });
+
+  it("still flags an edited row whose own hash was NOT recomputed", async () => {
+    const chain = await buildChain(["a", "b", "c"]);
+    chain[1].actorId = "attacker"; // stale hash — self-hash check catches it
+    expect(await verifyChain(chain)).toBe(chain[1].id);
   });
 });
