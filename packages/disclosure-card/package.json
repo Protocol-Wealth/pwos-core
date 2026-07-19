@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/disclosure-card",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Machine-readable disclosure schema for AI-assisted advisory + research systems. Zod schema + dependency-free JSON Schema (Draft 2020-12) + pre-publish [VERIFY] CI gate. Framework-agnostic; zero runtime deps beyond zod.",
   "private": false,
   "license": "Apache-2.0",

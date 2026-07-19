@@ -32,7 +32,7 @@
  * - Trigger.dev (MIT) — similar adapter pattern
  */
 
-export const VERSION = "0.2.1";
+export const VERSION = "0.2.2";
 
 export {
   type BackoffStrategy,
