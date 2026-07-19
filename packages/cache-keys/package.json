@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/cache-keys",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Namespace-enforced cache-key builder with runtime PII pattern rejection — refuse to cache anything keyed by email, SSN, or other identifying values",
   "license": "Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/cache-keys#readme",

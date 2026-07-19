@@ -16,7 +16,7 @@
  * Defensive patent: USPTO #64/034,215.
  */
 
-export const VERSION = "0.3.1";
+export const VERSION = "0.3.2";
 
 export {
   PLANNING_CONTRACT_VERSION,

@@ -1,5 +1,13 @@
 # @protocolwealthos-examples/rias-agent-substrate
 
+## 0.0.3
+
+### Patch Changes
+
+- Updated dependencies [[`dce504c`](https://github.com/Protocol-Wealth/pwos-core/commit/dce504c6801da7efb720fc5429170050b7acadde)]:
+  - @protocolwealthos/ai-guardrails@0.2.1
+  - @protocolwealthos/audit-log@0.5.3
+
 ## 0.0.2
 
 ### Patch Changes

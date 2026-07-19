@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/onchain-accounting-contract",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "PII-free TypeScript ABI for nexus-core accounting 0.2.0: strict runtime invariants, structural schema hints, and read-only tool definitions.",
   "private": false,
   "license": "Apache-2.0",
@@ -47,7 +47,7 @@
     "prepack": "node ../../scripts/copy-license-notice.mjs && pnpm run build"
   },
   "dependencies": {
-    "@protocolwealthos/mcp-tools": "workspace:^0.3.0",
+    "@protocolwealthos/mcp-tools": "workspace:^0.3.2",
     "zod": "^4.4.3"
   },
   "devDependencies": {
