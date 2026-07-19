@@ -99,7 +99,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 ## Adding a Package
 
 1. Create `packages/<name>/` with `package.json`, `tsconfig.json`, `src/index.ts`, `__tests__/`.
-2. Mirror an existing package's `package.json` shape — note the `publishConfig` block that swaps `src/` for `dist/` at publish time.
+2. Mirror an existing package's `package.json` shape — including the `publishConfig` block that swaps `src/` for `dist/` at publish time (enforced by `pnpm lint:publish` in CI), the `prepack` copy step (`node ../../scripts/copy-license-notice.mjs && pnpm run build`), and `"LICENSE"` + `"NOTICE"` in `files`. Every new subpath export you add must have a matching `dist/` entry under `publishConfig.exports` or the publish-shape check fails.
 3. Add it to `pnpm-workspace.yaml` (already covered by the `packages/*` glob).
 4. Wire dev-deps: `typescript ^5.6.0`, `vitest ^2.1.0`, plus `@types/node ^22.0.0` if you import from `node:*`.
 5. Land a changeset describing the new package.

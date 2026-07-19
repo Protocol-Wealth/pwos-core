@@ -39,11 +39,12 @@
     "lint": "pnpm -r lint",
     "typecheck": "pnpm -r typecheck",
     "versions:check": "node scripts/check-version-constants.mjs",
+    "lint:publish": "node scripts/check-publish-shape.mjs",
     "licenses:check": "npx license-checker-rseidelsohn --summary --production",
     "changeset": "changeset",
     "changeset:version": "changeset version && node scripts/sync-version-constants.mjs",
     "publish:check": "node scripts/check-publish-toolchain.mjs",
-    "changeset:publish": "pnpm publish:check && pnpm build && changeset publish"
+    "changeset:publish": "pnpm publish:check && pnpm build && pnpm lint:publish && changeset publish"
   },
   "packageManager": "pnpm@9.0.0",
   "pnpm": {

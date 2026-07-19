@@ -38,6 +38,9 @@ jobs:
       - name: Build all packages
         run: pnpm -r build
 
+      - name: Check publish shape
+        run: pnpm lint:publish
+
       - name: Typecheck all packages
         run: pnpm -r typecheck
 
