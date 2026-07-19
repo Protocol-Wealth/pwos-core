@@ -112,12 +112,32 @@ export async function hashEntry(entry: AuditEntry, previousHash: string): Promis
  * Verify a chain of entries. Entries must be passed oldest-first.
  * Returns ``null`` when the chain is intact, or the id of the first bad
  * entry when tampering is detected.
+ *
+ * Each entry is checked against the RUNNING predecessor hash — the ``hash``
+ * of the entry that actually precedes it in the array — not against its own
+ * stored ``previousHash``. Two independent checks must both hold:
+ *
+ *   1. The stored link (``entry.previousHash``) equals the real predecessor
+ *      hash. This catches deletion of a middle entry, a front-truncated
+ *      genesis, and reordering — even when the surviving rows are each
+ *      internally self-consistent.
+ *   2. The recomputed hash (over the running predecessor) equals the stored
+ *      ``entry.hash``. This catches field edits.
+ *
+ * Verifying against ``entry.previousHash`` alone (as prior versions did)
+ * defeated tamper-evidence: an attacker who dropped or edited a row and
+ * recomputed only that row's own hash would still pass. The genesis anchor
+ * is the empty string ``""`` — matching the write side (see logger.ts).
  */
 export async function verifyChain(entries: AuditEntry[]): Promise<string | null> {
   let previousHash = "";
   for (const entry of entries) {
     if (!entry.hash) return entry.id;
-    const expected = await hashEntry(entry, entry.previousHash ?? previousHash);
+    // The stored link must equal the ACTUAL predecessor hash — otherwise a
+    // deleted / reordered / truncated row slips through even when its own
+    // hash is internally self-consistent.
+    if ((entry.previousHash ?? "") !== previousHash) return entry.id;
+    const expected = await hashEntry(entry, previousHash);
     if (expected !== entry.hash) return entry.id;
     previousHash = entry.hash;
   }
