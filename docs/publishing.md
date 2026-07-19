@@ -53,3 +53,21 @@ that fetches `origin/main` and requires a clean local `main` at the same commit.
 - Docs-only, CI-only, and private workspace changes usually do not need a
   changeset.
 - All packages share the root `pnpm-lock.yaml`; CI uses `--frozen-lockfile`.
+
+## Packaging Guarantees
+
+Two invariants are enforced so a bad tarball cannot ship silently:
+
+- **LICENSE + NOTICE in every tarball.** Each package's `prepack` runs
+  `scripts/copy-license-notice.mjs`, which copies the repository-root `LICENSE`
+  and `NOTICE` into the package directory before packing (Apache-2.0 §4(d)
+  requires propagating `NOTICE`). The copies are gitignored
+  (`packages/*/LICENSE`, `packages/*/NOTICE`) — the root files are the single
+  source of truth. Verify with `pnpm --filter <pkg> pack` and
+  `tar -tzf <tarball>`.
+- **Compiled publish shape.** `pnpm lint:publish`
+  (`scripts/check-publish-shape.mjs`) runs in CI and as a publish preflight. It
+  simulates the `publishConfig` override and fails if any published
+  `main`/`types`/`exports` entry would resolve to raw `./src/*.ts` instead of a
+  compiled `./dist/*.js` / `./dist/*.d.ts` artifact — the regression that would
+  crash Node >= 23 consumers with `ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING`.

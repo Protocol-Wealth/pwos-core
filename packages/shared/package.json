@@ -44,14 +44,16 @@
   "files": [
     "dist",
     "src",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "NOTICE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "prepack": "pnpm run build"
+    "prepack": "node ../../scripts/copy-license-notice.mjs && pnpm run build"
   },
   "dependencies": {
     "zod": "^4.4.3"

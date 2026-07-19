@@ -35,14 +35,16 @@
   "files": [
     "dist",
     "src",
-    "README.md"
+    "README.md",
+    "LICENSE",
+    "NOTICE"
   ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "prepack": "pnpm run build"
+    "prepack": "node ../../scripts/copy-license-notice.mjs && pnpm run build"
   },
   "dependencies": {
     "@protocolwealthos/mcp-tools": "workspace:^0.3.0",

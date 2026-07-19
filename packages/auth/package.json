@@ -33,7 +33,7 @@
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
-    "prepack": "pnpm run build"
+    "prepack": "node ../../scripts/copy-license-notice.mjs && pnpm run build"
   },
   "devDependencies": {
     "@types/node": "^26.1.1",
