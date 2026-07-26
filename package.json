@@ -50,7 +50,8 @@
   "pnpm": {
     "overrides": {
       "esbuild": ">=0.28.1",
-      "js-yaml": ">=4.2.0",
+      "js-yaml": ">=5.2.2",
+      "postcss": ">=8.5.18",
       "vite": ">=6.4.3 <7"
     }
   },

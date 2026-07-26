@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Security — dependency advisory remediation (2026-07-26)
+
+- Raised the workspace `js-yaml` floor to 5.2.2 and added a PostCSS floor of
+  8.5.18, resolving the open high-severity merge-key CPU and source-map path
+  traversal advisories without changing any public package API.
+- Verified the frozen workspace with zero `pnpm audit` findings, version
+  constants, build, typecheck, tests, lint, and publish-shape checks.
+
 ### Added — `@protocolwealthos/onchain-accounting-contract` (2026-07-16)
 
 - Added a publish-ready local package mirroring deployed Nexus accounting
