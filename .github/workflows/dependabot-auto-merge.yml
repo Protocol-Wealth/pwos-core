@@ -1,0 +1,132 @@
+name: Dependabot Auto-Merge
+
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+  checks: read
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    if: github.actor == 'dependabot[bot]'
+    steps:
+      - name: Dependabot metadata
+        id: metadata
+        uses: dependabot/fetch-metadata@v2
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+
+      # Gate: wait for all OTHER checks on the PR to complete successfully.
+      # Without this step nothing would verify the NON-required checks: branch
+      # protection only gates the contexts listed in its required set, so a bump
+      # could land green-on-required while an advisory check was still failing
+      # (which is what happened with pw-portal April 10 and later surfaced here).
+      #
+      # NOTE: the merge step below MUST pass --auto. These repos are branch-
+      # protected now, and a bare `gh pr merge` requests an *immediate* merge,
+      # which protection rejects with "base branch policy prohibits the merge" —
+      # the job then exits 1 and the PR silently sits open. That defect stalled
+      # the whole estate dependency queue for five days (2026-07-27 → 08-01).
+      # --auto arms GitHub-native auto-merge instead, which waits for protection
+      # to be satisfied and then merges.
+      #
+      # Pure bash so we don't depend on third-party actions (keeps the
+      # allow-list minimal and transparent — `gh` and `jq` are
+      # pre-installed on ubuntu-latest).
+      - name: Wait for other CI checks to pass
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          JOB_NAME: ${{ github.job }}
+        run: |
+          set -euo pipefail
+          # Poll check-runs API every 30s, up to 30 minutes. Exclude this
+          # auto-merge workflow itself from the wait set.
+          #
+          # THE EXCLUSION MUST MATCH THE JOB NAME, NOT THE WORKFLOW NAME.
+          #
+          # This used to be `self="Dependabot Auto-Merge"` — the WORKFLOW name
+          # (line 1). But the check-runs API reports the JOB name (`auto-merge`).
+          # The exclusion therefore matched NOTHING, so this step sat waiting for
+          # ITSELF to complete, polled for the full 30 minutes, and failed on the
+          # timeout. Every Dependabot PR in this repo was left red on `auto-merge`
+          # and never auto-merged, no matter how green the real checks were.
+          #
+          # Derive the exclusion from THIS RUN'S ACTUAL JOBS so it cannot drift
+          # again if the job is ever renamed or a second job is added.
+          deadline=$(( $(date +%s) + 1800 ))
+
+          # A TRANSIENT API BLIP MUST NOT BECOME A PERMANENT RED.
+          #
+          # This step runs under `set -euo pipefail`, so an un-guarded `gh api`
+          # failure (rate limit, transient 5xx) would abort the whole step and
+          # leave the PR red forever with no retry — a failure mode the old
+          # scalar assignment could not have. So the fetch is guarded, and it
+          # falls back to THIS JOB'S OWN NAME rather than to an empty set:
+          # an empty exclusion would put us back in the wait set and re-create
+          # the self-deadlock this fix exists to remove.
+          self_fallback="[\"${JOB_NAME}\"]"
+
+          while [ "$(date +%s)" -lt "$deadline" ]; do
+            # Re-read each poll: a job added to this workflow later (matrix,
+            # conditional) may not exist yet on the first pass, and we must not
+            # start waiting on it.
+            self_jobs=$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" --paginate \
+              --jq '[.jobs[].name]' 2>/dev/null | jq -sc 'add // []') || self_jobs=""
+            if [ -z "$self_jobs" ] || [ "$self_jobs" = "[]" ]; then
+              echo "::warning::could not read this run's jobs; falling back to \$GITHUB_JOB"
+              self_jobs="$self_fallback"
+            fi
+
+            runs=$(gh api "repos/$REPO/commits/$HEAD_SHA/check-runs" --paginate \
+              --jq '.check_runs[] | {name, status, conclusion}') || {
+              echo "::warning::check-runs read failed; retrying in 30s"
+              sleep 30
+              continue
+            }
+
+            # Filter out this run's own jobs.
+            others=$(echo "$runs" | jq -c --argjson self "$self_jobs" \
+              'select(.name as $n | ($self | index($n)) == null)')
+
+            if [ -z "$others" ]; then
+              echo "No other checks found yet — waiting 30s"
+              sleep 30
+              continue
+            fi
+
+            running=$(echo "$others" | jq -s '[.[] | select(.status != "completed")] | length')
+            if [ "$running" -gt 0 ]; then
+              echo "[$(date -u +%H:%M:%S)] $running checks still running — polling again in 30s"
+              sleep 30
+              continue
+            fi
+
+            # Success conclusions we accept: success, skipped, neutral.
+            # Anything else (failure, cancelled, timed_out, action_required,
+            # stale) means a human should review — do not auto-merge.
+            failed=$(echo "$others" | jq -s '[.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")] | length')
+            if [ "$failed" -gt 0 ]; then
+              echo "❌ $failed checks did NOT succeed — skipping auto-merge."
+              echo "$others" | jq -s '.[] | select(.conclusion != "success" and .conclusion != "skipped" and .conclusion != "neutral")'
+              exit 1
+            fi
+
+            echo "✅ All $(echo "$others" | jq -s 'length') non-self checks succeeded."
+            exit 0
+          done
+
+          echo "⏰ Timed out after 30 min waiting for checks."
+          exit 1
+
+      - name: Auto-merge minor and patch updates
+        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
+        run: gh pr merge --squash --auto "$PR_URL"
+        env:
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
