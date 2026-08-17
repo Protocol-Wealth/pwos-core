@@ -38,8 +38,8 @@
   },
   "devDependencies": {
     "typescript": "^7.0.2",
-    "tsx": "^4.23.9",
+    "tsx": "^4.23.12",
     "vitest": "^4.1.10",
-    "@types/node": "^26.1.2"
+    "@types/node": "^26.2.0"
   }
 }
