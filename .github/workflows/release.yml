@@ -58,7 +58,7 @@ jobs:
 
       - name: Open / update the Version Packages PR
         id: changesets
-        uses: changesets/action@v1
+        uses: changesets/action@v2
         with:
           # version-only: with no `publish` input, changesets/action opens or
           # updates the "Version Packages" PR when changesets are pending and
