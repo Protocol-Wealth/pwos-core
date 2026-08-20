@@ -167,7 +167,7 @@ interface VendorWebhookHandler {
 
 **Subtle gotcha (codified 2026-05-16):** The canary's email-block fundamentally conflicts with routes whose payload-shape is intentionally identifier-bearing (sender-email classification). Audit prompt-shape first before wrapping; the pattern is suitable for outbound-broadcast surfaces, not for inbound-classifier surfaces with identifier-bearing fixtures. See memory anchor `canary-vs-classifier-route-conflict` in the PW estate for the codified scope.
 
-**Canonical reference:** `shared/strategy/CURRENT-STATE.md` AI surface section; production loci at `pw-os-v2/apps/api/src/lib/claude-client.ts` + `pw-portal-v2/apps/api/src/lib/anthropic-client.ts`.
+**Canonical reference:** [pwos.app/build](https://pwos.app/build) — AI-surface design record; production loci at `pw-os-v2/apps/api/src/lib/claude-client.ts` + `pw-portal-v2/apps/api/src/lib/anthropic-client.ts`.
 
 ---
 
