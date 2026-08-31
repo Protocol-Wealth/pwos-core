@@ -40,6 +40,6 @@
     "typescript": "^7.0.2",
     "tsx": "^4.23.12",
     "vitest": "^4.1.11",
-    "@types/node": "^26.2.0"
+    "@types/node": "^26.4.0"
   }
 }
