@@ -7,11 +7,24 @@
 // at raw `./src/*.ts` for local development, and rely on the `publishConfig`
 // block to rewrite those entries to compiled `./dist/*.js` at publish time
 // (pnpm and npm both apply publishConfig overrides when packing). That is
-// correct today, but it is convention-bound: if a package ever drops its
-// publishConfig override — or adds a new subpath export to the base `exports`
-// and forgets to mirror it under publishConfig — the PUBLISHED package.json
-// would keep an entry pointing at raw TypeScript. Every Node >= 23 consumer of
-// such a tarball crashes with ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING.
+// correct today, but it is convention-bound, and the two ways it can break have
+// DIFFERENT consequences — an earlier version of this comment ran them together
+// and described both as publishing raw TypeScript. Only the first does.
+//
+//   1. A package DROPS its publishConfig override. The published manifest then
+//      keeps the development entry pointing at raw TypeScript, and every
+//      Node >= 23 consumer of that tarball crashes with
+//      ERR_UNSUPPORTED_NODE_MODULES_TYPE_STRIPPING. This is what the resolved
+//      entry-point assertion below catches.
+//
+//   2. A package ADDS a subpath to the base `exports` and forgets to mirror it
+//      under publishConfig. This does NOT publish raw TypeScript: pnpm and npm
+//      REPLACE `exports` wholesale with the publishConfig version rather than
+//      merging, so the new subpath is simply absent from the published package.
+//      Consumers get ERR_PACKAGE_PATH_NOT_EXPORTED for a subpath that works
+//      perfectly in the monorepo — a bug that only appears downstream.
+//      Measured 2026-09-05: 0 of 21 packages are in that state today, so the
+//      mirror assertion below starts from a clean baseline.
 //
 // This script simulates the publishConfig override (exactly what pnpm/npm pack
 // do), then asserts that EVERY resolved published entry point resolves to a
@@ -88,6 +101,30 @@ function validatePackage(packageDir) {
   const errors = [];
 
   if (manifest.private === true) return { name: manifest.name, skipped: true, errors };
+
+  // Case 2 from the header: a subpath present in the development `exports` but
+  // absent from the publishConfig override. pnpm and npm REPLACE `exports`
+  // rather than merging, so such a subpath silently does not ship and consumers
+  // hit ERR_PACKAGE_PATH_NOT_EXPORTED on something that resolves fine in-repo.
+  // The resolved-target loop below cannot see this: it inspects only what the
+  // published manifest DOES contain, and the missing subpath is exactly what it
+  // does not.
+  const baseExports = manifest.exports;
+  const publishExports = manifest.publishConfig?.exports;
+  if (
+    baseExports && typeof baseExports === "object" &&
+    publishExports && typeof publishExports === "object"
+  ) {
+    for (const subpath of Object.keys(baseExports)) {
+      if (!(subpath in publishExports)) {
+        errors.push(
+          `exports subpath "${subpath}" is missing from publishConfig.exports — ` +
+            "publishConfig REPLACES exports rather than merging, so this subpath " +
+            "would not ship and consumers would get ERR_PACKAGE_PATH_NOT_EXPORTED",
+        );
+      }
+    }
+  }
 
   const targets = publishedEntryTargets(manifest);
   if (targets.length === 0) {
