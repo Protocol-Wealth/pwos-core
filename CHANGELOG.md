@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed — repository agent instructions (2026-09-21)
+
+- Repository agent instructions now live in `AGENTS.md`. Root `CLAUDE.md` was
+  removed after its still-current facts moved.
+
 ### Security — dependency advisory remediation (2026-07-26)
 
 - Raised the workspace `js-yaml` floor to 5.2.2 and added a PostCSS floor of
