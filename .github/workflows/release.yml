@@ -60,12 +60,15 @@ jobs:
         id: changesets
         uses: changesets/action@v2
         with:
-          # version-only: with no `publish` input, changesets/action opens or
-          # updates the "Version Packages" PR when changesets are pending and
-          # does NOTHING when there are none. It never publishes to npm — that
-          # is the maintainer's local `pnpm changeset:publish` step.
-          version: pnpm changeset:version
-          commit: "chore(release): version packages"
-          title: "chore(release): version packages"
+          # version-only: with no publish-script input, changesets/action opens
+          # or updates the Version Packages pull request when changesets are
+          # pending and does nothing when there are none. It never publishes
+          # to npm. That remains the maintainer's local pnpm changeset:publish.
+          # v2 renamed version, commit, and title. push-with-git-cli keeps the
+          # git push this workflow was written for.
+          version-script: pnpm changeset:version
+          commit-message: "chore(release): version packages"
+          pr-title: "chore(release): version packages"
+          push-with-git-cli: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
