@@ -1,16 +1,24 @@
 version: 2
+# Version-update pull requests are off (open-pull-requests-limit: 0).
+# These repositories are maintained directly. Routine minor, patch, and
+# action-pin bumps are not opened.
+#
+# Security updates stay on. This file has to stay so Dependabot can still
+# open a pull request for a vulnerable dependency. It cannot filter those
+# by severity: low, moderate, high, and critical alerts that have a patch
+# all still open a pull request. Malware alerts stay alerts; Dependabot
+# does not open pull requests for them, and they must not be auto-dismissed.
+#
+# Do not turn unattended merging back on. Review is in the session
+# (pw-governance DECISIONS.md, 2026-09-07, "Dependabot updates are reviewed
+# here, not in CI").
 updates:
   - package-ecosystem: "npm"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
-    groups:
-      minor-and-patch:
-        update-types:
-          - "minor"
-          - "patch"
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "npm"
@@ -23,12 +31,7 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
-    groups:
-      actions-minor-and-patch:
-        update-types:
-          - "minor"
-          - "patch"
+    open-pull-requests-limit: 0
     labels:
       - "dependencies"
       - "github-actions"
