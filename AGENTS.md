@@ -10,8 +10,7 @@ A pnpm workspace of TypeScript primitives published to npm under
 `@protocolwealthos/*`. Packages are storage-agnostic, framework-agnostic, and
 intentionally small. Consumers pick what they need.
 
-The deployed app at [pwos.app](https://pwos.app) (source in `pw-os-v2`, a
-separate repo) is the reference consumer. Do not port consumer-side code into
+Do not port consumer-side code into
 this repo — only generic, reusable primitives belong here.
 
 ```
@@ -24,7 +23,7 @@ pwos-core/
 │   ├── compliance/         # SEC 204-2 retention, Books & Records bundler, calendar, incidents, vendor-doc metadata
 │   ├── crm/                # Contacts / households / interactions / opportunities / tasks + HouseholdProfile/Goal/Note
 │   ├── document-gen/       # Document model + CSV + plain-text renderer + DocumentRenderer interface
-│   ├── email-archive/      # SEC 17a-4 archive primitives
+│   ├── email-archive/      # Archive primitives
 │   ├── gcp-helpers/        # Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape
 │   ├── holdings/           # Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot
 │   ├── ledger/             # Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger

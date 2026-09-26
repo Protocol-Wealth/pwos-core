@@ -131,7 +131,7 @@ pwos-core/
 │   ├── compliance/         # SEC 204-2 retention, Books-and-Records bundler, calendar, incidents, vendor metadata
 │   ├── crm/                # Contact / household / interaction / opportunity / task + HouseholdProfile/Goal/Note
 │   ├── document-gen/       # Document block model + RFC-4180 CSV + plain-text renderer + DocumentRenderer interface
-│   ├── email-archive/      # SEC Rule 17a-4 archive primitives (chain-of-custody hashing, retention enforcement)
+│   ├── email-archive/      # Archive primitives (chain-of-custody hashing, retention enforcement)
 │   ├── gcp-helpers/        # Cloud Logging + Cloud SQL IAM picker + Secret Manager loader + frontend error shape
 │   ├── holdings/           # Account / Security / immutable HoldingEvent stream + materialized HoldingSnapshot
 │   ├── ledger/             # Append-only double-entry + sum-to-zero invariant + bailment-mode shadow ledger

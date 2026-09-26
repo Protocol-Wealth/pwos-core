@@ -42,7 +42,7 @@ This document catalogs the canonical patterns extracted from the Protocol Wealth
 
 **One-line:** Canonical retry shape for WORM-mirrored or BEFORE-UPDATE-immutable tables — retry emits a NEW row referencing the failed row's ID; never UPDATEs the failed row; recursion guard prevents infinite loops.
 
-**Why the pattern exists:** SEC Rule 17a-4 storage substrate is fundamentally immutable — bucket-level retention lock on GCS is cryptographically irreversible for the retention window. Postgres rows mirroring to WORM storage cannot be UPDATEd on transient mirror failure without violating the immutability invariant. The sentinel-row pattern preserves the invariant: every retry is a new append-only row that audit-trails the recovery itself.
+**Why the pattern exists:** The storage substrate is fundamentally immutable — bucket-level retention lock on GCS is cryptographically irreversible for the retention window. Postgres rows mirroring to WORM storage cannot be UPDATEd on transient mirror failure without violating the immutability invariant. The sentinel-row pattern preserves the invariant: every retry is a new append-only row that audit-trails the recovery itself.
 
 **Mechanics:**
 
@@ -183,8 +183,8 @@ interface VendorWebhookHandler {
 
 | Tier | Data-model home | RBAC | Retention |
 |---|---|---|---|
-| Per-client | Existing `client_profile` + `audit_log` principal-chain queries (no new schema) | Postgres RLS on `client_id` + principal-chain authorization | 7-year post-relationship per 17 CFR §240.17a-4 |
-| Per-advisor | NEW `advisor_memory` table (advisor_id + memory_key + JSONB value) | Postgres RLS on `advisor_id` | 7-year post-departure per 17 CFR §240.17a-4 |
+| Per-client | Existing `client_profile` + `audit_log` principal-chain queries (no new schema) | Postgres RLS on `client_id` + principal-chain authorization | 7-year post-relationship |
+| Per-advisor | NEW `advisor_memory` table (advisor_id + memory_key + JSONB value) | Postgres RLS on `advisor_id` | 7-year post-departure |
 | Per-firm | Derived from version-controlled markdown (`shared/` git history) | Read-only by construction | Git-history unbounded |
 
 **Composition order at agent-session time:** firm (broadest, read-only) → advisor (advisor scope) → client (most-scoped, principal-chain-authorized). Four audit rows per composition (`agent.context.chain_established` + per-tier `_memory_read` rows referencing the anchor row id). The composition is what makes per-scope enforcement structural rather than disciplinary.
