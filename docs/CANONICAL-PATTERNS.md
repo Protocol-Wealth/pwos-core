@@ -28,7 +28,7 @@ This document catalogs the canonical patterns extracted from the Protocol Wealth
 - `@protocolwealthos/ai-guardrails` — `assertWorkspace()` (ZDR fail-fast) + `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) + `buildAuditRow()` (content-free audit-row builder)
 - `@protocolwealthos/audit-log` — emits `pii.field.excluded` + `pii.waiver.consumed` + `pii.medium.included` rows at the middleware boundary
 
-**Independent PII egress canary backstop:** Three-byte-identical-copy pattern — middleware at the centralized pw-api layer + re-implemented byte-identical canaries at every Anthropic-SDK egress site (pw-os-v2 + pw-portal-v2). Deliberately not a shared module so the layers cannot share a bug. See pattern #6 below.
+**Independent PII egress canary backstop:** each service (pw-api, pw-os-v2, pw-portal-v2) runs its own copy of the egress canary. Deliberately not a shared module so the layers cannot share a bug. See pattern #6 below.
 
 **Adoption notes:** Add the `pii_tags JSONB` column to your ingestion tables in your first migration; wire the prompt-construction middleware at every LLM call site (single boundary; not per-call); reserve the `pii_waiver` shape for explicit time-bounded operator overrides.
 
@@ -150,13 +150,13 @@ interface VendorWebhookHandler {
 
 ---
 
-## 6. PII egress canary (three-byte-identical-copy pattern)
+## 6. PII egress canary (one copy per service)
 
 **Status:** CANONICAL — production at every Anthropic-SDK egress site in the PW estate
 
-**One-line:** Three independent copies of identical PII-detection logic at distinct trust layers — middleware at pw-api + re-implemented canaries at every Anthropic-SDK egress site (pw-os-v2 + pw-portal-v2). Deliberately not a shared module so the layers cannot share a bug.
+**One-line:** Each service (pw-api, pw-os-v2, pw-portal-v2) runs its own copy of the PII egress canary. Deliberately not a shared module so the layers cannot share a bug.
 
-**Why "deliberately not shared":** A shared module would mean a single regex pattern change propagates to all three layers simultaneously — which sounds like a feature, but means a bug in the shared module is a bug at all three layers. The three-byte-identical-copy pattern is the inverse: when a pattern change is needed, it lands in three PRs against three repos.
+**Why "deliberately not shared":** A shared module would mean a single regex pattern change propagates to all three layers simultaneously — which sounds like a feature, but means a bug in the shared module is a bug at all three layers. Per-service copies are the inverse: when a pattern change is needed, it lands in three PRs against three repos.
 
 **Where this pattern matters most:** Outbound LLM API calls (Anthropic SDK) where the PII boundary is the last line of defense between the firm's data substrate and a third-party AI provider. Even with ZDR workspace enforcement upstream, the canary is the per-call structural verification.
 
@@ -214,7 +214,7 @@ interface VendorWebhookHandler {
 
 ## 8. Classification-aware egress canary
 
-**Status:** CANONICAL (`shared/architecture/decisions/ADR-b2b-counterparty-classification.md` ACCEPTED 2026-05-20; cross-repo canary-copy sync landed across all three byte-identical copies — pw-api#261 + pw-portal-v2#72 + the pw-os-v2#363 origin)
+**Status:** CANONICAL (`shared/architecture/decisions/ADR-b2b-counterparty-classification.md` ACCEPTED 2026-05-20; cross-repo canary-copy sync landed in all three copies — pw-api#261 + pw-portal-v2#72 + the pw-os-v2#363 origin)
 
 **One-line:** the PII egress canary (Pattern #6) takes an optional document `classification`; a founder-gated, attestation-backed `b2b-counterparty` override suppresses the two categories that false-positive on counterparty corporate-contact data (`email` + `us_phone`) while `ssn` + `credit_card` stay structurally un-suppressible — natural-person financial-identifier defense-in-depth is unconditional.
 
@@ -229,7 +229,7 @@ interface VendorWebhookHandler {
 - Every use writes a `upload.classification.attested` audit row (classification + attestation in the principal chain); the canary blocked-row log additionally records the active `classification`.
 - **Defense-in-depth invariant:** a fire under `b2b-counterparty` can only be `ssn` / `credit_card` — i.e. a genuine natural-person leak the override correctly did not relax.
 
-**Three-byte-identical-copy contract:** like Pattern #6, the classification-aware canary is three independent copies (pw-api / pw-os-v2 / pw-portal-v2) — not a shared module. The classification logic block (`UploadClassification` type + `CLASSIFICATION_SUPPRESSED_TYPES` + `scanForResidualPII`) is byte-identical across all three; only the per-repo logging-call wrapper legitimately differs.
+**One copy per service:** like Pattern #6, each service (pw-api, pw-os-v2, pw-portal-v2) runs its own copy of the classification-aware canary — not a shared module.
 
 **Canonical reference:** `shared/architecture/decisions/ADR-b2b-counterparty-classification.md` ACCEPTED 2026-05-20 (consumer-side, private). First consumer: pw-os-v2#363 (Component 9 MVP — chat send route + UI). Composes with Pattern #6 (this is Pattern #6 made classification-aware) and Pattern #1 (PII tagging — the suppressed categories are scoped against the natural-person-NPI definition).
 
