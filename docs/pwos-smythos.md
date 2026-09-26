@@ -9,7 +9,7 @@
 PWOS is the other half of that sentence. The `@protocolwealthos/*` primitives in this repo are the RIA compliance/credential layer an agent can call — or be wrapped by — when it operates in a regulated-finance context:
 
 - **`@protocolwealthos/pii-guard`** — 4-layer PII scanner + streaming rehydrator at the LLM call boundary.
-- **`@protocolwealthos/audit-log`** — append-only, SHA-256 hash-chained record of every tool call and decision (SEC Rule 204-2 / 17a-4 shape).
+- **`@protocolwealthos/audit-log`** — append-only, SHA-256 hash-chained record of every tool call and decision (SEC Rule 204-2 shape).
 - **`@protocolwealthos/mcp-tools`** — tool registry with 4-tier access classification and `confirmGate()`, the payload-bound two-turn gate for write tools.
 - **`@protocolwealthos/disclosure-card`** — machine-readable AI-system disclosure schema.
 - **`@protocolwealthos/shared`** — the `hitl` (human-in-the-loop) and `provenance` governance primitives.
