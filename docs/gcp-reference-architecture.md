@@ -2,7 +2,7 @@
 
 > A generic, vendor-agnostic posture for advisor / fintech / RIA workloads on Google Cloud. Patterns only — no client identifiers, no firm-specific names. Pair with the application-layer primitives in `pwos-core` packages.
 
-This document describes a Google Cloud baseline that's compatible with **SEC Rule 204-2** (Books & Records, 5-year retention), **SEC Rule 17a-4** (non-rewriteable / non-erasable), **Regulation S-P** (privacy + breach notification), and the typical control families an SOC 2 / ISO 27001 auditor will look for.
+This document describes a Google Cloud baseline that's compatible with **SEC Rule 204-2** (Books & Records, 5-year retention), **Regulation S-P** (privacy + breach notification), and the typical control families an SOC 2 / ISO 27001 auditor will look for.
 
 It is intentionally opinionated: every choice maps to a specific control objective, and where there's a less-secure but more-convenient option, we don't document it.
 
@@ -119,7 +119,7 @@ Use [`pickConnectionStrategy`](../packages/gcp-helpers/src/cloudSqlIam.ts) to re
 | Vendor compliance docs | None | Required | Required |
 | Application uploads (chat attachments, etc.) | None | Required | Required |
 
-**Retention lock semantics**: the lock cannot be shortened, only extended. This satisfies SEC Rule 17a-4's "non-rewriteable / non-erasable" technical control. The lock is set at bucket creation and is not undone by IAM compromise, accidental terraform `-replace`, or malicious deletion attempts.
+**Retention lock semantics**: the lock cannot be shortened, only extended. The lock is set at bucket creation and is not undone by IAM compromise, accidental terraform `-replace`, or malicious deletion attempts.
 
 **Pattern: org-policy `iam.allowedPolicyMemberDomains`** to refuse any IAM grant outside your Workspace domain. Prevents social-engineering paths where a phishing victim grants `objectAdmin` to an external Google account.
 
