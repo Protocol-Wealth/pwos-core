@@ -53,8 +53,8 @@ graph TB
 
 | Tier | Storage shape | RBAC | Retention |
 |---|---|---|---|
-| **Per-client** | Existing `client_profile` + `audit_log` principal-chain queries (no new table) | Postgres RLS on `client_id` + principal-chain authorization | 7-year post-relationship per 17 CFR §240.17a-4; inherits audit-log WORM mirror |
-| **Per-advisor** | NEW `advisor_memory` table (advisor_id + memory_key + JSONB value + pii_tags) | Postgres RLS on `advisor_id` | 7-year post-departure per 17 CFR §240.17a-4 |
+| **Per-client** | Existing `client_profile` + `audit_log` principal-chain queries (no new table) | Postgres RLS on `client_id` + principal-chain authorization | 7-year post-relationship; inherits audit-log WORM mirror |
+| **Per-advisor** | NEW `advisor_memory` table (advisor_id + memory_key + JSONB value + pii_tags) | Postgres RLS on `advisor_id` | 7-year post-departure |
 | **Per-firm** | Derived from version-controlled markdown (`shared/` git history); no Postgres table | Read-only by construction | Git-history unbounded; commit log IS the audit trail |
 
 ## Composition at agent-session time
