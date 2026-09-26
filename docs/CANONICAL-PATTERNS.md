@@ -156,7 +156,7 @@ interface VendorWebhookHandler {
 
 **One-line:** Three independent copies of identical PII-detection logic at distinct trust layers — middleware at pw-api + re-implemented canaries at every Anthropic-SDK egress site (pw-os-v2 + pw-portal-v2). Deliberately not a shared module so the layers cannot share a bug.
 
-**Why "deliberately not shared":** A shared module would mean a single regex pattern change propagates to all three layers simultaneously — which sounds like a feature, but means a bug in the shared module is a bug at all three layers. The three-byte-identical-copy pattern is the inverse: when a pattern change is needed, it lands in three PRs against three repos with explicit drift-checking CI (`scripts/check-pii-tags-drift.sh`).
+**Why "deliberately not shared":** A shared module would mean a single regex pattern change propagates to all three layers simultaneously — which sounds like a feature, but means a bug in the shared module is a bug at all three layers. The three-byte-identical-copy pattern is the inverse: when a pattern change is needed, it lands in three PRs against three repos.
 
 **Where this pattern matters most:** Outbound LLM API calls (Anthropic SDK) where the PII boundary is the last line of defense between the firm's data substrate and a third-party AI provider. Even with ZDR workspace enforcement upstream, the canary is the per-call structural verification.
 
