@@ -3,7 +3,7 @@
 /**
  * @protocolwealthos/email-archive
  *
- * Email-archive primitives for SEC Rule 17a-4 / Rule 204-2 compliance:
+ * Email-archive primitives for recordkeeping:
  * typed archive records with chain-of-custody hashing, retention
  * eligibility checks, and an in-memory query evaluator useful for
  * tests and eDiscovery prototypes.
