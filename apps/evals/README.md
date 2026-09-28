@@ -8,7 +8,7 @@ invocation when they want live-model runs.
 
 ## What it tests
 
-Five categories, each oriented toward a class of failure that matters for an
+Five categories with four synthetic fixtures each, oriented toward failure classes that matter for an
 SEC-registered investment adviser (or anyone running an AI-assisted
 client-facing surface):
 
@@ -71,6 +71,28 @@ if (!summary.allCategoriesPassing) {
 
 The harness is provider-agnostic: any function that takes
 `{ prompt, system? }` and returns a string works. Wire your own model.
+`allCategoriesPassing` covers the categories selected by `categories` or
+`caseIds`; an unfiltered live run requires all five categories to pass.
+
+### Live HTTP reference adapter (no provider SDK)
+
+For a chat-completions-compatible endpoint, the included adapter is runnable
+without adding an SDK. Set `EVALS_HTTP_URL` to its HTTPS endpoint URL and
+`EVALS_MODEL` to the model identifier. Set `EVALS_API_KEY` only if your endpoint
+requires bearer authentication, then run:
+
+```bash
+pnpm --filter @protocolwealthos-apps/evals evals:live:http
+```
+
+The command runs all fixtures, prints only case IDs and failed expectation
+comments, and exits nonzero if any category fails. It does not print model
+responses or credentials. The adapter uses the common `choices[0].message.content`
+response shape, refuses redirects, and uses a 30-second request timeout; copy
+`src/httpChatCompletions.ts` to adapt a different HTTP protocol. Live mode sends
+the synthetic fixture prompts to the configured endpoint, so review that
+endpoint's retention and access policy before using it. CI runs only offline
+mode and makes no model calls.
 
 ## Fixture format
 
@@ -141,6 +163,22 @@ case fails).
 - **Not a complete coverage map.** The five-category v0 surface covers
   the load-bearing failure classes for an RIA AI-assisted system but is
   not exhaustive. Extend in your fork.
+
+## If you add an LLM judge
+
+Keep the deterministic predicates as explicit checks. For qualitative scoring,
+calibrate a rubric against expert-reviewed examples, then check it on held-out
+examples and with a separate judge or human reviewer. Compare outputs at similar
+lengths, reverse pairwise presentation order, and inspect the weakest rubric
+score instead of selecting a flattering one. Keep the rubric short enough to
+reward relevant detail and principled omissions rather than sheer breadth.
+
+These are research-informed evaluation practices, not evidence that a model is
+compliant. Meta's [Unslopping AI research note](https://facebookresearch.github.io/RAM/blogs/unslop/)
+found that ordinary LLM judges and generated rubrics can prefer model prose over
+expert human writing. Its experiments concern writing quality; whether the same
+calibration improves regulatory or suitability evaluations needs separate
+validation with qualified reviewers.
 
 ## License
 

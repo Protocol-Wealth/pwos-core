@@ -108,7 +108,7 @@ export interface RunSummary {
   readonly total: number;
   readonly byCategory: Readonly<Record<EvalCategory, CategoryCounts>>;
   readonly results: readonly EvalResult[];
-  /** True iff every category has at least one passing case (live mode only). */
+  /** True iff every selected category has a passing case and no failures (live mode only). */
   readonly allCategoriesPassing: boolean;
   /** True iff the run was offline (no model called). */
   readonly offline: boolean;

@@ -21,6 +21,8 @@
 export { runEvals } from "./runner.js";
 export { evaluateExpectation } from "./predicates.js";
 export { loadFixtures, validateCase } from "./loadFixtures.js";
+export { createHttpChatCompletionsInvoke } from "./httpChatCompletions.js";
+export type { HttpChatCompletionsOptions } from "./httpChatCompletions.js";
 export type {
   CategoryCounts,
   EvalCase,

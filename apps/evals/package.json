@@ -34,7 +34,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "tsc --noEmit",
     "evals:offline": "tsx src/cli.ts",
-    "evals:list": "tsx src/cli.ts --list"
+    "evals:list": "tsx src/cli.ts --list",
+    "evals:live:http": "tsx src/liveHttpCli.ts"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
