@@ -17,6 +17,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   EVAL_CATEGORIES,
+  createHttpChatCompletionsInvoke,
   evaluateExpectation,
   loadFixtures,
   runEvals,
@@ -33,11 +34,11 @@ describe("loadFixtures — fixture validation", () => {
     }
   });
 
-  it("the bundled harness ships at least 2 cases per category", () => {
+  it("the bundled harness ships at least 4 cases per category", () => {
     const cases = loadFixtures();
     for (const cat of EVAL_CATEGORIES) {
       const count = cases.filter((c) => c.category === cat).length;
-      expect(count, `category ${cat} should have >=2 cases`).toBeGreaterThanOrEqual(2);
+      expect(count, `category ${cat} should have >=4 cases`).toBeGreaterThanOrEqual(4);
     }
   });
 
@@ -92,6 +93,12 @@ describe("runEvals — live mode with a stub modelInvoke", () => {
     await expect(runEvals({ live: true })).rejects.toThrow(/modelInvoke/);
   });
 
+  it("rejects unknown case ids instead of reporting a misleading passing run", async () => {
+    await expect(
+      runEvals({ live: true, modelInvoke: async () => "ok", caseIds: ["missing"] }),
+    ).rejects.toThrow(/unknown case id/);
+  });
+
   it("a deflecting stub passes every refusal-style case it touches", async () => {
     // Stub that mirrors a well-behaved model: refuses, names policy, and
     // does not emit PII / invented rules / guarantee language. This stub is
@@ -114,6 +121,7 @@ describe("runEvals — live mode with a stub modelInvoke", () => {
         "passed",
       );
     }
+    expect(summary.allCategoriesPassing).toBe(true);
   });
 
   it("a noncompliant stub fails the cases that probe for guarantees / SSNs", async () => {
@@ -133,6 +141,58 @@ describe("runEvals — live mode with a stub modelInvoke", () => {
         "failed",
       );
     }
+  });
+});
+
+describe("HTTP chat completions reference adapter", () => {
+  it("runs a selected live case through a supplied HTTP client without a real network call", async () => {
+    const requests: RequestInit[] = [];
+    const fakeFetch = async (_url: string | URL | Request, init?: RequestInit) => {
+      requests.push(init ?? {});
+      return new Response(
+        JSON.stringify({
+          choices: [
+            { message: { content: "I cannot provide that. The placeholder is redacted." } },
+          ],
+        }),
+        { status: 200 },
+      );
+    };
+    const modelInvoke = createHttpChatCompletionsInvoke({
+      endpoint: "https://example.invalid/v1/chat/completions",
+      model: "synthetic-test-model",
+      fetchImpl: fakeFetch as typeof fetch,
+    });
+    const summary = await runEvals({ live: true, modelInvoke, caseIds: ["pii_01"] });
+
+    expect(summary.allCategoriesPassing).toBe(true);
+    expect(requests).toHaveLength(1);
+    expect(requests[0]?.headers).not.toHaveProperty("authorization");
+    expect(JSON.parse(String(requests[0]?.body))).toMatchObject({
+      model: "synthetic-test-model",
+      messages: [{ role: "user", content: expect.stringContaining("<SSN_1>") }],
+    });
+  });
+
+  it("does not surface provider response bodies in HTTP errors", async () => {
+    const modelInvoke = createHttpChatCompletionsInvoke({
+      endpoint: "https://example.invalid/v1/chat/completions",
+      model: "synthetic-test-model",
+      fetchImpl: (async () => new Response("private echoed prompt", { status: 503 })) as typeof fetch,
+    });
+    await expect(modelInvoke({ prompt: "synthetic prompt" })).rejects.toThrow(
+      /^HTTP eval adapter request failed \(503\)\.$/,
+    );
+  });
+
+  it("rejects cleartext HTTP even when the caller provides a key", () => {
+    expect(() =>
+      createHttpChatCompletionsInvoke({
+        endpoint: "http://example.invalid/v1/chat/completions",
+        model: "synthetic-test-model",
+        apiKey: "test-only-placeholder",
+      }),
+    ).toThrow(/HTTPS endpoint/);
   });
 });
 

@@ -34,6 +34,22 @@ export async function runEvals(opts: RunOptions = {}): Promise<RunSummary> {
 
   const requestedCategories = new Set<EvalCategory>(opts.categories ?? EVAL_CATEGORIES);
   const requestedIds = opts.caseIds ? new Set(opts.caseIds) : undefined;
+  if (requestedIds) {
+    const knownIds = new Set(allCases.map((c) => c.id));
+    for (const id of requestedIds) {
+      if (!knownIds.has(id)) throw new Error(`runEvals: unknown case id "${id}".`);
+    }
+  }
+
+  const selected = allCases.filter(
+    (c) => requestedCategories.has(c.category) && (!requestedIds || requestedIds.has(c.id)),
+  );
+  if (requestedIds && selected.length !== requestedIds.size) {
+    throw new Error("runEvals: caseIds include a case outside the categories filter.");
+  }
+  const requiredCategories = requestedIds
+    ? new Set(selected.map((c) => c.category))
+    : requestedCategories;
 
   const live = opts.live === true;
   if (live && opts.modelInvoke === undefined) {
@@ -72,7 +88,7 @@ export async function runEvals(opts: RunOptions = {}): Promise<RunSummary> {
     results.push(await runOneLive(c, opts.modelInvoke!));
   }
 
-  return summarize(results, live);
+  return summarize(results, live, requiredCategories);
 }
 
 async function runOneLive(c: EvalCase, modelInvoke: NonNullable<RunOptions["modelInvoke"]>): Promise<EvalResult> {
@@ -87,7 +103,11 @@ async function runOneLive(c: EvalCase, modelInvoke: NonNullable<RunOptions["mode
   return { caseId: c.id, category: c.category, status: "failed", response, failed };
 }
 
-function summarize(results: EvalResult[], live: boolean): RunSummary {
+function summarize(
+  results: EvalResult[],
+  live: boolean,
+  requiredCategories: ReadonlySet<EvalCategory>,
+): RunSummary {
   const byCategory = {} as Record<EvalCategory, CategoryCounts>;
   for (const cat of EVAL_CATEGORIES) byCategory[cat] = { ...ZERO_COUNTS };
 
@@ -102,7 +122,9 @@ function summarize(results: EvalResult[], live: boolean): RunSummary {
   }
 
   const allCategoriesPassing =
-    live && EVAL_CATEGORIES.every((cat) => byCategory[cat].passed > 0 && byCategory[cat].failed === 0);
+    live &&
+    requiredCategories.size > 0 &&
+    [...requiredCategories].every((cat) => byCategory[cat].passed > 0 && byCategory[cat].failed === 0);
 
   return {
     total: results.length,
