@@ -48,7 +48,7 @@ const CANONICAL_FIELDS: Array<keyof AuditEntry> = [
 //
 // Why inlined instead of imported from mcp-tools: @protocolwealthos/audit-log
 // is a zero-dependency leaf primitive supporting the platform's regulatory
-// floor (SEC 17a-4 audit chain). Any code path that needs to write an audit
+// floor. Any code path that needs to write an audit
 // row must be able to load this package without dragging in MCP. 10-line
 // duplication + parity test is the chosen tradeoff. Revisit if the canonical
 // serializer surface grows beyond ~20 lines (Maps, Sets, typed arrays,

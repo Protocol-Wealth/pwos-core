@@ -11,7 +11,7 @@
  * Useful when the underlying storage is not intrinsically WORM (e.g.,
  * a relational DB). Pair with object-lock storage and signed export
  * bundles (@protocolwealthos/compliance BooksAndRecordsBundle) for defensible
- * SEC Rule 17a-4 evidence.
+ * archive evidence.
  */
 
 import type { ArchivedEmail } from "./types.js";

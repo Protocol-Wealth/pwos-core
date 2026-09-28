@@ -10,7 +10,7 @@
 -- attempt, not a missing row.
 --
 -- This is the Postgres half of "every action leaves a record". For
--- regulatory non-rewriteable / non-erasable obligations (SEC Rule 17a-4),
+-- deployments with non-rewriteable / non-erasable retention requirements,
 -- pair this with a retention-locked archive (GCS Object Lock,
 -- S3 Object Lock in Compliance mode, etc.).
 --

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
- * Email archive types for SEC Rule 17a-4 compliance.
+ * Email archive record types.
  *
  * SEC Rule 17a-4(f) requires broker-dealers to preserve electronic
  * records in non-rewriteable, non-erasable (WORM) storage. RIAs under
