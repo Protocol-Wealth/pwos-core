@@ -1,5 +1,11 @@
 # @protocolwealthos/email-archive
 
+## 0.2.3
+
+### Patch Changes
+
+- [#121](https://github.com/Protocol-Wealth/pwos-core/pull/121) [`1d6b908`](https://github.com/Protocol-Wealth/pwos-core/commit/1d6b908280136eedf36fff63138d99c1d3b32993) Thanks [@pwnick](https://github.com/pwnick)! - Remove broker-dealer Rule 17a-4 framing from the package description and source comments. The recordkeeping primitives and public API are unchanged.
+
 ## 0.2.2
 
 ### Patch Changes
