@@ -367,6 +367,7 @@ Use these packages as primitives inside your own advisor platform. This repo doe
 ## Documentation
 
 - [Canonical Patterns](docs/CANONICAL-PATTERNS.md) — six patterns extracted from the PW estate canonical set (PII_TAGS, sentinel-row reconciliation, Track B' webhook-receiver primitive, multi-agent dispatch infrastructure, design tokens v1.0, PII egress canary); each entry links to its ADR or design doc in `shared/` for the full canonical
+- [Agent Memory Landscape](docs/agent-memory-landscape.md) — dated memory-system references, scope-preserving design patterns, and a synthetic evaluation plan for the three-tier architecture
 - [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC
 - [PWOS + SmythOS (reference integration)](docs/pwos-smythos.md) — forward-looking compatibility note (not a partnership): how an MCP-compatible agent platform such as SmythOS can call the PWOS compliance/credential layer (pii-guard, mcp-tools tier + confirm-gate, hitl, disclosure-card, audit-log) over the open Model Context Protocol; SmythOS does not integrate PWOS today
 - [Attribution](docs/attribution.md) — detailed provenance per capability
