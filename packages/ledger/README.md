@@ -2,7 +2,7 @@
 
 > Append-only double-entry ledger primitives. Account hierarchy, posting/transaction with sum-to-zero invariant, balance assertions, reverse-only edits, optional bailment-mode invariants for advisor shadow-ledgers.
 
-Apache 2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why this exists
 
@@ -13,7 +13,7 @@ Most "ledger" libraries either (a) assume a database and bake in the persistence
 - **Append-only by contract.** No `update`, no `delete`. To correct a transaction, append a sign-flipped reversing transaction. Discipline is the API.
 - **Bailment-mode invariants.** For advisor shadow-ledgers — pooled-equals-claims, custodian drift detection, claims-by-client rollup.
 
-Architectural lineage: independently re-implemented inspired by Beancount's data model. No GPL code copied; clean-room Apache 2.0 implementation.
+Architectural lineage: independently re-implemented inspired by Beancount's data model. No GPL code copied; clean-room first-party implementation.
 
 ## Install
 
@@ -144,4 +144,4 @@ The shapes and types are designed to extend cleanly — `Posting` already reserv
 
 ## License
 
-Apache 2.0 with USPTO Application #64/034,215 defensive patent grant.
+Licensed under either MIT-0 or Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215.

@@ -2,7 +2,7 @@
 
 > Storage-agnostic helpers for applications running on Google Cloud — Cloud Logging structured-log builder, Cloud SQL IAM connector adapter, Secret Manager caching loader, frontend error-boundary log shape.
 
-Apache 2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why no `@google-cloud/*` deps
 
@@ -93,4 +93,4 @@ The server endpoint forwards the payload to Cloud Logging — keep direct browse
 
 ## License
 
-Apache 2.0.
+Licensed under either MIT-0 or Apache-2.0, at your option.

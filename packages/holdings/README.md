@@ -2,7 +2,7 @@
 
 > Account / security / event-stream / daily-snapshot primitives for advisor portfolio data. Immutable HoldingEvent log, materialized HoldingSnapshot, AccountBalance with inflow/outflow decomposition, custodian connection mirrors, scoped advisor access.
 
-Apache 2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why this exists
 
@@ -121,4 +121,4 @@ Deferred to v0.5.1+:
 
 ## License
 
-Apache 2.0 with USPTO Application #64/034,215 defensive patent grant.
+Licensed under either MIT-0 or Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215.

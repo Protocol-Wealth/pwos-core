@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT-0 OR Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
 /**
@@ -9,7 +9,7 @@
  * derivation: 5-root account hierarchy, polymorphic posting/transaction
  * with sum-to-zero invariant, balance assertions as data-integrity
  * checkpoints, append-only with reverse-only edits. License-clean
- * Apache 2.0 implementation.
+ * first-party implementation.
  *
  * Core surface:
  *   - `Account` / `Posting` / `Transaction` / `BalanceAssertion` / `Pad`

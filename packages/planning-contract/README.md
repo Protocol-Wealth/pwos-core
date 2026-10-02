@@ -75,4 +75,4 @@ registerPlanningTools(registry); // analyze_roth_conversion, sequence_conversion
 ```
 
 Educational scenario analysis only — not investment, tax, or legal advice.
-Apache-2.0 · defensive patent USPTO #64/034,215.
+MIT-0 OR Apache-2.0 · defensive patent USPTO #64/034,215.

@@ -2,7 +2,7 @@
 
 > Framework-agnostic builders for HSTS, strict CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, and Permissions-Policy.
 
-Apache 2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why headers from the application layer
 
@@ -47,4 +47,4 @@ The default `Permissions-Policy` locks down camera, microphone, geolocation, pay
 
 ## License
 
-Apache 2.0.
+Licensed under either MIT-0 or Apache-2.0, at your option.

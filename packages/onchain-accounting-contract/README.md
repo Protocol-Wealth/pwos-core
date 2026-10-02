@@ -178,5 +178,5 @@ The contract mirrors the Apache-2.0 Nexus implementation and public accounting
 methodology. Golden fixtures are synthetic and de-identified. No AGPL source was
 copied.
 
-Apache-2.0. Educational accounting/tax-awareness substrate only, not tax,
+MIT-0 OR Apache-2.0. Educational accounting/tax-awareness substrate only, not tax,
 investment, or legal advice.

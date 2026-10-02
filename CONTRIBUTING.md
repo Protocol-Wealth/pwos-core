@@ -98,7 +98,7 @@ pnpm --filter @protocolwealthos/<name> typecheck
 - **Conventional Commits** for type prefixes (`feat:`, `fix:`, `chore:`, `docs:`, `deps:`, `ci:`).
 - **SPDX header on every new `.ts` / `.tsx` source file.** Two-line block, prepended above any imports or doc comment:
   ```ts
-  // SPDX-License-Identifier: Apache-2.0
+  // SPDX-License-Identifier: MIT-0 OR Apache-2.0
   // Copyright 2026 Protocol Wealth, LLC and contributors.
   ```
 
@@ -163,7 +163,7 @@ If you find a bug or improvement in one of our dependencies (Hono, Drizzle, pdfm
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the [Apache License 2.0](LICENSE).
+By contributing, you agree that your contributions will be licensed under `MIT-0 OR Apache-2.0` (either [MIT-0](LICENSE-MIT-0) or [Apache-2.0](LICENSE-APACHE), at the recipient's option).
 
 ## Code of Conduct
 

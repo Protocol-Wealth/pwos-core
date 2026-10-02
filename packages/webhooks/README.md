@@ -2,7 +2,7 @@
 
 > Defense-in-depth inbound webhook verification: HMAC-SHA256 body signing, dual-layer path-token + Basic Auth, idempotency-key replay protection.
 
-Apache 2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## What's in the box
 
@@ -69,4 +69,4 @@ app.post("/webhooks/vendor/:token", (req, res) => {
 
 ## License
 
-Apache 2.0 with USPTO Application #64/034,215 defensive patent grant.
+Licensed under either MIT-0 or Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215.

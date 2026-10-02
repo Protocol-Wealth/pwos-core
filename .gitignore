@@ -9,10 +9,11 @@ out/
 .turbo/
 *.tsbuildinfo
 
-# Per-package LICENSE / NOTICE copies — generated at pack time by
-# scripts/copy-license-notice.mjs (each package's prepack). The root LICENSE
-# and NOTICE are the single source of truth; these copies are build artifacts.
-packages/*/LICENSE
+# Per-package license / NOTICE copies — generated at pack time by
+# scripts/copy-license-notice.mjs (each package's prepack). The root license
+# files and NOTICE are the single source of truth; these copies are build artifacts.
+packages/*/LICENSE-MIT-0
+packages/*/LICENSE-APACHE
 packages/*/NOTICE
 
 # Testing

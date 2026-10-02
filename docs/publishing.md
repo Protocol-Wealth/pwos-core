@@ -58,11 +58,13 @@ that fetches `origin/main` and requires a clean local `main` at the same commit.
 
 Two invariants are enforced so a bad tarball cannot ship silently:
 
-- **LICENSE + NOTICE in every tarball.** Each package's `prepack` runs
-  `scripts/copy-license-notice.mjs`, which copies the repository-root `LICENSE`
-  and `NOTICE` into the package directory before packing (Apache-2.0 §4(d)
+- **License texts + NOTICE in every tarball.** Each package's `prepack` runs
+  `scripts/copy-license-notice.mjs`, which copies the repository-root
+  `LICENSE-MIT-0`, `LICENSE-APACHE` and `NOTICE` into the package directory
+  before packing (packages are `MIT-0 OR Apache-2.0`; Apache-2.0 §4(d)
   requires propagating `NOTICE`). The copies are gitignored
-  (`packages/*/LICENSE`, `packages/*/NOTICE`) — the root files are the single
+  (`packages/*/LICENSE-MIT-0`, `packages/*/LICENSE-APACHE`,
+  `packages/*/NOTICE`) — the root files are the single
   source of truth. Verify with `pnpm --filter <pkg> pack` and
   `tar -tzf <tarball>`.
 - **Compiled publish shape.** `pnpm lint:publish`

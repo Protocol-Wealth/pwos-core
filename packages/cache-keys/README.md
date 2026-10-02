@@ -2,7 +2,7 @@
 
 > Namespace-enforced cache-key builder. Refuses to write keys that contain client PII.
 
-Apache 2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why
 
@@ -33,4 +33,4 @@ keys.hashed("app", "user", "advisor@example.com");  // "app:user:..." (sha256 pr
 
 ## License
 
-Apache 2.0.
+Licensed under either MIT-0 or Apache-2.0, at your option.

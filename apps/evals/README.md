@@ -182,4 +182,4 @@ validation with qualified reviewers.
 
 ## License
 
-Apache 2.0 — see [LICENSE](../../LICENSE) at the repo root.
+Licensed under either MIT-0 or Apache-2.0, at your option. See [LICENSE-MIT-0](../../LICENSE-MIT-0) and [LICENSE-APACHE](../../LICENSE-APACHE) at the repo root.

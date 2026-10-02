@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: MIT-0 OR Apache-2.0 -->
 <!-- Copyright 2026 Protocol Wealth, LLC and contributors. -->
 
 # HITL gate — adoption guide
@@ -186,5 +186,6 @@ publicly-readable claim; the HITL gate is the runtime substrate that
 makes the claim true. Publishing one without the other is a worse
 posture than publishing neither.
 
-License: Apache 2.0. Defensive-patent posture (USPTO #64/034,215; OIN
-member); the patent grant flows automatically under Apache 2.0.
+License: MIT-0 OR Apache-2.0, at your option. Defensive-patent posture
+(USPTO #64/034,215; OIN member); the Apache-2.0 option carries that license's
+patent grant.
