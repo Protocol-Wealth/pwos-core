@@ -9,7 +9,7 @@
 > **Why:** so an examiner, a client, or a downstream system can read the
 > system's posture from a single canonical document rather than reverse-engineer
 > it from marketing copy. Honest disclosure is the load-bearing artifact.
-> **Status:** open standard *candidate*. Apache 2.0. Use it; fork it; help shape it.
+> **Status:** open standard *candidate*. MIT-0 OR Apache-2.0. Use it; fork it; help shape it.
 
 This guide is for adopters — anyone running an AI-assisted advisory, research,
 or compliance system who needs to publish a public disclosure card. It is

@@ -14,7 +14,7 @@ by this project — a compliance-first AI operating system: a multi-layer PII
 guard pipeline that scans and redacts client data before it leaves the local
 execution environment, and an append-only, hash-chained audit trail meeting SEC
 Rule 204-2 books-and-records requirements — is the subject of a United States
-patent application and is published here as Apache-2.0 prior art.
+patent application and is published here as open-source prior art.
 
   USPTO Application No.: 64/034,215  (Provisional; Attorney Docket PW-PROV-001)
 
