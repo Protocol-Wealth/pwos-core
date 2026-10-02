@@ -54,7 +54,7 @@ pwos-core/
 | Monorepo | pnpm 9 workspaces (`packageManager` field pinned) |
 | Release | Changesets version PR + maintainer local publish |
 | CI | GitHub Actions PR CI, SPDX/license checks, version-PR workflow |
-| License | Apache 2.0 |
+| License | MIT-0 OR Apache-2.0 |
 
 ## Commands
 
@@ -119,7 +119,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
   (`scanner.ts` → `scanner.test.ts`).
 - **Each package self-documents.** Every export gets a JSDoc block; the
   package's `index.ts` is the single source of truth for the public API.
-- **SPDX header on every source file** (`// SPDX-License-Identifier: Apache-2.0`
+- **SPDX header on every source file** (`// SPDX-License-Identifier: MIT-0 OR Apache-2.0`
   + copyright line).
 - **Conventional commits** + DCO sign-off (`git commit -s`).
 
@@ -131,7 +131,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
    `publishConfig` block that swaps `src/` for `dist/` at publish time
    (enforced by `pnpm lint:publish` in CI), the `prepack` copy step
    (`node ../../scripts/copy-license-notice.mjs && pnpm run build`), and
-   `"LICENSE"` + `"NOTICE"` in `files`. Every new subpath export you add must
+   `"LICENSE-MIT-0"` + `"LICENSE-APACHE"` + `"NOTICE"` in `files`. Every new subpath export you add must
    have a matching `dist/` entry under `publishConfig.exports` or the
    publish-shape check fails.
 3. Add it to `pnpm-workspace.yaml` (already covered by the `packages/*` glob).
@@ -166,7 +166,7 @@ PW estate; `pwos-core` owns reusable package shapes and generic primitives.
   GPL-2 data model; `@protocolwealthos/holdings` is inspired by Sure's AGPL
   holdings-as-events pattern). See [`docs/attribution.md`](docs/attribution.md).
 - GPL-2 / GPL-3 / AGPL code may be **read for architectural patterns** but
-  every byte committed here must be original Apache-2.0 work. Schema-as-facts
+  every byte committed here must be original first-party work licensed MIT-0 OR Apache-2.0. Schema-as-facts
   is not copyrightable; specific code expression is. When in doubt, re-derive
   with our own vocabulary.
 - No `--no-verify` on commits. No skipped hooks.

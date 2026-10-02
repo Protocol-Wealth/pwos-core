@@ -287,4 +287,4 @@ Use the controls table in your firm's security page; this architecture is design
 
 ## License
 
-This document is part of `pwos-core` and licensed Apache 2.0. The patterns here are extracted from production deployments and intentionally generic — apply them to your own workload, audit them, send patches.
+This document is part of `pwos-core` and licensed under either MIT-0 or Apache-2.0, at your option. The patterns here are extracted from production deployments and intentionally generic — apply them to your own workload, audit them, send patches.

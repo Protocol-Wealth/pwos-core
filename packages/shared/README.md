@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: MIT-0 OR Apache-2.0 -->
 <!-- Copyright 2026 Protocol Wealth, LLC and contributors. -->
 
 # `@protocolwealthos/shared`
@@ -7,7 +7,7 @@
 > HITL gate and SHA-256 hash-chained provenance records. Framework-agnostic;
 > zero runtime dependencies beyond `zod`.
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT-0 OR Apache-2.0](https://img.shields.io/badge/License-MIT--0%20OR%20Apache--2.0-blue.svg)](#mit-0-or-apache-20--defensive-patent)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](https://patentcenter.uspto.gov/applications/64034215)
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
 
@@ -92,12 +92,12 @@ Never commit private client/advisor data, credentials, API keys, production
 endpoint URLs, firm-specific settings, or private-estate identifiers to this
 package or its documentation.
 
-## Apache 2.0 + defensive patent
+## MIT-0 OR Apache-2.0 + defensive patent
 
-License: **Apache 2.0**.
-Patent: USPTO #64/034,215 (filed defensively; the patent grant flows
-automatically under Apache 2.0; suing the licensor terminates your
-license).
+License: **Licensed under either MIT-0 or Apache-2.0, at your option.**
+Patent: USPTO #64/034,215 (filed defensively; under the Apache-2.0 option the
+patent grant flows automatically, and suing the licensor terminates that
+patent license).
 OIN: Protocol Wealth is a member of the Open Invention Network.
 
 See [`PATENTS`](../../PATENTS) for the full non-assertion pledge.

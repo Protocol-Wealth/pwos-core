@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "Open source compliance-first AI operating system for SEC-registered investment advisers",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "author": "Protocol Wealth, LLC <opensource@protocolwealthllc.com>",
   "homepage": "https://pwos.app",
   "repository": {

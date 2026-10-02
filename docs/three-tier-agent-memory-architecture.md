@@ -204,4 +204,4 @@ The reference implementation at `examples/rias-agent-substrate/` ships with herm
 
 ## License
 
-Apache 2.0. The architecture is open for adopters to fork, modify, and contribute back to this canonical via PR against the reference example or the CANONICAL-PATTERNS index.
+MIT-0 OR Apache-2.0. The architecture is open for adopters to fork, modify, and contribute back to this canonical via PR against the reference example or the CANONICAL-PATTERNS index.

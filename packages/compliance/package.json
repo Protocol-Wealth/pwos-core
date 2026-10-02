@@ -2,7 +2,7 @@
   "name": "@protocolwealthos/compliance",
   "version": "0.4.2",
   "description": "SEC Rule 204-2 compliance primitives: retention calculator, books-and-records export bundler, AI inventory, PII incident classifier, compliance calendar, policy/vendor review status",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/compliance#readme",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

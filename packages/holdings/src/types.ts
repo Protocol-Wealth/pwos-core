@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT-0 OR Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 
 /**
@@ -6,7 +6,7 @@
  *
  * Architectural lineage: independently re-derived from prior art in the
  * personal-finance space (Maybe Finance / its AGPL fork, Sure). No
- * GPL/AGPL code was copied; clean-room Apache 2.0 implementation that
+ * GPL/AGPL code was copied; clean-room first-party implementation that
  * reuses the (a) polymorphic event-stream + (b) daily-materialized-snapshot
  * pattern as facts of the domain. Improvements over prior art for
  * advisor use:

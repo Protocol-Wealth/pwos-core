@@ -3,7 +3,7 @@
   "version": "0.3.2",
   "description": "PII-free TypeScript ABI for the Roth-conversion + IRMAA planning capability: PlanningContract + RothConversionAnalysis types, the canonical JSON-Schema, and MCP tool definitions. Mirrors the nexus-core Python engine.",
   "private": false,
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/planning-contract#readme",
   "repository": {
     "type": "git",
@@ -36,7 +36,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

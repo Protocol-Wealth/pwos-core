@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: Apache-2.0
+// SPDX-License-Identifier: MIT-0 OR Apache-2.0
 // Copyright 2026 Protocol Wealth, LLC and contributors.
 /**
  * Per-tool-call audit row builder.

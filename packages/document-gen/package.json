@@ -2,7 +2,7 @@
   "name": "@protocolwealthos/document-gen",
   "version": "0.2.2",
   "description": "Document model + CSV generator + renderer interface for advisor reports",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/document-gen#readme",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

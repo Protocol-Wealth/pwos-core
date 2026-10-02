@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "Reference evaluation harness for AI-assisted compliance systems. Five categories: regulatory_hallucination, suitability, marketing_rule_leakage, pii_bypass, prompt_injection. Deterministic, hermetic by default; live-model execution is opt-in. NOT PUBLISHED to npm.",
   "private": true,
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/apps/evals#readme",
   "repository": {
     "type": "git",

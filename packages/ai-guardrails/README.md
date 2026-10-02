@@ -2,7 +2,7 @@
 
 > Safety primitives for calling Anthropic-style LLM APIs from regulated environments.
 
-Apache 2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
+MIT-0 OR Apache-2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](https://github.com/Protocol-Wealth/pwos-core).
 
 ## Why this exists
 
@@ -92,4 +92,4 @@ const row = buildAuditRow({
 
 ## License
 
-Apache 2.0 with USPTO Application #64/034,215 defensive patent grant. See repo `LICENSE`, `NOTICE`, and `PATENTS.txt`.
+Licensed under either MIT-0 or Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215. See repo `LICENSE-MIT-0`, `LICENSE-APACHE`, `NOTICE`, and `PATENTS`.

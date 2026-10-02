@@ -2,7 +2,7 @@
   "name": "@protocolwealthos/crm",
   "version": "0.3.2",
   "description": "Advisor CRM primitives: contact/household/interaction/opportunity/task types with status and aging helpers",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/crm#readme",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

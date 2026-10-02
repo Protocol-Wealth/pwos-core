@@ -3,7 +3,7 @@
   "version": "0.0.3",
   "private": true,
   "description": "Reference implementation of the three-tier agent memory architecture (per-client / per-advisor / per-firm) composing pwos-core substrate primitives.",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",

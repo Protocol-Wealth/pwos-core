@@ -2,7 +2,7 @@
   "name": "@protocolwealthos/gcp-helpers",
   "version": "0.2.1",
   "description": "Storage-agnostic helpers for Google Cloud: Cloud SQL IAM connector adapter, Secret Manager loader, Cloud Logging structured-log builder, frontend error-boundary log shape",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/gcp-helpers#readme",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

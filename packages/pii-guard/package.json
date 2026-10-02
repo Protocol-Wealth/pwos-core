@@ -2,7 +2,7 @@
   "name": "@protocolwealthos/pii-guard",
   "version": "0.4.2",
   "description": "4-layer PII scanning pipeline for LLM-bound content (regex + NER + financial recognizers + allow-list)",
-  "license": "Apache-2.0",
+  "license": "MIT-0 OR Apache-2.0",
   "homepage": "https://github.com/Protocol-Wealth/pwos-core/tree/main/packages/pii-guard#readme",
   "repository": {
     "type": "git",
@@ -25,7 +25,8 @@
     "dist",
     "src",
     "README.md",
-    "LICENSE",
+    "LICENSE-MIT-0",
+    "LICENSE-APACHE",
     "NOTICE"
   ],
   "scripts": {

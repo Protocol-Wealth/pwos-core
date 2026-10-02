@@ -2,7 +2,7 @@
 
 > Open source compliance-first AI operating system for SEC-registered investment advisers.
 
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: MIT-0 OR Apache-2.0](https://img.shields.io/badge/License-MIT--0%20OR%20Apache--2.0-blue.svg)](#license-1)
 [![Patent Pending](https://img.shields.io/badge/Patent-Pending-orange.svg)](https://patentcenter.uspto.gov/applications/64034215)
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
@@ -21,7 +21,7 @@ This is a reference framework and a starting point, not a production-ready produ
 
 Adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context before any real or sensitive data touches it. Adopters are also responsible for their own AI-provider data-handling posture; the framework makes no data-retention guarantees.
 
-Provided as-is under Apache-2.0.
+Provided as-is under MIT-0 OR Apache-2.0.
 
 ## Recent shipping cadence (2026-05-18 → 2026-05-19 cascade)
 
@@ -41,7 +41,7 @@ Full cross-repo activity ledger lives at `shared/CHANGELOG.md` in the private PW
 
 If you are an RIA principal, CCO, or technical advisor evaluating your firm's AI-and-compliance substrate, three concrete actions you can take with this repo today:
 
-1. **Fork `pwos-core`.** Apache 2.0 license; no NDA, no contact form. Run the audit-logging + PII-redaction primitives against your own data, in your own GCP project, on your own timeline. The pattern set is documented; the primitives are inspectable.
+1. **Fork `pwos-core`.** MIT-0 OR Apache-2.0 license; no NDA, no contact form. Run the audit-logging + PII-redaction primitives against your own data, in your own GCP project, on your own timeline. The pattern set is documented; the primitives are inspectable.
 2. **Use the [advisor's AI vendor audit checklist](https://protocolwealthllc.com/factsheets/advisor-ai-vendor-audit-checklist).** 20 questions any RIA should ask before adopting an AI-enabled vendor — Reg S-P, Marketing Rule §206(4)-1, Rule 204-2, Rule 206(4)-7. Yours to edit, republish, hand to your CCO, or attach to a vendor RFP.
 3. **Subscribe to [protocolwealthllc.com/changelog](https://protocolwealthllc.com/changelog).** Public substrate changelog. If we ship something compliance-interesting (or something dumb), you see it. Build-in-public both ways.
 
@@ -74,9 +74,9 @@ The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as fol
 
 ### License
 
-**Apache License 2.0** — the canonical [`LICENSE`](LICENSE) file is the authoritative source. Apache 2.0 was chosen deliberately over MIT for two reasons: (1) the patent-grant clause aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229 + 64/082,241; OIN membership); (2) any RIA forking PW's substrate inherits the patent grant alongside the code. MIT works for primitives; Apache 2.0 is the right license for substrate that another RIA's compliance posture depends on.
+**Licensed under either MIT-0 or Apache-2.0, at your option.** The full texts are in [`LICENSE-MIT-0`](LICENSE-MIT-0) and [`LICENSE-APACHE`](LICENSE-APACHE). MIT-0 is the frictionless option; the Apache-2.0 option carries an explicit patent grant, which aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229 + 64/082,241; OIN membership).
 
-Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site); ~243 financial-data tools) carries the same Apache 2.0 + defensive patent license.
+Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site); ~243 financial-data tools) is published under its own open-source license and defensive patent posture; see that repository.
 
 ### Cross-references — PW public surfaces
 
@@ -247,7 +247,7 @@ PWOS Core stands on a foundation of exceptional open-source projects. Some are d
 
 PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
 
-**Open (Apache 2.0, this repo):** The 21 framework-agnostic primitive package manifests under `packages/*`, including the `0.2.0` onchain-accounting contract, the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values. The package surface includes PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared governance primitives, disclosure-card schema, planning ABI, and the PII-free onchain-accounting ABI.
+**Open (MIT-0 OR Apache-2.0, this repo):** The 21 framework-agnostic primitive package manifests under `packages/*`, including the `0.2.0` onchain-accounting contract, the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values. The package surface includes PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared governance primitives, disclosure-card schema, planning ABI, and the PII-free onchain-accounting ABI.
 
 **Private (not in this repo, never will be):**
 - The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).
@@ -387,7 +387,7 @@ Use these packages as primitives inside your own advisor platform. This repo doe
 - Filed: April 9, 2026
 - Status: Patent Pending
 
-This patent was filed **defensively** under Apache 2.0. The intent is to establish formal prior art and prevent third parties from patenting these concepts and restricting their use by independent financial advisors. Under Apache 2.0, you receive an automatic, perpetual, royalty-free patent grant. If you sue Protocol Wealth for patent infringement related to this software, your license terminates automatically.
+This patent was filed **defensively**. The intent is to establish formal prior art and prevent third parties from patenting these concepts and restricting their use by independent financial advisors. If you use this software under the Apache-2.0 option, you receive that license's automatic, perpetual, royalty-free patent grant, and if you sue Protocol Wealth for patent infringement related to this software, that patent license terminates automatically.
 
 **Open Invention Network (OIN) Member** — Protocol Wealth LLC is a member of the Open Invention Network (OIN), the world's largest patent non-aggression network with 4,100+ members including Google, IBM, Toyota, Meta, Microsoft, and Amazon. [Learn more](https://openinventionnetwork.com/about-us/member-benefits/)
 
@@ -395,9 +395,14 @@ See [PATENTS](PATENTS) for full non-assertion pledge.
 
 ## License
 
-Apache License 2.0 — see [LICENSE](LICENSE).
+Licensed under either MIT-0 or Apache-2.0, at your option.
 
-Apache 2.0 includes an explicit patent retaliation clause that MIT lacks. If someone sues you for patent infringement related to PWOS, their right to use the software terminates automatically. This is why we chose Apache 2.0 over MIT.
+- MIT No Attribution: [LICENSE-MIT-0](LICENSE-MIT-0)
+- Apache License 2.0: [LICENSE-APACHE](LICENSE-APACHE)
+
+SPDX-License-Identifier: `MIT-0 OR Apache-2.0`
+
+The Apache-2.0 option includes an explicit patent grant and patent retaliation clause; the MIT-0 option does not. See [PATENTS](PATENTS) for the separate non-assertion pledge.
 
 **Third-party components retain their original licenses.** See [NOTICE](NOTICE) and [THIRD_PARTY_LICENSES.md](THIRD_PARTY_LICENSES.md).
 

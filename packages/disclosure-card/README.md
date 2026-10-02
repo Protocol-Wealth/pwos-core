@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-License-Identifier: MIT-0 OR Apache-2.0 -->
 <!-- Copyright 2026 Protocol Wealth, LLC and contributors. -->
 
 # Disclosure card — adoption guide
@@ -308,5 +308,6 @@ their build artifact alongside the card itself.
   4-layer PII redaction pipeline; the runtime substrate for
   `piiHandling.mode: "redact"`.
 
-License: Apache 2.0. Defensive-patent posture (USPTO #64/034,215; OIN
-member); the patent grant flows automatically under Apache 2.0.
+License: MIT-0 OR Apache-2.0, at your option. Defensive-patent posture
+(USPTO #64/034,215; OIN member); the Apache-2.0 option carries that license's
+patent grant.
