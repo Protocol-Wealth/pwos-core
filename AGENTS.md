@@ -98,7 +98,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 ## Deploy and CI
 
 - PR CI (`.github/workflows/ci.yml`): `pnpm versions:check`, `pnpm -r build`,
-  `pnpm -r typecheck`, `pnpm -r test`, `pnpm -r lint`.
+  `pnpm lint:publish`, `pnpm -r typecheck`, `pnpm -r test`, `pnpm -r lint`.
 - SPDX headers (`.github/workflows/spdx-headers.yml`) and license compliance
   (`.github/workflows/license-compliance.yml`).
 - Version-PR only on `main` (`.github/workflows/release.yml`). Publication is
@@ -107,7 +107,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
 ## Conventions
 
 - **No client-specific code.** If something only makes sense for Protocol
-  Wealth, it belongs in `pw-os-v2`, not here.
+  Wealth, it belongs in the private PW estate, not here.
 - **Storage-agnostic by default.** Packages expose pure functions or
   interfaces; storage implementations are caller-supplied.
 - **Framework-agnostic by default.** No Hono / Express / React baked in.
@@ -134,7 +134,7 @@ See [`docs/publishing.md`](docs/publishing.md) for the full flow.
    `"LICENSE-MIT-0"` + `"LICENSE-APACHE"` + `"NOTICE"` in `files`. Every new subpath export you add must
    have a matching `dist/` entry under `publishConfig.exports` or the
    publish-shape check fails.
-3. Add it to `pnpm-workspace.yaml` (already covered by the `packages/*` glob).
+3. No `pnpm-workspace.yaml` edit is needed; the `packages/*` glob covers it.
 4. Wire dev-deps by mirroring an existing package (`typescript`, `vitest`, plus
    `@types/node` if you import from `node:*`).
 5. Land a changeset describing the new package.
@@ -169,11 +169,8 @@ PW estate; `pwos-core` owns reusable package shapes and generic primitives.
   every byte committed here must be original first-party work licensed MIT-0 OR Apache-2.0. Schema-as-facts
   is not copyrightable; specific code expression is. When in doubt, re-derive
   with our own vocabulary.
-- No `--no-verify` on commits. No skipped hooks.
 
-`pw-os-v2`, `pw-portal-v2`, `pw-api`, `pw-infrastructure`, `pw-onchain` are
-separate consumer / runtime repos. When extracting a primitive from one of them
-into here, generalize the API — drop framework coupling, drop PW-specific
+When extracting a primitive from a private consumer or runtime repo into here, generalize the API — drop framework coupling, drop PW-specific
 identifiers, expose hooks for caller-specific behavior.
 
 `nexus-core` (sibling repo) is the Python analytical surface. Math lives in
@@ -187,3 +184,6 @@ split.
 - CI must not publish. Maintainer-local `pnpm changeset:publish` is the
   publish path; putting npm credentials back on the release workflow is a
   regression.
+- An exported `VERSION` in a package's `src/index.ts` must equal its
+  `package.json` version or `pnpm versions:check` fails. Bump with
+  `pnpm changeset:version`, not bare `changeset version`.
