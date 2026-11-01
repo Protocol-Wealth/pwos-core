@@ -47,11 +47,11 @@
     "prepack": "node ../../scripts/copy-license-notice.mjs && pnpm run build"
   },
   "dependencies": {
-    "zod": "^4.6.5"
+    "zod": "^4.6.6"
   },
   "devDependencies": {
     "typescript": "^7.0.2",
-    "vitest": "^5.0.1",
+    "vitest": "^5.0.3",
     "@types/node": "^26.6.1"
   },
   "publishConfig": {
