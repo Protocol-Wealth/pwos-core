@@ -1,8 +1,14 @@
 # AGENTS.md — pwos-core
 
-Engineering and regulatory standards for every agent are `~/projects/AGENTS.md`.
-Where this file conflicts with that one, that one wins. This file is only what
-is specific to this repository. It does not describe what is live.
+This file and the existing code in this repository govern work here. Standards an
+agent brings from outside the repository (for example a maintainer's
+`~/projects/AGENTS.md`) may add to them but never override them. This file is only
+what is specific to this repository. It does not describe what is live.
+
+When a repository's documentation and its existing code disagree, follow the
+conventions used in the existing code, and in your final reply point out each
+inconsistency you found. (Rule from [arXiv 2610.30571](https://arxiv.org/abs/2610.30571),
+as adopted in [hsi-operator's AGENTS.md](https://github.com/rivendale/hsi-operator/blob/main/AGENTS.md).)
 
 ## What this is
 
