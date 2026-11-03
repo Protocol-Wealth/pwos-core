@@ -1,10 +1,10 @@
 ---
-"@protocolwealthos/mcp-tools": patch
+"@protocolwealthos/mcp-tools": minor
 ---
 
-`confirmGate` no longer accepts an unkeyed hash of the payload. A confirmation token is an HMAC-SHA256 under a server secret, bound to the operation, principal, payload hash, expiry, and a single-use id. The id is recorded in a caller-supplied store at preview and consumed once before `execute()`.
+**Breaking.** Existing `confirmGate` callers must change. The gate now requires `authorization` (`secret`, `principalId`, `store`, and `ttlMs`). A call that omits it does not typecheck and does not run. `computeConfirmToken` and `CONFIRM_TOKEN_LENGTH` are removed. An unkeyed hash of the payload is not a token anymore, so code that minted a token with `computeConfirmToken(payload)` and passed it back will be rejected.
 
-**Breaking for existing callers.** `computeConfirmToken` and `CONFIRM_TOKEN_LENGTH` are removed. `confirmGate` now requires `authorization`:
+Replacement:
 
 ```ts
 await confirmGate({
@@ -21,6 +21,8 @@ await confirmGate({
   execute,
 });
 ```
+
+The token is an HMAC-SHA256 under that server secret, bound to the operation, principal, payload hash, expiry, and a single-use id. Preview records the id in `store`. Confirm consumes it once before `execute()`.
 
 Rejection codes: `confirm_token_mismatch`, `confirm_token_expired`, `confirm_token_replayed`, `confirm_token_not_issued`. A signed token that the store did not issue is rejected. A changed payload, operation, or principal does not burn the token. Expiry and a successful consume do. If `execute()` throws, the token stays spent; put an idempotency key in the payload and dedupe inside `execute()`. The gate does not replay results.
 
