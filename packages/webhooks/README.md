@@ -69,4 +69,4 @@ app.post("/webhooks/vendor/:token", (req, res) => {
 
 ## License
 
-Licensed under either MIT-0 or Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215.
+Licensed under MIT-0 OR Apache-2.0, at your option. Defensive patent posture: USPTO Application #64/034,215.

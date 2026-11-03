@@ -33,4 +33,4 @@ keys.hashed("app", "user", "advisor@example.com");  // "app:user:..." (sha256 pr
 
 ## License
 
-Licensed under either MIT-0 or Apache-2.0, at your option.
+Licensed under MIT-0 OR Apache-2.0, at your option.

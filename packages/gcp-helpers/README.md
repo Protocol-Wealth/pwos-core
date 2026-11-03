@@ -93,4 +93,4 @@ The server endpoint forwards the payload to Cloud Logging — keep direct browse
 
 ## License
 
-Licensed under either MIT-0 or Apache-2.0, at your option.
+Licensed under MIT-0 OR Apache-2.0, at your option.

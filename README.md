@@ -7,7 +7,7 @@
 [![OIN Member](https://img.shields.io/badge/OIN-Member-green.svg)](https://openinventionnetwork.com)
 [![TypeScript](https://img.shields.io/badge/TypeScript-6.0+-blue.svg)](https://www.typescriptlang.org/)
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![GitHub stars](https://img.shields.io/github/stars/Protocol-Wealth/pwos-core?style=social)](https://github.com/Protocol-Wealth/pwos-core/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/Protocol-Wealth/pwos-core?style=social)](https://github.com/Protocol-Wealth/pwos-core)
 
 **Live:** [pwos.app](https://pwos.app) | **Demo:** [pwos.app/demo](https://pwos.app/demo) | **Disclosures:** [pwos.app/disclosures](https://pwos.app/disclosures)
 
@@ -21,11 +21,11 @@ This is a reference framework and a starting point, not a production-ready produ
 
 Adopters are responsible for adding their own PII controls, access control, input validation, authentication, and data-handling boundaries appropriate to their own regulatory and security context before any real or sensitive data touches it. Adopters are also responsible for their own AI-provider data-handling posture; the framework makes no data-retention guarantees.
 
-Provided as-is under MIT-0 OR Apache-2.0.
+Provided as-is under MIT-0 OR Apache-2.0. Educational use only — nothing here is investment, legal, tax, or compliance advice.
 
 ## Recent shipping cadence (2026-05-18 → 2026-05-19 cascade)
 
-The Protocol Wealth estate ships continuously; pwos-core is the public-facing extraction surface where canonical patterns surface for community reuse. Recent in-estate work (referenced in [`shared/CHANGELOG.md`](https://github.com/Protocol-Wealth/pw-shared) cross-repo log):
+The Protocol Wealth estate ships continuously; pwos-core is the public-facing extraction surface where canonical patterns surface for community reuse. Recent in-estate work is recorded in a private cross-repo changelog that is not part of this public repository:
 
 - **Component 4 e-signature substrate** — Anvil-canonical 4-doc v1 envelope (IAA + Form ADV Part 2A + Privacy Notice + IPS); `signed_document_archive` + sentinel-row reconciliation day-one; 7-year retention via GCS WORM; PDF/A-2b archival; Rule 204-3 annual re-delivery + material-change re-execution. Two new ADRs (signed-document-state-machine + Anvil-integration) extended the canonical reference set.
 - **Component 3 risk-tolerance verification** — substrate + 8 canonical actions + PII_TAGS port + sentinel-row reconciliation; deterministic scoring engine (MIT/Grable FRTS-13 normalize + PW overlay 0-30 + bucket 1-33/34-66/67-100); advisor override surface; needs_review→review_item flow.
@@ -43,7 +43,7 @@ If you are an RIA principal, CCO, or technical advisor evaluating your firm's AI
 
 1. **Fork `pwos-core`.** MIT-0 OR Apache-2.0 license; no NDA, no contact form. Run the audit-logging + PII-redaction primitives against your own data, in your own GCP project, on your own timeline. The pattern set is documented; the primitives are inspectable.
 2. **Use the [advisor's AI vendor audit checklist](https://protocolwealthllc.com/factsheets/advisor-ai-vendor-audit-checklist).** 20 questions any RIA should ask before adopting an AI-enabled vendor — Reg S-P, Marketing Rule §206(4)-1, Rule 204-2, Rule 206(4)-7. Yours to edit, republish, hand to your CCO, or attach to a vendor RFP.
-3. **Subscribe to [protocolwealthllc.com/changelog](https://protocolwealthllc.com/changelog).** Public substrate changelog. If we ship something compliance-interesting (or something dumb), you see it. Build-in-public both ways.
+3. **Follow the [changelog](CHANGELOG.md) and [GitHub releases](https://github.com/Protocol-Wealth/pwos-core/releases).** Public substrate changelog for this repository. If we ship something compliance-interesting (or something dumb), you see it. Build-in-public both ways.
 
 ### Package → regulation map
 
@@ -74,7 +74,7 @@ The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as fol
 
 ### License
 
-**Licensed under either MIT-0 or Apache-2.0, at your option.** The full texts are in [`LICENSE-MIT-0`](LICENSE-MIT-0) and [`LICENSE-APACHE`](LICENSE-APACHE). MIT-0 is the frictionless option; the Apache-2.0 option carries an explicit patent grant, which aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229 + 64/082,241; OIN membership).
+**Licensed under MIT-0 OR Apache-2.0, at your option.** The full texts are in [`LICENSE-MIT-0`](LICENSE-MIT-0) and [`LICENSE-APACHE`](LICENSE-APACHE). MIT-0 is the frictionless option; the Apache-2.0 option carries an explicit patent grant, which aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229 + 64/082,241; OIN membership).
 
 Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site); ~243 financial-data tools) is published under its own open-source license and defensive patent posture; see that repository.
 
@@ -83,13 +83,13 @@ Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core)
 | Surface | Purpose |
 |---|---|
 | [`protocolwealthllc.com/security`](https://protocolwealthllc.com/security) | Public security posture — ZDR + PII guard + WORM audit + signing posture + verification pathways |
-| [`protocolwealthllc.com/changelog`](https://protocolwealthllc.com/changelog) | Public substrate changelog — sanitized cross-repo shipping ledger; build-in-public Tier-1 |
+| [CHANGELOG.md](CHANGELOG.md) · [GitHub releases](https://github.com/Protocol-Wealth/pwos-core/releases) | Public substrate changelog for this repository |
 | [`protocolwealthllc.com/factsheets`](https://protocolwealthllc.com/factsheets) | Public fact-sheet kit — 5 substrate-education documents incl. the advisor's AI vendor audit checklist |
 | [`pwos.app/live`](https://pwos.app/live) | Engineering substrate transparency dashboard — PR activity + CI status + ADR counts + static posture indicators |
 | [`nexusmcp.site`](https://nexusmcp.site) | Sibling repo `nexus-core` production MCP foundation — ~243 financial-data tools surfaced as MCP-protocol tools |
 | [`protocolwealthllc.com/subprocessors`](https://protocolwealthllc.com/subprocessors) | Canonical subprocessor list — 16 vendors in PW's production stack with attestations |
 
-**Note (2026-07-01):** These public surfaces live outside this repo. Verify them directly before treating their current runtime state as part of a release decision.
+**Note (2026-07-01):** Website rows in this table live outside this repo. Verify them directly before treating their current runtime state as part of a release decision. The changelog and releases row is the record in this repository.
 
 ## What This Is
 
@@ -395,7 +395,7 @@ See [PATENTS](PATENTS) for full non-assertion pledge.
 
 ## License
 
-Licensed under either MIT-0 or Apache-2.0, at your option.
+Licensed under MIT-0 OR Apache-2.0, at your option.
 
 - MIT No Attribution: [LICENSE-MIT-0](LICENSE-MIT-0)
 - Apache License 2.0: [LICENSE-APACHE](LICENSE-APACHE)
