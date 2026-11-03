@@ -94,7 +94,7 @@ package or its documentation.
 
 ## MIT-0 OR Apache-2.0 + defensive patent
 
-License: **Licensed under either MIT-0 or Apache-2.0, at your option.**
+License: **Licensed under MIT-0 OR Apache-2.0, at your option.**
 Patent: USPTO #64/034,215 (filed defensively; under the Apache-2.0 option the
 patent grant flows automatically, and suing the licensor terminates that
 patent license).

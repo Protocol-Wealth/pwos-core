@@ -20,4 +20,4 @@
 
 ## License
 
-Licensed under either MIT-0 or Apache-2.0, at your option. See [../../LICENSE-MIT-0](../../LICENSE-MIT-0) and [../../LICENSE-APACHE](../../LICENSE-APACHE).
+Licensed under MIT-0 OR Apache-2.0, at your option. See [../../LICENSE-MIT-0](../../LICENSE-MIT-0) and [../../LICENSE-APACHE](../../LICENSE-APACHE).
