@@ -12,6 +12,16 @@
  * The scan produces sanitized text plus a manifest. The manifest can be
  * stored alongside the sanitized output; feeding the manifest back through
  * `rehydrate()` restores the original content for advisor-side display.
+ *
+ * Overlapping detections are merged to the union of their spans after the
+ * allow-list filter. A higher score (then a longer span, then regex over
+ * financial over ner) chooses the label only — it must not leave a
+ * detected character unmasked. Adjacent spans stay separate.
+ *
+ * `sanitizedText` is the string safe to hand to a hosted model. Manifest
+ * `original` values stay on the trusted side for rehydration. No detected
+ * entities is not evidence that the input contained no sensitive data;
+ * this scanner only masks what a configured detector flagged.
  */
 
 import { AllowList, isAllowed as defaultIsAllowed } from "./allowList.js";
@@ -66,29 +76,76 @@ export interface ScanOptions {
 
 // ─── Entity merge ───────────────────────────────────────────────────
 
-function mergeEntities(entities: DetectedEntity[]): DetectedEntity[] {
-  if (entities.length === 0) return [];
+const SOURCE_RANK = { regex: 0, financial: 1, ner: 2 } as const;
 
-  // Sort by start, then by descending score, then prefer regex > financial > ner.
-  const sorted = [...entities].sort((a, b) => {
-    if (a.start !== b.start) return a.start - b.start;
-    if (a.score !== b.score) return b.score - a.score;
-    const order = { regex: 0, financial: 1, ner: 2 } as const;
-    return (order[a.source] ?? 2) - (order[b.source] ?? 2);
-  });
+function sourceRank(source: DetectedEntity["source"]): number {
+  return SOURCE_RANK[source] ?? SOURCE_RANK.ner;
+}
 
-  const result: DetectedEntity[] = [];
-  let lastEnd = -1;
+/**
+ * Clamp a detector span onto `text`. Offsets are authoritative; the
+ * returned text is always `text.slice(start, end)`. Non-finite or empty
+ * spans are dropped. A fractional offset expands outward so a detector
+ * cannot shed a partial character by using a non-integer bound.
+ */
+function clampEntity(entity: DetectedEntity, text: string): DetectedEntity | null {
+  if (!Number.isFinite(entity.start) || !Number.isFinite(entity.end)) return null;
+  const start = Math.max(0, Math.min(Math.floor(entity.start), text.length));
+  const end = Math.max(start, Math.min(Math.ceil(entity.end), text.length));
+  if (end <= start) return null;
+  return { ...entity, start, end, text: text.slice(start, end) };
+}
+
+/**
+ * Merge already allow-listed-filtered detections so the union of their
+ * spans stays covered.
+ *
+ * Overlap is `start < currentEnd` (a shared edge is adjacency, not
+ * overlap). The surviving label is the higher score, then the longer
+ * original span. Equal score and equal length keep the earlier span in
+ * start / score / source order, which prefers regex over financial over
+ * ner when they start together.
+ *
+ * Coverage matches pw-redact-core `_merge_entities` (pw-redact-core#3,
+ * pwos-core#125). This package does not copy a detection onto later
+ * look-alike occurrences, and it keeps financial recognizers as their
+ * own source instead of folding them into NER.
+ */
+function mergeEntities(entities: DetectedEntity[], text: string): DetectedEntity[] {
+  const sorted = entities
+    .map((entity) => clampEntity(entity, text))
+    .filter((entity): entity is DetectedEntity => entity !== null)
+    .sort((a, b) => {
+      if (a.start !== b.start) return a.start - b.start;
+      if (a.score !== b.score) return b.score - a.score;
+      const bySource = sourceRank(a.source) - sourceRank(b.source);
+      if (bySource !== 0) return bySource;
+      return b.end - b.start - (a.end - a.start);
+    });
+
+  type Group = { start: number; end: number; best: DetectedEntity };
+  const groups: Group[] = [];
   for (const entity of sorted) {
-    if (entity.start >= lastEnd) {
-      result.push(entity);
-      lastEnd = entity.end;
-    } else if (entity.score > (result[result.length - 1]?.score ?? 0)) {
-      result[result.length - 1] = entity;
-      lastEnd = entity.end;
+    const last = groups[groups.length - 1];
+    if (last && entity.start < last.end) {
+      const longer = entity.end - entity.start > last.best.end - last.best.start;
+      if (entity.score > last.best.score || (entity.score === last.best.score && longer)) {
+        last.best = entity;
+      }
+      if (entity.end > last.end) last.end = entity.end;
+    } else {
+      groups.push({ start: entity.start, end: entity.end, best: entity });
     }
   }
-  return result;
+
+  return groups.map((group) => ({
+    entityType: group.best.entityType,
+    text: text.slice(group.start, group.end),
+    start: group.start,
+    end: group.end,
+    score: group.best.score,
+    source: group.best.source,
+  }));
 }
 
 // ─── Random ID helper (Web Crypto first, Node fallback) ─────────────
@@ -108,6 +165,11 @@ function shortId(): string {
  *
  * Returns a Promise because the NER provider may be async. When no NER
  * provider is configured, the promise resolves synchronously on next tick.
+ *
+ * The result masks the union of detections that survived the allow-list.
+ * It is a best-effort detector, not a proof that `input` was free of
+ * sensitive data. Do not send `manifest` (it holds original values) to
+ * a hosted model; send `sanitizedText`.
  */
 export async function scan(input: string, opts: ScanOptions = {}): Promise<ScanResult> {
   const context = opts.context ?? "general";
@@ -125,11 +187,14 @@ export async function scan(input: string, opts: ScanOptions = {}): Promise<ScanR
   // Layer 3: context-aware financial recognizers
   const financialEntities = detectFinancial(text, context);
 
-  const allEntities = mergeEntities([...regexEntities, ...nerEntities, ...financialEntities]);
-
-  // Layer 4: allow-list filter
+  // Layer 4 runs before the merge. An allow-listed span must not absorb
+  // or suppress a real detection that overlaps it, and it must not be
+  // pulled into a neighboring mask just because the spans touch.
   const allowFn = allow ? (t: string) => allow.isAllowed(t) : defaultIsAllowed;
-  const filtered = allEntities.filter((e) => !allowFn(e.text));
+  const protectedEntities = [...regexEntities, ...nerEntities, ...financialEntities].filter(
+    (entity) => !allowFn(entity.text),
+  );
+  const filtered = mergeEntities(protectedEntities, text);
 
   // Build placeholders
   const typeCounters = new Map<string, number>();

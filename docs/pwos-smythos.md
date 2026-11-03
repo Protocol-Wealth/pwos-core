@@ -10,7 +10,7 @@ PWOS is the other half of that sentence. The `@protocolwealthos/*` primitives in
 
 - **`@protocolwealthos/pii-guard`** — 4-layer PII scanner + streaming rehydrator at the LLM call boundary.
 - **`@protocolwealthos/audit-log`** — append-only, SHA-256 hash-chained record of every tool call and decision (SEC Rule 204-2 shape).
-- **`@protocolwealthos/mcp-tools`** — tool registry with 4-tier access classification and `confirmGate()`, the payload-bound two-turn gate for write tools.
+- **`@protocolwealthos/mcp-tools`** — tool registry with 4-tier access classification and `confirmGate()`, an HMAC, expiring, single-use binding from a preview to one execution. It is not itself human-approval proof.
 - **`@protocolwealthos/disclosure-card`** — machine-readable AI-system disclosure schema.
 - **`@protocolwealthos/shared`** — the `hitl` (human-in-the-loop) and `provenance` governance primitives.
 
@@ -32,7 +32,7 @@ This is a reference shape, not a shipped product. An adopter wiring an MCP agent
         ▼
   PWOS compliance/credential layer (adopter-composed)
         ├── pii-guard      → scrub PII before any LLM / tool egress
-        ├── mcp-tools tier + confirmGate() → authorize + two-turn-gate write tools
+        ├── mcp-tools tier + confirmGate() → tier check + expiring single-use preview binding
         ├── hitl           → require a human sign-off where the tier demands it
         ├── disclosure-card → surface the machine-readable AI-system disclosure
         └── audit-log      → hash-chained record of every call + decision

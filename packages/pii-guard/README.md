@@ -11,6 +11,14 @@
 3. **Financial Recognizers** — CUSIP, account references, policy numbers (context-boosted)
 4. **Allow-List** — 60+ finance terms that should never be redacted
 
+## Overlapping detections
+
+Detections that survive the allow-list are merged to the union of their spans before masking. Score and source (regex, then financial, then ner) choose the placeholder label. They do not drop coverage. Spans that only touch at an edge stay separate. An allow-listed span is removed before that merge, so it cannot swallow an overlapping detection.
+
+The same coverage rule is implemented in [pw-redact-core](https://github.com/Protocol-Wealth/pw-redact-core) (`_merge_entities`, coordinated with pwos-core#125 and pw-redact-core#3). Intentional differences: this package does not rewrite look-alike Unicode before matching, and it does not copy a detected value onto later occurrences. pw-redact-core folds financial recognizers into its NLP bucket; this package keeps them as their own source.
+
+`sanitizedText` is the egress string. Manifest `original` values are for trusted-side rehydration — do not send the manifest to a hosted model. No detections does not mean the input had no sensitive data.
+
 ## Modes
 
 - `off` — No scanning
