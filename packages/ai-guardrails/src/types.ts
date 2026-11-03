@@ -75,17 +75,45 @@ export interface AiCallAuditRow {
 }
 
 /**
- * Workspace assertion config. Models from a non-ZDR workspace would silently
- * route firm data through a retention path; assertion fails fast at boot if
- * the configured workspace doesn't match expectations.
+ * Opaque provenance for the credential that will sign a provider request.
+ * `source` is a label (`"env:ANTHROPIC_API_KEY"`, `"secret-manager:…"`, …).
+ * `fingerprint` is a content-free digest of that credential, from
+ * {@link fingerprintCredential}. Neither field is a retention-policy claim,
+ * and neither may contain the raw credential.
+ */
+export interface CredentialProvenance {
+  source: string;
+  fingerprint: string;
+}
+
+/**
+ * Workspace assertion config.
+ *
+ * `expected` / `actual` compare configured workspace ids. That is a boot
+ * configuration check. It does not query a provider and it does not prove
+ * which credential will sign the next request. Pass `credential` plus
+ * `allowedCredentialFingerprints` to also bind the assertion to the
+ * credential the caller will actually use. A locally editable workspace
+ * id is not a substitute for that list.
  */
 export interface WorkspaceAssertionConfig {
-  /** Expected workspace id (typically your ZDR-enrolled workspace). */
+  /** Expected workspace id from the caller's own configuration. */
   expected: string;
   /** Actual workspace id to assert (read from env or vendor SDK). */
   actual: string | undefined;
   /** Posture on mismatch. Default `block`. */
   posture?: GuardrailPosture;
+  /**
+   * Provenance of the credential that will sign requests. Compared only
+   * when `allowedCredentialFingerprints` is set.
+   */
+  credential?: CredentialProvenance;
+  /**
+   * Fingerprints independently known to belong with `expected`. When this
+   * array is set (including when it is empty), the signing credential's
+   * fingerprint must be a member or the assertion fails.
+   */
+  allowedCredentialFingerprints?: readonly string[];
 }
 
 /** Token-usage shape returned by Anthropic-style responses. */

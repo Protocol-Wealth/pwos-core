@@ -46,15 +46,25 @@ export {
 } from "./anthropic.js";
 
 export {
-  CONFIRM_TOKEN_LENGTH,
-  computeConfirmToken,
   confirmGate,
   formatPreviewMessage,
+  issueConfirmToken,
   stableJsonString,
   type ConfirmGateOptions,
   type ConfirmGateOutcome,
+  type ConfirmRejectionCode,
+  type IssueConfirmTokenArgs,
+  type IssuedConfirmToken,
   type PreviewMessageArgs,
 } from "./confirmationGate.js";
+
+export {
+  ConfirmGateConfigError,
+  InMemoryConfirmTokenStore,
+  type ConfirmAuthorization,
+  type ConfirmTokenStore,
+  type ConsumeResult,
+} from "./confirmToken.js";
 
 export {
   type ResponseFilter,

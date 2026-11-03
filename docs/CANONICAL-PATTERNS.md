@@ -25,7 +25,7 @@ This document catalogs the canonical patterns extracted from the Protocol Wealth
 **pwos-core packages that compose against this pattern:**
 
 - `@protocolwealthos/pii-guard` — 4-layer scanner (regex + NER + financial recognizers + allow-list) as the inbound/audit pipeline backstop; sits behind the schema tags as defense-in-depth
-- `@protocolwealthos/ai-guardrails` — `assertWorkspace()` (ZDR fail-fast) + `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) + `buildAuditRow()` (content-free audit-row builder)
+- `@protocolwealthos/ai-guardrails` — `assertWorkspace()` (workspace-id configuration assertion, optional signing-credential fingerprint; not a provider retention proof) + `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) + `buildAuditRow()` (content-free audit-row builder)
 - `@protocolwealthos/audit-log` — emits `pii.field.excluded` + `pii.waiver.consumed` + `pii.medium.included` rows at the middleware boundary
 
 **Independent PII egress canary backstop:** each service (pw-api, pw-os-v2, pw-portal-v2) runs its own copy of the egress canary. Deliberately not a shared module so the layers cannot share a bug. See pattern #6 below.
@@ -163,7 +163,7 @@ interface VendorWebhookHandler {
 **pwos-core packages that compose against this pattern:**
 
 - `@protocolwealthos/pii-guard` — the canary primitive; intentionally embed copies (not import shared) at each egress site
-- `@protocolwealthos/ai-guardrails` — `assertWorkspace()` ZDR fail-fast + `buildAuditRow()` content-free audit-row builder
+- `@protocolwealthos/ai-guardrails` — `assertWorkspace()` configuration assertion + `buildAuditRow()` content-free audit-row builder
 
 **Subtle gotcha (codified 2026-05-16):** The canary's email-block fundamentally conflicts with routes whose payload-shape is intentionally identifier-bearing (sender-email classification). Audit prompt-shape first before wrapping; the pattern is suitable for outbound-broadcast surfaces, not for inbound-classifier surfaces with identifier-bearing fixtures. See memory anchor `canary-vs-classifier-route-conflict` in the PW estate for the codified scope.
 

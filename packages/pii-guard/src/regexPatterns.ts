@@ -9,8 +9,9 @@
  * use capture groups where appropriate so the caller can redact just the
  * sensitive portion (e.g. the token value, not the `Bearer ` prefix).
  *
- * Scores (0-1) indicate redaction priority when entities overlap — higher
- * scores win merges. Calibrate against your own false-positive rate.
+ * Scores (0-1) choose which detection names a merged span. They do not
+ * drop coverage: overlapping spans become their union. Calibrate scores
+ * against your own false-positive rate.
  */
 
 export interface PatternDef {

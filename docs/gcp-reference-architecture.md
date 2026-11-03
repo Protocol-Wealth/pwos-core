@@ -91,7 +91,7 @@ The patterns here are not Terraform modules — they're choices and shapes. Use 
 
 **Pattern: hand-authored SQL migrations.** ORM `db push` / `synchronize` are forbidden. Migrations ship in code review; production application happens via a Cloud Run **Job** that runs once per deploy and writes audit log entries for each migration. The Cloud Run Job uses a deployer service account; the application's runtime service account does not have DDL privileges.
 
-**Pattern: append-only audit table with BEFORE DELETE / BEFORE UPDATE triggers.** See [`packages/audit-log/src/sql/appendOnlyTrigger.sql`](../packages/audit-log/src/sql/appendOnlyTrigger.sql) for a template.
+**Pattern: append-only audit table with BEFORE DELETE, BEFORE UPDATE, and BEFORE TRUNCATE triggers.** See [`packages/audit-log/src/sql/appendOnlyTrigger.sql`](../packages/audit-log/src/sql/appendOnlyTrigger.sql). The triggers hold while they stay enabled; a superuser or table owner can disable them. Archive retention is a separate control.
 
 **Pattern: row-level security (RLS) for tenant separation.** A query against the wrong tenant context fails before it can return data. Don't rely on application-layer "I checked the tenant id in the WHERE clause" — that's procedural, not architectural.
 
@@ -209,7 +209,7 @@ Use [`@protocolwealthos/security-headers`](../packages/security-headers) `buildS
 
 Use [`@protocolwealthos/ai-guardrails`](../packages/ai-guardrails) for the workspace assertion, model resolver, prompt-cache markers, and audit-row builder. Use [`@protocolwealthos/pii-guard`](../packages/pii-guard) for the scrubber/rehydrator pipeline.
 
-**Pattern: assert workspace at boot.** A credential rotation that silently moves traffic to a non-ZDR workspace would route firm data through a path that doesn't satisfy your obligations. Fail fast.
+**Pattern: assert workspace configuration at boot.** Compare the configured workspace id and, separately, a fingerprint of the credential that will sign the call. A matching workspace id does not prove provider retention or that the live key belongs to that workspace.
 
 **Pattern: refuse hardcoded model literals.** Add a CI lint over the source tree that grep's for `"claude-..."` outside the resolver module; require all callers go through `models.resolve("FRONTIER")`.
 

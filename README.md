@@ -54,9 +54,9 @@ The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as fol
 | **`audit-log`** | Rule 204-2 books-and-records | Hash-chained append-only log; anomaly detectors; `assertApprovedByDifferentParty`; Postgres trigger SQL |
 | **`pii-guard`** | Reg S-P §248.30(b) safeguards + GLBA non-public-personal-information protections | 4-layer pipeline (regex + NER + financial recognizers + domain allow-list); streaming rehydrator; injection detector |
 | **`email-archive`** | Rule 204-2 books-and-records | SHA-256 chain-of-custody hashing; retention enforcement; query evaluator |
-| **`ai-guardrails`** | AI governance posture for SEC-registered advisers (Marketing Rule §206(4)-1 attribution + Rule 204-2 communication retention) | ZDR workspace fail-fast; env-aliased model resolver (no hardcoded model strings); cache-marker PII boundary check; audit row builder |
+| **`ai-guardrails`** | AI governance posture for SEC-registered advisers (Marketing Rule §206(4)-1 attribution + Rule 204-2 communication retention) | Workspace-id configuration assertion plus optional signing-credential fingerprint (not a provider retention proof); env-aliased model resolver (no hardcoded model strings); cache-marker PII boundary check; audit row builder |
 | **`compliance`** | Rule 204-2 books-and-records primitives + Reg S-P §248.30 incident classification | SEC 204-2 retention calculator; Books-and-Records bundler; PII incident classifier; compliance calendar; vendor DD metadata schema |
-| **`mcp-tools`** | AI governance — tool-call attribution + write-tool authorization gate + Rule 204-2 tool-call retention | 4-tier tool access classification; response filters; payload-bound `confirmGate()` (write-tool two-turn gate); `buildToolAuditEntry()` |
+| **`mcp-tools`** | AI governance — tool-call attribution + write-tool authorization gate + Rule 204-2 tool-call retention | 4-tier tool access classification; response filters; `confirmGate()` (HMAC, expiring, single-use preview binding — not human-approval proof by itself); `buildToolAuditEntry()` |
 | **`webhooks`** | Canonical webhook receiver primitive — verify · dedup · parse · process · audit · DLQ — applicable across vendor relationships under Reg S-P §248.30(a)(5) | `verifyHmacSha256` (hex/base64/base64url); `verifyTimestampedHmacSha256` (replay-window); `verifyDualLayer` (path-token + Basic Auth); `IdempotencyStore` interface |
 | **`security-headers`** | Web-security baseline (CSP / HSTS / Permissions-Policy / X-Frame-Options) — Reg S-P §248.30(b) safeguards adjacent | `strictBaseline()` CSP (no `'unsafe-inline'`); `applyDevOverrides()` for HMR; `buildHsts()` (preload-eligible); framework-agnostic flat header map |
 | **`workflow-engine`** | Review-items state machine + HITL Tier 2 patterns — Rule 206(4)-7 compliance program substrate | Durable-job runtime; backoff strategies (fixed / linear / exponential + jitter); in-memory queue + pluggable backends |
@@ -99,9 +99,9 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 
 ## Capability Surface
 
-- **PII and AI guardrails** — PII scanner, streaming rehydrator, prompt-injection detector, account masker, cache-prefix PII boundary, model alias resolver, ZDR workspace assertion, content-free audit rows.
+- **PII and AI guardrails** — PII scanner (overlapping detections mask their union), streaming rehydrator, prompt-injection detector, account masker, cache-prefix PII boundary, model alias resolver, workspace configuration assertion, content-free audit rows.
 - **Audit and governance** — Append-only audit log, recursive canonical JSON hashing, anomaly detectors, approver-separation guard, provenance hash-chain, fail-closed HITL evaluator, disclosure-card schema.
-- **Tool and workflow primitives** — MCP tool registry, tier classification, response filters, payload-bound confirmation gate, tool-call audit builder, durable-job interfaces, backoff strategies.
+- **Tool and workflow primitives** — MCP tool registry, tier classification, response filters, expiring single-use confirmation gate, tool-call audit builder, durable-job interfaces, backoff strategies.
 - **Security and integration boundaries** — HS256 JWT/session helpers, scoped agent tokens, role/domain guards, webhook HMAC and dual-layer verification, idempotency, security headers, cache-key PII rejection.
 - **Advisor data shapes** — Ledger, holdings, CRM, document model, email archive, on-chain portfolio client/types, GCP helper interfaces.
 - **Planning ABI** — PlanningContract v1.1.0 snake_case TypeScript contract, Roth/IRMAA result types, JSON Schema, and MCP planning tool definitions. Math lives in `nexus-core`.
@@ -117,15 +117,15 @@ The `@protocolwealthos/*` packages are what's published. You can use the package
 | Package | Headline primitives |
 |---------|---------------------|
 | **`@protocolwealthos/pii-guard`** | `scan()` + `rehydrate()` (4-layer pipeline) · `createStreamRehydrator()` (chunk-safe) · injection detector · input validator · `maskAccountNumber()` (show-last-4) |
-| **`@protocolwealthos/audit-log`** | `AuditLogger` + `AuditStore` interface · SHA-256 hash chaining · `verifyChain()` · three anomaly detectors (off-hours / rapid-sequential / new-actor-on-admin) · `assertApprovedByDifferentParty` · Postgres append-only-trigger SQL template |
-| **`@protocolwealthos/mcp-tools`** | `ToolRegistry` + 4-tier access classification · response filters · Anthropic adapter · `confirmGate()` (payload-bound write-tool gate) · `buildToolAuditEntry()` |
+| **`@protocolwealthos/audit-log`** | `AuditLogger` + `AuditStore` interface · SHA-256 hash chaining · `verifyChain()` · three anomaly detectors (off-hours / rapid-sequential / new-actor-on-admin) · `assertApprovedByDifferentParty` · Postgres append-only trigger SQL (UPDATE, DELETE, and TRUNCATE while triggers stay enabled) |
+| **`@protocolwealthos/mcp-tools`** | `ToolRegistry` + 4-tier access classification · response filters · Anthropic adapter · `confirmGate()` (HMAC, expiry, single-use write-tool gate) · `buildToolAuditEntry()` |
 | **`@protocolwealthos/compliance`** | SEC 204-2 retention calculator · Books-and-Records bundler with chain-of-custody · PII incident classifier · compliance calendar · `VendorDocMetadata` schema (SOC 2 / DPA / pen-test advisory metadata) |
 
 ### AI safety primitives
 
 | Package | Headline primitives |
 |---------|---------------------|
-| **`@protocolwealthos/ai-guardrails`** | `assertWorkspace()` (ZDR fail-fast) · `createModelResolver()` (env-aliased model strings, no hardcoded literals) · `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) · `buildAuditRow()` (sha256 of prompt + response + tool_use; no raw content) |
+| **`@protocolwealthos/ai-guardrails`** | `assertWorkspace()` (configuration assertion; optional credential fingerprint; not provider retention proof) · `createModelResolver()` (env-aliased model strings, no hardcoded literals) · `markCacheable()` (Anthropic prompt-cache markers with PII boundary check) · `buildAuditRow()` (sha256 of prompt + response + tool_use; no raw content) |
 
 ### Governance + planning primitives
 

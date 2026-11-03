@@ -17,6 +17,24 @@ jobs:
   build-test:
     name: Build, Typecheck, Test, Lint
     runs-on: ubuntu-latest
+    # Disposable database for packages/audit-log append-only trigger tests.
+    # The password is a CI-only value for this empty database, not a secret.
+    env:
+      AUDIT_LOG_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/audit_log_test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: audit_log_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d audit_log_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,6 +63,9 @@ jobs:
 
       - name: Typecheck all packages
         run: pnpm -r typecheck
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Test all packages
         run: pnpm -r test

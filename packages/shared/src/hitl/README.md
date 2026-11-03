@@ -154,9 +154,10 @@ export async function dispatch(action: HitlAction, payload: unknown) {
 }
 ```
 
-For a richer pattern that pairs HITL with a separate "confirmation gate" (a
-two-turn primitive that binds the previewed payload to the executed one)
-see the sibling `@protocolwealthos/mcp-tools` package's `confirmGate`.
+For a richer pattern that pairs HITL with a separate confirmation gate
+(an HMAC-bound, expiring, single-use check that the executed payload is
+the previewed one) see `@protocolwealthos/mcp-tools` `confirmGate`.
+HITL is still the approval policy. The gate does not replace it.
 
 ---
 

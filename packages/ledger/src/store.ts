@@ -15,8 +15,8 @@
  *
  * Implementations should:
  *   - Persist append-only (Postgres with the BEFORE DELETE / BEFORE
- *     UPDATE trigger from `@protocolwealthos/audit-log`'s SQL template
- *     is the canonical model).
+ *     UPDATE / BEFORE TRUNCATE triggers from `@protocolwealthos/audit-log`'s
+ *     SQL template is the reference shape, while those triggers stay enabled).
  *   - Write one audit-log row per append, with the canonical JSON +
  *     content hash chained to the prior row.
  *   - Run validators before persisting; the contract is "validated +

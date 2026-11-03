@@ -20,7 +20,11 @@
  *     });
  *
  * Wire a real store (Postgres, DynamoDB, etc.) in production by
- * implementing the ``AuditStore`` interface.
+ * implementing the ``AuditStore`` interface. The Postgres reference
+ * in `src/sql/appendOnlyTrigger.sql` refuses UPDATE, DELETE, and
+ * TRUNCATE while its triggers remain enabled. It does not stop a
+ * superuser or table owner who disables those triggers, and it is
+ * not an archive-retention control.
  */
 
 export const VERSION = "0.5.3";

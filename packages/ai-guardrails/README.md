@@ -8,14 +8,14 @@ MIT-0 OR Apache-2.0 · Patent Pending: USPTO #64/034,215 · part of [pwos-core](
 
 Off-the-shelf LLM SDKs are designed for ergonomics, not regulated use. A few of the things they don't do for you:
 
-- **Workspace assertion** — verify at boot that a credential rotation hasn't silently moved your traffic to a non-ZDR / non-data-residency workspace.
+- **Workspace assertion** — compare a configured workspace id at boot, and optionally a fingerprint of the credential that will sign requests. This does not query the provider and does not prove a retention policy.
 - **Model-string discipline** — keep vendor model ids out of the application; resolve aliases (FRONTIER / WORKHORSE / EXTRACTION) from env at boot.
 - **Prompt-cache hygiene** — mark a prefix cacheable; refuse to mark a prefix cacheable if it contains client PII.
 - **Content-free audit rows** — record `sha256(prompt)`, `sha256(response)`, `sha256(tool_use)` plus model id, token counts, and trace id. Never raw content.
 
 This package is the boot-time + per-request + per-response composable that gives you those four things. It does not pull in a vendor SDK.
 
-> The workspace-assertion check is the runtime enforcement of Protocol Wealth's ZDR API-surface boundary. ZDR (zero data retention) is contractually applied at the Anthropic workspace level — by asserting the workspace ID at boot and on every model call, ai-guardrails prevents accidental routing through a non-ZDR-enrolled workspace or the Anthropic Workbench / Claude.ai surfaces (which are NOT in ZDR scope). See PW's canonical AI-posture statement at `shared/docs/compliance/wisp-ai-posture.md` v1.3 §1 bullet 4 (internal).
+> `assertWorkspace` is a configuration assertion. Matching workspace ids do not prove that the credential signing a call belongs to that workspace, and they do not prove the provider's retention policy. Bind `fingerprintCredential` of the live signing key to an allowlist you maintain separately, and treat provider retention as evidence from the provider, not from this helper.
 
 ## Install
 
@@ -28,13 +28,23 @@ pnpm add @protocolwealthos/ai-guardrails
 ```ts
 import {
   assertWorkspaceFromEnv,
+  fingerprintCredential,
   createModelResolver,
   markCacheable,
   buildAuditRow,
 } from "@protocolwealthos/ai-guardrails";
 
-// 1. Boot — fail fast if credential rotation routed us to a non-ZDR workspace.
-assertWorkspaceFromEnv("ws_zdr_prod", "ANTHROPIC_WORKSPACE_ID");
+// 1. Boot — configured workspace id. This does not prove retention.
+//    To also reject a rotated signing key, pass its fingerprint and an
+//    allowlist that is not derived from the live key at boot.
+const ALLOWED_SIGNING_FINGERPRINTS = ["<sha256 hex of each enrolled signing key>"];
+assertWorkspaceFromEnv("ws_expected", "ANTHROPIC_WORKSPACE_ID", "block", {
+  credential: {
+    source: "env:ANTHROPIC_API_KEY",
+    fingerprint: fingerprintCredential(process.env.ANTHROPIC_API_KEY ?? ""),
+  },
+  allowedCredentialFingerprints: ALLOWED_SIGNING_FINGERPRINTS,
+});
 
 // 2. Boot — refuse hardcoded model literals; aliases resolve from env.
 const models = createModelResolver({
@@ -71,7 +81,8 @@ const row = buildAuditRow({
 
 | Export | Purpose |
 |---|---|
-| `assertWorkspace` / `assertWorkspaceFromEnv` | Fail-fast workspace check at boot. Default posture is `block` (throws); `warn` available for shadow modes. |
+| `assertWorkspace` / `assertWorkspaceFromEnv` | Compare a configured workspace id. Optional signing-credential fingerprint allowlist. `retentionVerified` is always `false`. Default posture is `block`; `warn` returns `{ ok: false }` instead of throwing. |
+| `fingerprintCredential` | SHA-256 hex of the credential that will sign requests. Content-free; do not log the input. |
 | `createModelResolver` | Resolve application model aliases from env, with optional vendor-prefix allowlisting. |
 | `markCacheable` | Set Anthropic `cache_control: { type: "ephemeral" }` on the last block of a prefix. Returns a clone — never mutates. |
 | `assertNoPiiInCachedPrefix` | Wire a PII scanner into the cache boundary. The scanner is caller-supplied; pair with [`@protocolwealthos/pii-guard`](../pii-guard). |
@@ -86,6 +97,7 @@ const row = buildAuditRow({
 
 ## What this is *not*
 
+- Not a provider retention probe, and not proof that a signing credential belongs to a workspace. `ok: true` means the checks you configured passed.
 - Not a model-call SDK. Use the vendor SDK (`@anthropic-ai/sdk`) for transport.
 - Not a prompt-injection detector. Use [`@protocolwealthos/pii-guard`](../pii-guard) `detectInjection` for that.
 - Not an observability tracer. Pass your trace id through `buildAuditRow` and let your tracer handle the rest.

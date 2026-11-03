@@ -43,9 +43,12 @@ export interface LLMClient {
  *
  * Configuration: the SDK reads ANTHROPIC_API_KEY from the environment by
  * default; pass an explicit apiKey via options for ergonomics-by-injection
- * in non-environment-variable contexts. The workspace assertion lives in
- * `@protocolwealthos/ai-guardrails/assertWorkspaceFromEnv` — production
- * consumers MUST call it at boot before instantiating the client.
+ * in non-environment-variable contexts. Workspace configuration checks
+ * live in `@protocolwealthos/ai-guardrails` (`assertWorkspaceFromEnv`).
+ * That helper compares configured ids and an optional credential
+ * fingerprint. It does not prove a provider retention policy. Call it
+ * before instantiating the client, with the fingerprint of the key this
+ * client will send.
  */
 export class AnthropicLLMClient implements LLMClient {
   private readonly anthropic: AnthropicLike;

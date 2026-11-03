@@ -129,7 +129,7 @@ const claims = claimsByClient(transactions, AAPL, 0, "2026-05-31");
 
 ## Audit-log integration
 
-Pair with [`@protocolwealthos/audit-log`](../audit-log) — every `append*` call should write one row. The reference Postgres template at `packages/audit-log/src/sql/appendOnlyTrigger.sql` provides the BEFORE DELETE / BEFORE UPDATE triggers that mirror this package's semantics at the database layer.
+Pair with [`@protocolwealthos/audit-log`](../audit-log) — every `append*` call should write one row. The reference Postgres template at `packages/audit-log/src/sql/appendOnlyTrigger.sql` refuses UPDATE, DELETE, and TRUNCATE while its triggers stay enabled. A superuser or table owner can still disable those triggers.
 
 ## What's NOT in v0.5.0
 

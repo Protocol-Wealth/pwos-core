@@ -9,8 +9,10 @@
  * a vendor SDK.
  *
  * Boot-time:
- *   - `assertWorkspace` / `assertWorkspaceFromEnv` — fail-fast if a
- *     credential rotation moves traffic to a non-ZDR workspace.
+ *   - `assertWorkspace` / `assertWorkspaceFromEnv` — compare a configured
+ *     workspace id, and optionally a fingerprint of the credential that
+ *     will sign requests, against caller-supplied expectations. This is
+ *     not proof of a provider's retention policy.
  *   - `createModelResolver` — refuse hardcoded model literals; resolve
  *     application aliases (FRONTIER / WORKHORSE / EXTRACTION / …) from
  *     env at boot, with optional vendor-prefix allowlisting.
@@ -33,9 +35,16 @@
 export {
   assertWorkspace,
   assertWorkspaceFromEnv,
+  fingerprintCredential,
+  CredentialBindingError,
   WorkspaceMismatchError,
 } from "./zdrAssertion.js";
-export type { AssertWorkspaceResult } from "./zdrAssertion.js";
+export type {
+  AssertWorkspaceFromEnvBinding,
+  AssertWorkspaceResult,
+  CredentialFingerprintStatus,
+  WorkspaceAssurance,
+} from "./zdrAssertion.js";
 
 export {
   createModelResolver,
@@ -73,5 +82,6 @@ export type {
   ResponseLike,
   StandardModelAlias,
   TokenUsage,
+  CredentialProvenance,
   WorkspaceAssertionConfig,
 } from "./types.js";
