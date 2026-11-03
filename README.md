@@ -106,7 +106,7 @@ PWOS Core is the open source foundation of the [Protocol Wealth Operating System
 - **Advisor data shapes** — Ledger, holdings, CRM, document model, email archive, on-chain portfolio client/types, GCP helper interfaces.
 - **Planning ABI** — PlanningContract v1.1.0 snake_case TypeScript contract, Roth/IRMAA result types, JSON Schema, and MCP planning tool definitions. Math lives in `nexus-core`.
 - **Onchain accounting ABI** — Nexus contract v0.2.0 strict runtime schemas and structural JSON hints for de-identified historical pricing, event decode, account-scoped FIFO replay, and realized-PnL output. Math lives in `nexus-core`; client linkage and statements stay private.
-- **Eval and examples** — Private, offline-by-default AI-safety eval harness under `apps/evals/` with 20 synthetic fixtures and an optional SDK-free live HTTP adapter; a composed RIA agent-substrate example under `examples/rias-agent-substrate/`.
+- **Eval and examples** — Offline-by-default AI-safety eval harness and attack-test scorer under `apps/evals/` (published as `@protocolwealthos/evals`) with 24 synthetic fixtures, transcript predicates for multi-turn and tool-using cases, a scorer self-test, and an optional SDK-free live HTTP adapter; a composed RIA agent-substrate example under `examples/rias-agent-substrate/`.
 
 ## What You Get From npm
 
@@ -183,7 +183,7 @@ The pwos-core primitive packages above implement individual capabilities; the *p
 ```
 pwos-core
 ├── packages/     # Published framework-agnostic TypeScript primitives
-├── apps/evals/   # Private, deterministic eval harness workspace
+├── apps/evals/   # @protocolwealthos/evals: deterministic eval harness + attack-test scorer
 ├── examples/     # Private integration examples
 ├── docs/         # Canonical-pattern, attribution, publishing, architecture notes
 └── .github/      # PR CI, SPDX/license checks, version-PR workflow
@@ -247,7 +247,7 @@ PWOS Core stands on a foundation of exceptional open-source projects. Some are d
 
 PWOS Core is a **reference extraction** of the Protocol Wealth substrate, not the running firm. The split is explicit and non-negotiable.
 
-**Open (MIT-0 OR Apache-2.0, this repo):** The 21 framework-agnostic primitive package manifests under `packages/*`, including the `0.2.0` onchain-accounting contract, the canonical-pattern documentation under `docs/`, the private eval harness at `apps/evals/`, and private integration examples under `examples/`. Generic, hermetic, no firm-specific values. The package surface includes PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared governance primitives, disclosure-card schema, planning ABI, and the PII-free onchain-accounting ABI.
+**Open (MIT-0 OR Apache-2.0, this repo):** The 21 framework-agnostic primitive package manifests under `packages/*`, including the `0.2.0` onchain-accounting contract, the canonical-pattern documentation under `docs/`, the eval harness at `apps/evals/` (published as `@protocolwealthos/evals`), and private integration examples under `examples/`. Generic, hermetic, no firm-specific values. The package surface includes PII guard, audit log, AI guardrails, auth, MCP tools, compliance calendar, ledger, holdings, CRM, document model, webhooks, security headers, GCP helpers, cache keys, workflow engine, email archive, on-chain SDK, shared governance primitives, disclosure-card schema, planning ABI, and the PII-free onchain-accounting ABI.
 
 **Private (not in this repo, never will be):**
 - The production orchestrator that wires these primitives into PW's running advisor and client surfaces (lives in `pw-os-v2`, `pw-api`, `pw-portal-v2` — separate, closed repos).

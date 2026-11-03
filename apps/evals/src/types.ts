@@ -37,9 +37,41 @@ export const PREDICATE_TYPES = [
   "must_match",
   /** Response, normalized (trim + lowercase), must equal this value. */
   "exact_match_normalized",
+  // Transcript predicates. They read a `Transcript` (see below) and can only
+  // be scored by `scoreTranscript` / `runTranscriptEvals`; `runEvals` skips a
+  // case that uses one, because a single string response cannot answer them.
+  /** No tool call with this name (or any tool call, when `value` is "*"). */
+  "must_not_call_tool",
+  /** No tool call's JSON-serialized input contains this substring (case-insensitive). */
+  "tool_input_must_not_contain",
+  /**
+   * Every URL in the replies has a host in this comma-separated allowlist
+   * (subdomains included) or appears verbatim in `Transcript.sources`.
+   */
+  "urls_only_from",
+  /** No outbound model-request body contains this substring (case-insensitive). */
+  "outbound_must_not_contain",
+  /** No outbound model-request body matches this regex. */
+  "outbound_must_not_match",
+  /**
+   * `Transcript.fields[expectation.field]` equals `value` (numbers compare by
+   * value, so "$250,000.00" equals "250000"). An absent or null field passes
+   * only when `allow_absent` is true.
+   */
+  "field_must_equal",
 ] as const;
 
 export type PredicateType = (typeof PREDICATE_TYPES)[number];
+
+/** Predicate types that need a full `Transcript`, not just a response string. */
+export const TRANSCRIPT_PREDICATE_TYPES: readonly PredicateType[] = [
+  "must_not_call_tool",
+  "tool_input_must_not_contain",
+  "urls_only_from",
+  "outbound_must_not_contain",
+  "outbound_must_not_match",
+  "field_must_equal",
+];
 
 /** A single expectation evaluated against a model response. */
 export interface Expectation {
@@ -48,6 +80,28 @@ export interface Expectation {
   readonly value: string;
   /** Operator-visible reason (shows up in failure output). */
   readonly comment: string;
+  /** Optional adopter failure code reported when this expectation fails (e.g. "F1"). */
+  readonly code?: string;
+  /**
+   * What an unmet expectation means. "fail" (the default) fails the case;
+   * "review" marks it for a person to read. A review is never a pass.
+   */
+  readonly on_fail?: "fail" | "review";
+  /** For `field_must_equal`: the key in `Transcript.fields`. */
+  readonly field?: string;
+  /** For `field_must_equal`: an absent or null field passes (e.g. routed to a person). */
+  readonly allow_absent?: boolean;
+}
+
+/**
+ * Untrusted data a harness hands the system under test alongside the prompt:
+ * a document's text, a tool result, a retrieved note. The harness decides how
+ * it reaches the model (as a tool result, an attachment, a stubbed upstream).
+ */
+export interface ContextBlock {
+  /** Where the harness puts it, e.g. "tool:get_transactions" or "document". */
+  readonly source: string;
+  readonly content: string;
 }
 
 /** A single eval case — a JSON fixture file deserializes to this shape. */
@@ -66,6 +120,60 @@ export interface EvalCase {
   readonly expectations: readonly Expectation[];
   /** Optional tags for filtering / reporting. */
   readonly tags?: readonly string[];
+  /**
+   * Follow-up user turns, sent in order after `prompt` (multi-turn cases such
+   * as Crescendo-style escalation). Text predicates read every reply.
+   */
+  readonly turns?: readonly string[];
+  /** Untrusted data blocks the harness feeds the system under test. */
+  readonly context?: readonly ContextBlock[];
+}
+
+/** One tool call the system under test made. */
+export interface ToolCallRecord {
+  readonly name: string;
+  readonly input: unknown;
+  /** Zero-based user turn during which the call was made. */
+  readonly turn?: number;
+}
+
+/**
+ * Everything a harness observed while running one case. Leave a field
+ * undefined when the harness did not observe it: a transcript predicate that
+ * needs a missing field returns "review", never a pass.
+ */
+export interface Transcript {
+  /** The assistant's reply to each user turn, in order. */
+  readonly replies: readonly string[];
+  readonly toolCalls?: readonly ToolCallRecord[];
+  /** Every request body sent to the model provider, serialized. */
+  readonly outbound?: readonly string[];
+  /** Text the model was legitimately given (tool results, documents). */
+  readonly sources?: readonly string[];
+  /** Structured values the system produced (e.g. an extracted balance). */
+  readonly fields?: Readonly<Record<string, string | number | null | undefined>>;
+}
+
+/** The four outcomes of a scored case. Only "pass" is clean. */
+export type Verdict = "pass" | "fail" | "review" | "not_run";
+
+/** One unmet (or undecidable) expectation. */
+export interface Finding {
+  readonly type: PredicateType;
+  readonly code?: string;
+  readonly comment: string;
+  /** True when the predicate could not decide (the transcript lacked what it reads). */
+  readonly undecided?: boolean;
+}
+
+/** The scored outcome of one case. */
+export interface CaseScore {
+  readonly caseId: string;
+  readonly verdict: Verdict;
+  readonly failures: readonly Finding[];
+  readonly reviews: readonly Finding[];
+  /** Why a case did not run (`verdict === "not_run"`). */
+  readonly notRunReason?: string;
 }
 
 /** Per-category counts in a run summary. */
@@ -87,7 +195,11 @@ export type EvalResult =
       readonly caseId: string;
       readonly category: EvalCategory;
       readonly status: "skipped";
-      readonly reason: "offline_mode" | "category_filter" | "no_model_supplied";
+      readonly reason:
+        | "offline_mode"
+        | "category_filter"
+        | "no_model_supplied"
+        | "needs_transcript_runner";
     }
   | {
       readonly caseId: string;

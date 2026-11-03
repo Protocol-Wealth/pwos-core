@@ -15,6 +15,9 @@ out/
 packages/*/LICENSE-MIT-0
 packages/*/LICENSE-APACHE
 packages/*/NOTICE
+apps/evals/LICENSE-MIT-0
+apps/evals/LICENSE-APACHE
+apps/evals/NOTICE
 
 # Testing
 coverage/

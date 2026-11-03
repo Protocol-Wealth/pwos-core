@@ -14,7 +14,13 @@ import { readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import type { EvalCase, EvalCategory, Expectation, PredicateType } from "./types.js";
+import type {
+  ContextBlock,
+  EvalCase,
+  EvalCategory,
+  Expectation,
+  PredicateType,
+} from "./types.js";
 import { EVAL_CATEGORIES, PREDICATE_TYPES } from "./types.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -95,6 +101,34 @@ export function validateCase(input: unknown, path: string, expectedCategory: Eva
 
   const system = typeof obj.system === "string" ? obj.system : undefined;
 
+  let turns: string[] | undefined;
+  if (obj.turns !== undefined) {
+    if (!Array.isArray(obj.turns) || obj.turns.length === 0) {
+      throw new Error(`Fixture ${path}: turns must be a non-empty array of strings`);
+    }
+    turns = obj.turns.map((t, i) => {
+      if (typeof t !== "string" || t.length === 0) {
+        throw new Error(`Fixture ${path} turns[${i}]: turn must be a non-empty string`);
+      }
+      return t;
+    });
+  }
+
+  let context: ContextBlock[] | undefined;
+  if (obj.context !== undefined) {
+    if (!Array.isArray(obj.context) || obj.context.length === 0) {
+      throw new Error(`Fixture ${path}: context must be a non-empty array`);
+    }
+    context = obj.context.map((b, i) => {
+      const ctx = `${path} context[${i}]`;
+      if (typeof b !== "object" || b === null || Array.isArray(b)) {
+        throw new Error(`${ctx}: context block must be a JSON object`);
+      }
+      const block = b as Record<string, unknown>;
+      return { source: requireString(block, "source", ctx), content: requireString(block, "content", ctx) };
+    });
+  }
+
   return {
     id,
     category,
@@ -103,6 +137,8 @@ export function validateCase(input: unknown, path: string, expectedCategory: Eva
     system,
     expectations,
     tags,
+    ...(turns !== undefined ? { turns } : {}),
+    ...(context !== undefined ? { context } : {}),
   };
 }
 
@@ -117,8 +153,39 @@ function validateExpectation(input: unknown, ctx: string): Expectation {
   }
   const value = requireString(obj, "value", ctx);
   const comment = requireString(obj, "comment", ctx);
-  return { type, value, comment };
+  if (REGEX_TYPES.has(type)) {
+    const m = /^\/(.+)\/([dgimsuy]*)$/.exec(value);
+    try {
+      void (m ? new RegExp(m[1]!, m[2]) : new RegExp(value, "i"));
+    } catch {
+      throw new Error(`${ctx}: value is not a valid regex`);
+    }
+  }
+  const out: {
+    -readonly [K in keyof Expectation]: Expectation[K];
+  } = { type, value, comment };
+  if (obj.code !== undefined) out.code = requireString(obj, "code", ctx);
+  if (obj.on_fail !== undefined) {
+    if (obj.on_fail !== "fail" && obj.on_fail !== "review") {
+      throw new Error(`${ctx}: on_fail must be "fail" or "review"`);
+    }
+    out.on_fail = obj.on_fail;
+  }
+  if (type === "field_must_equal") out.field = requireString(obj, "field", ctx);
+  if (obj.allow_absent !== undefined) {
+    if (typeof obj.allow_absent !== "boolean") {
+      throw new Error(`${ctx}: allow_absent must be a boolean`);
+    }
+    out.allow_absent = obj.allow_absent;
+  }
+  return out;
 }
+
+const REGEX_TYPES: ReadonlySet<PredicateType> = new Set<PredicateType>([
+  "must_not_match",
+  "must_match",
+  "outbound_must_not_match",
+]);
 
 function requireString(obj: Record<string, unknown>, key: string, ctx: string): string {
   const v = obj[key];

@@ -42,7 +42,9 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const packagesDir = join(repoRoot, "packages");
+// Published packages live under packages/ and, for @protocolwealthos/evals,
+// apps/. Private manifests are skipped below, so scanning apps/ is safe.
+const packageRoots = [join(repoRoot, "packages"), join(repoRoot, "apps")];
 
 // Fields pnpm/npm copy from `publishConfig` onto the published manifest,
 // overriding the development entry points.
@@ -152,9 +154,13 @@ function validatePackage(packageDir) {
   return { name: manifest.name, skipped: false, errors };
 }
 
-const packageDirs = readdirSync(packagesDir, { withFileTypes: true })
-  .filter((entry) => entry.isDirectory())
-  .map((entry) => join(packagesDir, entry.name))
+const packageDirs = packageRoots
+  .filter((root) => existsSync(root))
+  .flatMap((root) =>
+    readdirSync(root, { withFileTypes: true })
+      .filter((entry) => entry.isDirectory())
+      .map((entry) => join(root, entry.name)),
+  )
   .filter((dir) => existsSync(join(dir, "package.json")));
 
 let failed = false;

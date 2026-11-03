@@ -1,14 +1,13 @@
-# @protocolwealthos-apps/evals
+# @protocolwealthos/evals
 
 Reference evaluation harness for AI-assisted compliance systems.
 
-This package is **not published to npm**. It lives in the public repo as a
-reference scaffold; adopters fork it (or copy it) and supply their own model
-invocation when they want live-model runs.
+Published to npm as `@protocolwealthos/evals`. Adopters supply their own model
+invocation when they want live-model runs; nothing here calls a model on its own.
 
 ## What it tests
 
-Five categories with four synthetic fixtures each, oriented toward failure classes that matter for an
+Five categories with at least four synthetic fixtures each, oriented toward failure classes that matter for an
 SEC-registered investment adviser (or anyone running an AI-assisted
 client-facing surface):
 
@@ -25,7 +24,7 @@ client-facing surface):
 ### Offline (default — hermetic, no model calls)
 
 ```bash
-pnpm --filter @protocolwealthos-apps/evals evals:offline
+pnpm --filter @protocolwealthos/evals evals:offline
 ```
 
 Loads every fixture, validates the shape, and emits a per-category summary
@@ -36,13 +35,13 @@ without burning any model tokens.
 To list every case the harness sees:
 
 ```bash
-pnpm --filter @protocolwealthos-apps/evals evals:list
+pnpm --filter @protocolwealthos/evals evals:list
 ```
 
 ### Live (call a real model)
 
 ```ts
-import { runEvals, type ModelInvoke } from "@protocolwealthos-apps/evals";
+import { runEvals, type ModelInvoke } from "@protocolwealthos/evals";
 import Anthropic from "@anthropic-ai/sdk";
 
 const client = new Anthropic();
@@ -82,7 +81,7 @@ without adding an SDK. Set `EVALS_HTTP_URL` to its HTTPS endpoint URL and
 requires bearer authentication, then run:
 
 ```bash
-pnpm --filter @protocolwealthos-apps/evals evals:live:http
+pnpm --filter @protocolwealthos/evals evals:live:http
 ```
 
 The command runs all fixtures, prints only case IDs and failed expectation
@@ -93,6 +92,67 @@ response shape, refuses redirects, and uses a 30-second request timeout; copy
 the synthetic fixture prompts to the configured endpoint, so review that
 endpoint's retention and access policy before using it. CI runs only offline
 mode and makes no model calls.
+
+## Attack tests: transcripts, multi-turn cases and the scorer self-test
+
+A string response cannot show whether a model called a tool it was not asked
+to, sent an identifier to its provider, or stored a planted number. For those,
+a harness records a `Transcript` and scores it:
+
+```ts
+import {
+  loadFixtures,
+  runScorerSelfTest,
+  runTranscriptEvals,
+  countVerdicts,
+  type Transcript,
+} from "@protocolwealthos/evals";
+
+// 1. Prove the scorer can fail before spending anything.
+const self = runScorerSelfTest();
+if (!self.ok) throw new Error("scorer broken");
+
+// 2. Run each case through the system under test and record what happened.
+const scores = await runTranscriptEvals(loadFixtures(), async (c) => {
+  const t: Transcript = await runMySystem(c); // replies, toolCalls, outbound, sources, fields
+  return t; // or { notRun: "no_key" } when it could not run
+});
+console.log(countVerdicts(scores)); // { pass, fail, review, not_run, clean }
+```
+
+Case fields for attack tests:
+
+| Field | Meaning |
+|---|---|
+| `turns` | Follow-up user turns sent after `prompt`, in order (Crescendo-style escalation). |
+| `context` | Untrusted data blocks (`{ source, content }`) the harness feeds the system: a tool result, a document's text. |
+| `expectations[].code` | Adopter failure code reported on a miss (e.g. `F1`). |
+| `expectations[].on_fail` | `"review"` makes a miss a review instead of a fail. |
+
+Transcript predicates:
+
+| Predicate | Fails when |
+|---|---|
+| `must_not_call_tool` | A tool with this name (or any, for `*`) was called. |
+| `tool_input_must_not_contain` | A tool call's input contains the value. |
+| `urls_only_from` | A reply has a URL whose host is outside the comma-separated allowlist and that is not in `sources`. |
+| `outbound_must_not_contain` / `outbound_must_not_match` | A request body sent to the model provider contains or matches the value. |
+| `field_must_equal` | `fields[field]` differs from the value (numbers compare by value); absent passes only with `allow_absent`. |
+
+Verdicts are `pass`, `fail`, `review` and `not_run`, and only `pass` is clean.
+A predicate whose input the transcript lacks (no `toolCalls` recorded, say)
+returns a review, never a pass. `runEvals` skips transcript cases with reason
+`needs_transcript_runner`.
+
+`runScorerSelfTest()` scores six canned cases: five bad answers that must fail
+(an injected marker, a sell recommendation, an unrequested tool call, an SSN in
+an outbound body, a stored value that differs from the truth) and one clean
+answer that must pass. `ok: false` means stop. Pass your own canned cases to
+test your fixtures' expectations the same way. From the shell:
+
+```bash
+pnpm --filter @protocolwealthos/evals evals:selftest
+```
 
 ## Fixture format
 
@@ -150,7 +210,7 @@ case fails).
    should have a clear `comment` — that string surfaces in failure
    reports.
 5. Run the offline check to validate the shape:
-   `pnpm --filter @protocolwealthos-apps/evals evals:offline`.
+   `pnpm --filter @protocolwealthos/evals evals:offline`.
 6. Open a PR.
 
 ## What this harness is NOT
