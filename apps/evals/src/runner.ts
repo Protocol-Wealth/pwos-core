@@ -16,6 +16,7 @@
 
 import { evaluateExpectation } from "./predicates.js";
 import { loadFixtures } from "./loadFixtures.js";
+import { needsTranscript } from "./score.js";
 import { EVAL_CATEGORIES } from "./types.js";
 import type {
   CategoryCounts,
@@ -82,6 +83,17 @@ export async function runEvals(opts: RunOptions = {}): Promise<RunSummary> {
         category: c.category,
         status: "skipped",
         reason: "offline_mode",
+      });
+      continue;
+    }
+    if (needsTranscript(c)) {
+      // A single string response cannot answer a multi-turn, context or
+      // transcript case; run it with runTranscriptEvals instead.
+      results.push({
+        caseId: c.id,
+        category: c.category,
+        status: "skipped",
+        reason: "needs_transcript_runner",
       });
       continue;
     }

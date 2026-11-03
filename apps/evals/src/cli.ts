@@ -4,7 +4,7 @@
 /**
  * Tiny CLI wrapper around `runEvals`. Useful in CI:
  *
- *   pnpm --filter @protocolwealthos-apps/evals evals:offline
+ *   pnpm --filter @protocolwealthos/evals evals:offline
  *
  * Lists all fixtures the harness sees, then runs them in offline mode and
  * prints a per-category summary. Exits with 0 on a clean offline run; any

@@ -43,7 +43,7 @@ pwos-core/
 │   ├── shared/             # Cross-package types + two governance primitives (hitl + provenance); published to npm
 │   ├── webhooks/           # HMAC-SHA256 verify + dual-layer path-token + Basic Auth + idempotency
 │   └── workflow-engine/    # Storage-agnostic durable-job runtime
-├── apps/evals/             # Private deterministic eval harness workspace
+├── apps/evals/             # @protocolwealthos/evals: deterministic eval + attack-test scorer; published to npm
 ├── examples/               # Integration examples
 ├── docs/
 │   ├── attribution.md                  # Per-capability provenance
