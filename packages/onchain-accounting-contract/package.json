@@ -1,6 +1,6 @@
 {
   "name": "@protocolwealthos/onchain-accounting-contract",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "PII-free TypeScript ABI for nexus-core accounting 0.2.0: strict runtime invariants, structural schema hints, and read-only tool definitions.",
   "private": false,
   "license": "MIT-0 OR Apache-2.0",
