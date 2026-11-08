@@ -42,7 +42,7 @@
     "lint:publish": "node scripts/check-publish-shape.mjs",
     "licenses:check": "npx license-checker-rseidelsohn --summary --production",
     "changeset": "changeset",
-    "changeset:version": "changeset version && node scripts/sync-version-constants.mjs",
+    "changeset:version": "changeset version && node scripts/sync-version-constants.mjs && pnpm install --lockfile-only --no-frozen-lockfile",
     "publish:check": "node scripts/check-publish-toolchain.mjs",
     "changeset:publish": "pnpm publish:check && pnpm build && pnpm lint:publish && changeset publish"
   },
