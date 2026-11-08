@@ -1,5 +1,11 @@
 # @protocolwealthos/shared
 
+## 0.2.3
+
+### Patch Changes
+
+- [#132](https://github.com/Protocol-Wealth/pwos-core/pull/132) [`8931457`](https://github.com/Protocol-Wealth/pwos-core/commit/8931457360b7fdb1871d080b4c3f39a51b206119) Thanks [@rivendale](https://github.com/rivendale)! - Raise the `zod` floor to `^4.6.6` (GHSA-mrhx-c7xc-m3w5: memory exhaustion while validating oversized constrained collections).
+
 ## 0.2.2
 
 ### Patch Changes

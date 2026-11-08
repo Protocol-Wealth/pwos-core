@@ -27,7 +27,7 @@
  * not an archive-retention control.
  */
 
-export const VERSION = "0.5.3";
+export const VERSION = "0.5.4";
 
 export { hashEntry, verifyChain, stableJsonString } from "./hash.js";
 export { AuditLogger, type AuditLoggerOptions } from "./logger.js";

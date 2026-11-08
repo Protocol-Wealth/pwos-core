@@ -1,5 +1,15 @@
 # @protocolwealthos/audit-log
 
+## 0.5.4
+
+### Patch Changes
+
+- [#137](https://github.com/Protocol-Wealth/pwos-core/pull/137) [`54f22ce`](https://github.com/Protocol-Wealth/pwos-core/commit/54f22ce6acc9193b7283a787963f30bcd4aa77f7) Thanks [@pwnick](https://github.com/pwnick)! - The Postgres append-only template now installs a `BEFORE TRUNCATE ... FOR EACH STATEMENT` trigger, so `TRUNCATE` is refused while the trigger stays enabled. Row-level `DELETE` triggers do not fire for `TRUNCATE`. Re-running the file replaces the functions and recreates the triggers without dropping existing rows.
+  
+  The template does not stop a superuser or table owner who disables or drops the triggers, and it does not set an archive retention period. Grant the application role `INSERT` and `SELECT` only, and do not make it the table owner.
+  
+  Refs [#128](https://github.com/Protocol-Wealth/pwos-core/issues/128)
+
 ## 0.5.3
 
 ### Patch Changes
