@@ -30,6 +30,26 @@ jobs:
     # Do not run on the auto-generated changeset version-PR commits to avoid
     # an infinite loop when the bot's PR is merged back to main.
     if: github.repository == 'Protocol-Wealth/pwos-core'
+    # Same disposable database as ci.yml. packages/audit-log's TRUNCATE tests
+    # fail closed when CI is set and this URL is missing, which skips the
+    # Version Packages step. The password is a CI-only value for this empty
+    # database, not a secret.
+    env:
+      AUDIT_LOG_TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/audit_log_test
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: audit_log_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d audit_log_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
 
     steps:
       - name: Checkout
@@ -53,6 +73,9 @@ jobs:
       - name: Build all packages
         run: pnpm build
 
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
       - name: Run tests
         run: pnpm -r test
 
@@ -66,6 +89,9 @@ jobs:
           # to npm. That remains the maintainer's local pnpm changeset:publish.
           # v2 renamed version, commit, and title. push-with-git-cli keeps the
           # git push this workflow was written for.
+          # changeset:version also refreshes pnpm-lock.yaml. The mcp-tools minor
+          # rewrites onchain-accounting-contract's workspace:^ range, and a stale
+          # lockfile specifier fails `pnpm install --frozen-lockfile`.
           version-script: pnpm changeset:version
           commit-message: "chore(release): version packages"
           pr-title: "chore(release): version packages"
