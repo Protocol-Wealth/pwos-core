@@ -23,19 +23,9 @@ Adopters are responsible for adding their own PII controls, access control, inpu
 
 Provided as-is under Apache-2.0.
 
-## Recent shipping cadence (2026-05-18 → 2026-05-19 cascade)
-
-The Protocol Wealth estate ships continuously; pwos-core is the public-facing extraction surface where canonical patterns surface for community reuse. Recent in-estate work (referenced in [`shared/CHANGELOG.md`](https://github.com/Protocol-Wealth/pw-shared) cross-repo log):
-
-- **Component 4 e-signature substrate** — Anvil-canonical 4-doc v1 envelope (IAA + Form ADV Part 2A + Privacy Notice + IPS); `signed_document_archive` + sentinel-row reconciliation day-one; 7-year retention via GCS WORM; PDF/A-2b archival; Rule 204-3 annual re-delivery + material-change re-execution. Two new ADRs (signed-document-state-machine + Anvil-integration) extended the canonical reference set.
-- **Component 3 risk-tolerance verification** — substrate + 8 canonical actions + PII_TAGS port + sentinel-row reconciliation; deterministic scoring engine (MIT/Grable FRTS-13 normalize + PW overlay 0-30 + bucket 1-33/34-66/67-100); advisor override surface; needs_review→review_item flow.
-- **Component 2 KYC verification** — `kyc_sessions` substrate + 14 canonical actions + Veriff REST + webhook handler (first production consumer of Track B' webhook-receiver primitive; promoted DRAFT → ACCEPTED) + Scorechain AML two-layer (Chainalysis moved off 2026-05-01).
-- **Chat session naming** — pw-api + pw-os-v2 substrate landed (PR #353 + #255).
-- **Stream Z PII-tagging program** — canonical typed `PII_TAGS` map at pw-api; structural prompt-construction middleware; independent PII egress canary, with each service (pw-api, pw-os-v2, pw-portal-v2) running its own copy so the layers cannot share a bug.
-- **Design system v1.0** — unified PW design + UX system (warm-light parity across pwos.app + pwportal.app); design tokens canonical at `shared/docs/firm/design-system.md` v1.0.
-- **Worker-launch-ritual hardening** — expanded 14 → 18 items across the cascade; 5 additional codification candidates queued for next-iteration close.
-
-Full cross-repo activity ledger lives at `shared/CHANGELOG.md` in the private PW estate; the artifacts that materialize here as reusable primitives are listed in the **Canonical patterns extracted** section below.
+For changes to this public repository, see [`CHANGELOG.md`](CHANGELOG.md) and
+the [release history](https://github.com/Protocol-Wealth/pwos-core/releases).
+The current public package surface is listed below.
 
 ## For advisors — how to use this repo
 
@@ -76,7 +66,7 @@ The pwos-core primitives map to specific SEC + GLBA + Reg S-P obligations as fol
 
 **Apache License 2.0** — the canonical [`LICENSE`](LICENSE) file is the authoritative source. Apache 2.0 was chosen deliberately over MIT for two reasons: (1) the patent-grant clause aligns with PW's defensive-patent posture (provisional patents 64/034,215 + 64/034,229 + 64/082,241; OIN membership); (2) any RIA forking PW's substrate inherits the patent grant alongside the code. MIT works for primitives; Apache 2.0 is the right license for substrate that another RIA's compliance posture depends on.
 
-Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site); ~243 financial-data tools) carries the same Apache 2.0 + defensive patent license.
+Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core) (production MCP server foundation; live at [nexusmcp.site](https://nexusmcp.site)) carries the same Apache 2.0 + defensive patent license.
 
 ### Cross-references — PW public surfaces
 
@@ -86,10 +76,11 @@ Sibling repository [`nexus-core`](https://github.com/Protocol-Wealth/nexus-core)
 | [`protocolwealthllc.com/changelog`](https://protocolwealthllc.com/changelog) | Public substrate changelog — sanitized cross-repo shipping ledger; build-in-public Tier-1 |
 | [`protocolwealthllc.com/factsheets`](https://protocolwealthllc.com/factsheets) | Public fact-sheet kit — 5 substrate-education documents incl. the advisor's AI vendor audit checklist |
 | [`pwos.app/live`](https://pwos.app/live) | Engineering substrate transparency dashboard — PR activity + CI status + ADR counts + static posture indicators |
-| [`nexusmcp.site`](https://nexusmcp.site) | Sibling repo `nexus-core` production MCP foundation — ~243 financial-data tools surfaced as MCP-protocol tools |
+| [`nexusmcp.site`](https://nexusmcp.site) | Sibling repo `nexus-core` production MCP foundation — inspect its live tool list for the current MCP surface |
 | [`protocolwealthllc.com/subprocessors`](https://protocolwealthllc.com/subprocessors) | Canonical subprocessor list — 16 vendors in PW's production stack with attestations |
 
-**Note (2026-07-01):** These public surfaces live outside this repo. Verify them directly before treating their current runtime state as part of a release decision.
+These public surfaces live outside this repo. Verify them directly before
+treating their current runtime state as part of a release decision.
 
 ## What This Is
 
@@ -367,6 +358,7 @@ Use these packages as primitives inside your own advisor platform. This repo doe
 ## Documentation
 
 - [Canonical Patterns](docs/CANONICAL-PATTERNS.md) — six patterns extracted from the PW estate canonical set (PII_TAGS, sentinel-row reconciliation, Track B' webhook-receiver primitive, multi-agent dispatch infrastructure, design tokens v1.0, PII egress canary); each entry links to its ADR or design doc in `shared/` for the full canonical
+- [Agent Memory Landscape](docs/agent-memory-landscape.md) — dated memory-system references, scope-preserving design patterns, and a synthetic evaluation plan for the three-tier architecture
 - [GCP Reference Architecture](docs/gcp-reference-architecture.md) — generic, vendor-agnostic GCP posture for regulated workloads (Cloud Run private services, Cloud SQL with IAM auth, retention-locked GCS audit archive, Workload Identity Federation for CI, org-wide Cloud Audit Logs sinks); control-framework mapping table to ISO 27001 Annex A + SOC 2 TSC
 - [PWOS + SmythOS (reference integration)](docs/pwos-smythos.md) — forward-looking compatibility note (not a partnership): how an MCP-compatible agent platform such as SmythOS can call the PWOS compliance/credential layer (pii-guard, mcp-tools tier + confirm-gate, hitl, disclosure-card, audit-log) over the open Model Context Protocol; SmythOS does not integrate PWOS today
 - [Attribution](docs/attribution.md) — detailed provenance per capability

@@ -189,6 +189,9 @@ The reference implementation at `examples/rias-agent-substrate/` ships with herm
 
 ## Reference material
 
+- [Agent memory landscape](agent-memory-landscape.md) — dated external references,
+  transferable patterns, and a synthetic evaluation plan; it does not change
+  this architecture's authorization contract.
 - ADR (canonical; consumer-side): `shared/architecture/decisions/ADR-three-tier-agent-memory.md`
 - Reference implementation: [`examples/rias-agent-substrate/`](../examples/rias-agent-substrate/)
 - Sibling ADRs (consumer-side):
