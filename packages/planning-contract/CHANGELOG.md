@@ -1,5 +1,12 @@
 # @protocolwealthos/planning-contract
 
+## 0.3.3
+
+### Patch Changes
+
+- Updated dependencies [[`54f22ce`](https://github.com/Protocol-Wealth/pwos-core/commit/54f22ce6acc9193b7283a787963f30bcd4aa77f7)]:
+  - @protocolwealthos/mcp-tools@0.4.0
+
 ## 0.3.2
 
 ### Patch Changes

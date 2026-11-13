@@ -228,7 +228,7 @@ importers:
   packages/onchain-accounting-contract:
     dependencies:
       '@protocolwealthos/mcp-tools':
-        specifier: workspace:^0.3.2
+        specifier: workspace:^0.4.0
         version: link:../mcp-tools
       zod:
         specifier: ^4.6.6
