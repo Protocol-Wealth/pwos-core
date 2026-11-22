@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  canonicalize,
   evaluateQuery,
   finalizeRecord,
   hashEmail,
@@ -148,5 +149,40 @@ describe("query evaluator", () => {
     ];
     const out = evaluateQuery(withRetention, { withinRetention: true, includeLegalHolds: true }, now);
     expect(out.map((e) => e.id).sort()).toEqual(["active", "hold"]);
+  });
+});
+
+describe("canonicalize", () => {
+  it("is a stable JSON string that includes previousHash and canonical fields", () => {
+    const email = baseEmail({ bodyText: "hello" });
+    const first = canonicalize(email, "");
+    const second = canonicalize(email, "");
+    expect(first).toBe(second);
+    const parsed = JSON.parse(first) as Record<string, unknown>;
+    expect(parsed.previousHash).toBe("");
+    expect(parsed.id).toBe("email_1");
+    expect(parsed.subject).toBe("Quarterly review");
+    expect(parsed.bodyText).toBe("hello");
+    // Omitted optional fields are present as null so hashes stay stable.
+    expect(parsed.cc).toBeNull();
+    expect(parsed.bodyHtml).toBeNull();
+  });
+
+  it("sorts object keys so property insertion order does not change the payload", () => {
+    const email = baseEmail({
+      from: { address: "alice@example.com", name: "Alice" },
+    });
+    const reordered = baseEmail({
+      from: { name: "Alice", address: "alice@example.com" },
+    });
+    expect(canonicalize(email, "abc")).toBe(canonicalize(reordered, "abc"));
+  });
+
+  it("changes when previousHash or a canonical field changes", () => {
+    const email = baseEmail();
+    expect(canonicalize(email, "")).not.toBe(canonicalize(email, "other"));
+    expect(canonicalize(email, "")).not.toBe(
+      canonicalize(baseEmail({ subject: "Different subject" }), ""),
+    );
   });
 });
